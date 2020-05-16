@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "209482637405",
+    "firebase_url": "https://myrestaurant-b95ea.firebaseio.com",
+    "project_id": "myrestaurant-b95ea",
+    "storage_bucket": "myrestaurant-b95ea.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:209482637405:android:dc929e86a1b192d2a72db4",
+        "android_client_info": {
+          "package_name": "com.AwanBuilder.myRestaurant"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "209482637405-lo4ndlohk18c32756donmm7gf7f62auq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDeqTd2j4MGx2aG4OaTs4PkUVp4baBpTZw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "209482637405-lo4ndlohk18c32756donmm7gf7f62auq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
