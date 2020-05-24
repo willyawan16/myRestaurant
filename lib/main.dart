@@ -6,8 +6,6 @@ import 'package:ff_navigation_bar/ff_navigation_bar.dart';
 import 'package:flutter/rendering.dart';
 import './OrderComponent/Orders.dart';
 import './MenuComponent/Menu.dart';
-import './OrderComponent/NewOrder.dart';
-import './OrderComponent/CheckOrder.dart';
 
 void main() {
   FlutterError.onError = (FlutterErrorDetails details) {

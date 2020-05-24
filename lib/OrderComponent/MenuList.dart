@@ -1,35 +1,37 @@
 import 'package:flutter/material.dart';
 
+import 'package:flutter_counter/flutter_counter.dart';
+
 class MenuList extends StatefulWidget {
   final String category;
-  final List wholeMenu;
+  final List wholeMenu, orderList;
 
-  final Function(List) onAddMenu;
+  final Function(List) onAddMenu, onUpdateMenu;
+  final Function(int) getIndex;
 
-  MenuList({Key key, @required this.category, @required this.wholeMenu, this.onAddMenu}) : super(key: key);
+  MenuList({Key key, @required this.category, @required this.wholeMenu, this.onAddMenu, this.orderList, this.onUpdateMenu, this.getIndex}) : super(key: key);
   @override
   MenuListState createState() => MenuListState();
 }
 
 class MenuListState extends State<MenuList> { 
-  TextEditingController quantityFood, descOrder;
+  TextEditingController descOrder;
   List sortedMenu;
-  int indexSorted, indexWhole;
+  int indexSorted, indexWhole, quantityFood;
 
   FocusNode quantityFoodNode;
 
   @override
   void initState() {
     super.initState();
-    quantityFood = TextEditingController(text: '1');
     descOrder = TextEditingController(text: '');
-
+    quantityFood = 1;
     quantityFoodNode = new FocusNode();
   }
 
   @override
   void dispose(){
-    quantityFood.dispose();
+    descOrder.dispose();
     super.dispose();
   }
 
@@ -52,140 +54,182 @@ class MenuListState extends State<MenuList> {
   void resetDetails() {
     setState(() {
       descOrder = TextEditingController(text: '');
-      quantityFood = TextEditingController(text: '1');
+      quantityFood = 1;
     });
   }
 
-  Future<void> _showAddDialog(BuildContext context, TextEditingController quantityFood, index) {
+  // void addFunction() {
+  //   setState(() {
+  //     quantityFood++;
+  //   });
+  //   debugPrint(quantityFood.toString());
+  // }
+
+  Future<void> _showAddDialog(BuildContext context, int quantityFood, TextEditingController descOrder, index) {
     // debugPrint(quantityFood.text);
     return showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Add ${sortedMenu[index]['name']}'),
-          elevation: 10,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          content: Container(
-            height: 170,
-            // color: Colors.grey,
-            child: GestureDetector(
-              onTap: () {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return GestureDetector(
+              onTap: (){
                 FocusScope.of(context).requestFocus(new FocusNode());
               },
-              child: Column(
-                children: <Widget>[
+              child: new AlertDialog(
+                title: Text('Add ${sortedMenu[index]['name']}'),
+                elevation: 10,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                content: Container(
+                  height: 200,
+                  // color: Colors.grey,
+                  child: GestureDetector(
+                    onTap: () {
+                      FocusScope.of(context).requestFocus(new FocusNode());
+                    },
+                    child: Column(
+                      children: <Widget>[
+                        Container(
+                          child: TextField(
+                            controller: descOrder,
+                            maxLength: 60,
+                            maxLines: 3,
+                            decoration: InputDecoration(
+                              hintText: 'Additional Details',
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: <Widget>[
+                            // GestureDetector(
+                            //   onTap: () {
+                            //     quantityFood++;
+                            //     debugPrint(quantityFood.toString());
+                            //   },
+                            //   child: Container(
+                            //     height: 30,
+                            //     width: 30,
+                            //     decoration: BoxDecoration(
+                            //       border: Border.all(),
+                            //       borderRadius: BorderRadius.circular(10),
+                            //     ),
+                            //     child: Icon(Icons.add),
+                            //   ),
+                            // ),
+                            // SizedBox(
+                            //   width: 5,
+                            // ),
+                            Counter(
+                              initialValue: quantityFood,
+                              minValue: 1,
+                              maxValue: 10,
+                              step: 1,
+                              decimalPlaces: 0,
+                              buttonSize: 30,
+                              color: Colors.green,
+                              onChanged: (value) {
+                                setState(() {
+                                  quantityFood = value;
+                                });
+                              },
+                            ),
+                            // Container(
+                            //   height: 30,
+                            //   width: 50,
+                            //   child: TextFormField(
+                            //     focusNode: quantityFoodNode,
+                            //     controller: quantityFood,
+                            //     keyboardType: TextInputType.number,
+                            //   ),
+                            // ),
+                            // SizedBox(
+                            //   width: 5,
+                            // ),
+                            // GestureDetector(
+                            //   onTap: () {
+                            //     debugPrint('tes');
+                            //   },
+                            //   child: Container(
+                            //     height: 30,
+                            //     width: 30,
+                            //     decoration: BoxDecoration(
+                            //       border: Border.all(),
+                            //       borderRadius: BorderRadius.circular(10),
+                            //     ),
+                            //     child: Icon(Icons.remove),
+                            //   ),
+                            // ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                actions: <Widget>[
                   Container(
-                    child: TextField(
-                      controller: descOrder,
-                      maxLength: 60,
-                      maxLines: 3,
-                      decoration: InputDecoration(
-                        hintText: 'Additional Details',
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
+                    padding: EdgeInsets.only(right: 10),
+                    child: FlatButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        resetDetails();
+                      }, 
+                      child: Text(
+                        'Cancel',
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: Colors.grey,
+                        ),
                       ),
                     ),
                   ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: <Widget>[
-                      // GestureDetector(
-                      //   onTap: () {
-                      //     addFunction();
-                      //     debugPrint('oke');
-                      //   },
-                      //   child: Container(
-                      //     height: 30,
-                      //     width: 30,
-                      //     decoration: BoxDecoration(
-                      //       border: Border.all(),
-                      //       borderRadius: BorderRadius.circular(10),
-                      //     ),
-                      //     child: Icon(Icons.add),
-                      //   ),
-                      // ),
-                      // SizedBox(
-                      //   width: 5,
-                      // ),
-                      Container(
-                        height: 30,
-                        width: 50,
-                        child: TextFormField(
-                          focusNode: quantityFoodNode,
-                          controller: quantityFood,
-                          keyboardType: TextInputType.number,
+                  Container(
+                    padding: EdgeInsets.only(right: 10),
+                    child: OutlineButton(
+                      onPressed: () {
+                        var check = false;
+                        var indexRes;
+                        for(int i = 0; i < widget.orderList.length; i++) {
+                          if(widget.orderList[i][0] == sortedMenu[index]['key']) {
+                            check = true;
+                            indexRes = i;
+                            break;
+                          }
+                        }
+                        if(check) {
+                          // update existing
+                          widget.getIndex(indexRes);
+                          widget.onUpdateMenu([sortedMenu[index]['key'], descOrder.text, quantityFood, sortedMenu[index]['name'], sortedMenu[index]['price']]);
+                          debugPrint('-------------------------------------------------------');
+                          debugPrint('updated ${sortedMenu[index]['name']} in orderList');
+                        } else {
+                          // new
+                          widget.onAddMenu([sortedMenu[index]['key'], descOrder.text, quantityFood, sortedMenu[index]['name'], sortedMenu[index]['price']]);
+                          debugPrint('-------------------------------------------------------');
+                          debugPrint('added ${sortedMenu[index]['name']} to orderList');
+                        }
+                          Navigator.of(context).pop();
+                          resetDetails();
+                      }, 
+                      child: Text(
+                        'Add',
+                        style: TextStyle(
+                          fontSize: 15,
                         ),
                       ),
-                      // SizedBox(
-                      //   width: 5,
-                      // ),
-                      // GestureDetector(
-                      //   onTap: () {
-                      //     debugPrint('tes');
-                      //   },
-                      //   child: Container(
-                      //     height: 30,
-                      //     width: 30,
-                      //     decoration: BoxDecoration(
-                      //       border: Border.all(),
-                      //       borderRadius: BorderRadius.circular(10),
-                      //     ),
-                      //     child: Icon(Icons.remove),
-                      //   ),
-                      // ),
-                    ],
+                    ),
                   ),
                 ],
               ),
-            ),
-          ),
-          actions: <Widget>[
-            Container(
-              padding: EdgeInsets.only(right: 10),
-              child: FlatButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  resetDetails();
-                }, 
-                child: Text(
-                  'Cancel',
-                  style: TextStyle(
-                    fontSize: 15,
-                    color: Colors.grey,
-                  ),
-                ),
-              ),
-            ),
-            Container(
-              padding: EdgeInsets.only(right: 10),
-              child: OutlineButton(
-                onPressed: () {
-                  if(quantityFood.text.length != 0) 
-                  {
-                    widget.onAddMenu([sortedMenu[index]['key'], descOrder.text, int.parse(quantityFood.text), sortedMenu[index]['name'], sortedMenu[index]['price']]);
-                    debugPrint('added ${sortedMenu[index]['name']}');
-                    Navigator.of(context).pop();
-                    resetDetails();
-                  }
-                  else
-                  {
-                    FocusScope.of(context).requestFocus(quantityFoodNode);
-                  }
-                }, 
-                child: Text(
-                  'Add',
-                  style: TextStyle(
-                    fontSize: 15,
-                  ),
-                ),
-              ),
-            ),
-          ],
+            );
+          }
         );
       }
     );
@@ -220,7 +264,17 @@ class MenuListState extends State<MenuList> {
         children: <Widget>[
           GestureDetector(
             onTap: (){
-              _showAddDialog(context, quantityFood, index);
+              // var check = false;
+              for(int i = 0; i < widget.orderList.length; i++) {
+                if(widget.orderList[i][0] == sortedMenu[index]['key']) {
+                  setState(() {
+                    quantityFood = widget.orderList[i][2];
+                    descOrder = TextEditingController(text: widget.orderList[i][1]);
+                  });
+                  break;
+                }
+              }
+              _showAddDialog(context, quantityFood, descOrder, index);
             },
             child: Container(
               color: Colors.white,

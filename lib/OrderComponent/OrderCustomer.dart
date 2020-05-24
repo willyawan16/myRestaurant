@@ -20,6 +20,7 @@ class OrderCustomerState extends State<OrderCustomer> with SingleTickerProviderS
   List sortedMenu = [];
   List<Tab> menu = [];
   List _orderList = [];
+  int recIndex;
   List<String> statusBuy = ['Dine-in', 'Take-away'];
 
   TabController _tabController;
@@ -46,8 +47,9 @@ class OrderCustomerState extends State<OrderCustomer> with SingleTickerProviderS
   @override
   Widget build(BuildContext context) {
     if(_orderList.length != 0){
+      debugPrint('Order list: ');
       for (var i = 0; i < _orderList.length; i++) {
-        debugPrint(_orderList[i].toString());
+        debugPrint('[$i]: ${_orderList[i].toString()}');
       }
     } else {
       debugPrint('Order list is empty!');
@@ -117,6 +119,11 @@ class OrderCustomerState extends State<OrderCustomer> with SingleTickerProviderS
                   orderList: _orderList,
                   wholeMenu: wholeMenu,
                   status: selectedStatus,
+                  onCallbackOrderList: (val) {
+                    setState(() {
+                      _orderList = val;
+                    });
+                  },
                 )),
               )
             : FocusScope.of(context).requestFocus(toTableNum);
@@ -246,9 +253,20 @@ class OrderCustomerState extends State<OrderCustomer> with SingleTickerProviderS
                               return MenuList(
                                 category:tab.text, 
                                 wholeMenu: wholeMenu,
+                                orderList: _orderList,
                                 onAddMenu: (val) {
                                   setState(() {
                                     _orderList.add(val);
+                                  });
+                                },
+                                getIndex: (val) {
+                                  setState(() {
+                                    recIndex = val;
+                                  });
+                                },
+                                onUpdateMenu: (val) {
+                                  setState(() {
+                                    _orderList[recIndex] = val;
                                   });
                                 }
                               );
