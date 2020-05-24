@@ -6,7 +6,7 @@ class MenuList extends StatefulWidget {
   final String category;
   final List wholeMenu, orderList;
 
-  final Function(List) onAddMenu, onUpdateMenu;
+  final Function(Map) onAddMenu, onUpdateMenu;
   final Function(int) getIndex;
 
   MenuList({Key key, @required this.category, @required this.wholeMenu, this.onAddMenu, this.orderList, this.onUpdateMenu, this.getIndex}) : super(key: key);
@@ -57,13 +57,6 @@ class MenuListState extends State<MenuList> {
       quantityFood = 1;
     });
   }
-
-  // void addFunction() {
-  //   setState(() {
-  //     quantityFood++;
-  //   });
-  //   debugPrint(quantityFood.toString());
-  // }
 
   Future<void> _showAddDialog(BuildContext context, int quantityFood, TextEditingController descOrder, index) {
     // debugPrint(quantityFood.text);
@@ -197,7 +190,7 @@ class MenuListState extends State<MenuList> {
                         var check = false;
                         var indexRes;
                         for(int i = 0; i < widget.orderList.length; i++) {
-                          if(widget.orderList[i][0] == sortedMenu[index]['key']) {
+                          if(widget.orderList[i]['key'] == sortedMenu[index]['key']) {
                             check = true;
                             indexRes = i;
                             break;
@@ -206,12 +199,12 @@ class MenuListState extends State<MenuList> {
                         if(check) {
                           // update existing
                           widget.getIndex(indexRes);
-                          widget.onUpdateMenu([sortedMenu[index]['key'], descOrder.text, quantityFood, sortedMenu[index]['name'], sortedMenu[index]['price']]);
+                          widget.onUpdateMenu({'key': sortedMenu[index]['key'], 'description': descOrder.text, 'quantity': quantityFood, 'menuname': sortedMenu[index]['name'], 'menuprice': sortedMenu[index]['price']});
                           debugPrint('-------------------------------------------------------');
                           debugPrint('updated ${sortedMenu[index]['name']} in orderList');
                         } else {
                           // new
-                          widget.onAddMenu([sortedMenu[index]['key'], descOrder.text, quantityFood, sortedMenu[index]['name'], sortedMenu[index]['price']]);
+                          widget.onAddMenu({'key': sortedMenu[index]['key'], 'description': descOrder.text, 'quantity': quantityFood, 'menuname': sortedMenu[index]['name'], 'menuprice': sortedMenu[index]['price']});
                           debugPrint('-------------------------------------------------------');
                           debugPrint('added ${sortedMenu[index]['name']} to orderList');
                         }
@@ -266,10 +259,10 @@ class MenuListState extends State<MenuList> {
             onTap: (){
               // var check = false;
               for(int i = 0; i < widget.orderList.length; i++) {
-                if(widget.orderList[i][0] == sortedMenu[index]['key']) {
+                if(widget.orderList[i]['key'] == sortedMenu[index]['key']) {
                   setState(() {
-                    quantityFood = widget.orderList[i][2];
-                    descOrder = TextEditingController(text: widget.orderList[i][1]);
+                    quantityFood = widget.orderList[i]['quantity'];
+                    descOrder = TextEditingController(text: widget.orderList[i]['description']);
                   });
                   break;
                 }

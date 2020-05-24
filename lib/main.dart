@@ -26,6 +26,13 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
+      initialRoute: '/',
+      routes: {
+        // When navigating to the "/" route, build the FirstScreen widget.
+        '/menu': (context) => Menu(),
+        // When navigating to the "/second" route, build the SecondScreen widget.
+        '/order': (context) => Orders(),
+      },
       home: MyHomePage(),
     );
   }

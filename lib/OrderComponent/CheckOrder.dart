@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:flutter_counter/flutter_counter.dart';
 import 'package:myapp/OrderComponent/OrderList.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 
 class CheckOrder extends StatefulWidget {
@@ -20,25 +21,20 @@ class CheckOrder extends StatefulWidget {
 class CheckOrderState extends State<CheckOrder> {
   List<int> tempTotal =[];
   int subtotal = 0;  
-  List newList;
-  // StreamController<List> _stream;
-
 
   @override
   void initState() {
-    // _stream = new StreamController<List>();
     for(int i = 0; i < widget.orderList.length; i++){
-      subtotal += (int.parse(widget.orderList[i][4])*widget.orderList[i][2]);
+      subtotal += (int.parse(widget.orderList[i]['menuprice'])*widget.orderList[i]['quantity']);
     }
-    // _stream.add(widget.orderList);
     super.initState();
   }
 
   Future<void> _showEditDialog(BuildContext context, details, index, orderList) {
     // debugPrint(quantityFood.text);
     // debugPrint(details[3]);
-    TextEditingController descOrder = TextEditingController(text: details[1]);
-    int quantityFood = details[2];
+    TextEditingController descOrder = TextEditingController(text: details['description']);
+    int quantityFood = details['quantity'];
     // FocusNode quantityFoodNode = new FocusNode();
     return showDialog(
       context: context,
@@ -51,7 +47,7 @@ class CheckOrderState extends State<CheckOrder> {
                 FocusScope.of(context).requestFocus(new FocusNode());
               },
               child: new AlertDialog(
-                title: Text('Edit ${details[3]}'),
+                title: Text('Edit ${details['menuname']}'),
                 elevation: 10,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
@@ -109,11 +105,11 @@ class CheckOrderState extends State<CheckOrder> {
                       onPressed: () {
                         int temp = 0;
                         setState(() {
-                          details[2] = quantityFood;
-                          details[1] = descOrder.text;
+                          details['quantity'] = quantityFood;
+                          details['description'] = descOrder.text;
                         });
                         for(int i = 0; i < orderList.length; i++){
-                          temp += (int.parse(orderList[i][4])*orderList[i][2]);
+                          temp += (int.parse(orderList[i]['menuprice'])*orderList[i]['quantity']);
                         }
                         setState((){
                           subtotal = temp;
@@ -151,7 +147,9 @@ class CheckOrderState extends State<CheckOrder> {
       for (var i = 0; i < widget.orderList.length; i++) {
         debugPrint('received($i): ' + widget.orderList[i].toString());
       }
+      debugPrint('Subtotal => $subtotal');
     }
+    // debugPrint(DateTime.now().toString());
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(100),
@@ -233,7 +231,11 @@ class CheckOrderState extends State<CheckOrder> {
                       borderRadius: BorderRadius.circular(20)
                     ),
                     onPressed: (){
-
+                      _addData();
+                      int count = 0;
+                      Navigator.popUntil(context, (route) {
+                          return count++ == 2;
+                      });
                     }, 
                     child: Text('Submit Order', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),),
                   ),
@@ -313,7 +315,18 @@ class CheckOrderState extends State<CheckOrder> {
     }
   }
 
-  Widget orderDetails(BuildContext context, List details, int index) {
+  Future<void> _addData() async{
+    CollectionReference reference = Firestore.instance.collection('orderList');
+    await reference.add({
+      'customer': widget.name,
+      'date': DateTime.now(),
+      'orders': widget.orderList,
+      'status': widget.status,
+      'paid': '',
+    });
+  }
+
+  Widget orderDetails(BuildContext context, details, int index) {
     double totWidth = MediaQuery.of(context).size.width;
     double iconWidth = 30.0;
     double priceWidth = 80.0;
@@ -335,7 +348,7 @@ class CheckOrderState extends State<CheckOrder> {
                     height: 30,
                     width: iconWidth,
                     child: Center(
-                      child: Text('x${details[2]}', style: TextStyle(fontWeight: FontWeight.bold),),
+                      child: Text('x${details['quantity']}', style: TextStyle(fontWeight: FontWeight.bold),),
                     ),
                     decoration: BoxDecoration(
                       // color: Colors.lightGreen,
@@ -358,12 +371,12 @@ class CheckOrderState extends State<CheckOrder> {
                           Container(
                             height: 20,
                             //width: 290,
-                            child: Text(details[3], style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),),
+                            child: Text(details['menuname'], style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),),
                           ),
-                          (details[1] != '') 
+                          (details['description'] != '') 
                           ? Container(
                             padding: EdgeInsets.only(bottom: 10),
-                            child: Text(details[1]),
+                            child: Text(details['description']),
                           )
                           : Container(
                             padding: EdgeInsets.only(bottom: 10),
@@ -384,7 +397,7 @@ class CheckOrderState extends State<CheckOrder> {
                   // Price
                   Container(
                     width: priceWidth,
-                    child: Text((int.parse(details[4])*details[2]).toString(), style: TextStyle(fontSize: 18), textAlign: TextAlign.right,),
+                    child: Text((int.parse(details['menuprice'])*details['quantity']).toString(), style: TextStyle(fontSize: 18), textAlign: TextAlign.right,),
                   ),
                 ],
               ),

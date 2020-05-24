@@ -256,7 +256,9 @@ class OrderCustomerState extends State<OrderCustomer> with SingleTickerProviderS
                                 orderList: _orderList,
                                 onAddMenu: (val) {
                                   setState(() {
-                                    _orderList.add(val);
+                                    Map temp = {};
+                                    temp.addAll(val);
+                                    _orderList.add(temp);
                                   });
                                 },
                                 getIndex: (val) {
