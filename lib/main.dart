@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:ff_navigation_bar/ff_navigation_bar.dart';
 import 'package:flutter/rendering.dart';
+import 'package:myapp/OrderComponent/CheckSummary.dart';
 import './OrderComponent/Orders.dart';
 import './MenuComponent/Menu.dart';
 
@@ -26,11 +27,9 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      initialRoute: '/',
+      // initialRoute: '/',
       routes: {
-        // When navigating to the "/" route, build the FirstScreen widget.
         '/menu': (context) => Menu(),
-        // When navigating to the "/second" route, build the SecondScreen widget.
         '/order': (context) => Orders(),
       },
       home: MyHomePage(),
