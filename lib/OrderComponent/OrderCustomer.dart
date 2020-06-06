@@ -233,7 +233,7 @@ class OrderCustomerState extends State<OrderCustomer> with SingleTickerProviderS
                 ),
                 Container(
                   child: DefaultTabController(
-                    length: 2,
+                    length: menu.length,
                     child: Column(
                       children: <Widget>[
                         Container(

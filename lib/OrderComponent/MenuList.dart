@@ -7,9 +7,9 @@ class MenuList extends StatefulWidget {
   final List wholeMenu, orderList;
 
   final Function(Map) onAddMenu, onUpdateMenu;
-  final Function(int) getIndex;
+  final Function(int) getIndex, updateSubtotal;
 
-  MenuList({Key key, @required this.category, @required this.wholeMenu, this.onAddMenu, this.orderList, this.onUpdateMenu, this.getIndex}) : super(key: key);
+  MenuList({Key key, @required this.category, @required this.wholeMenu, this.onAddMenu, this.orderList, this.onUpdateMenu, this.getIndex, this.updateSubtotal}) : super(key: key);
   @override
   MenuListState createState() => MenuListState();
 }
@@ -60,6 +60,7 @@ class MenuListState extends State<MenuList> {
 
   Future<void> _showAddDialog(BuildContext context, int quantityFood, TextEditingController descOrder, index) {
     // debugPrint(quantityFood.text);
+    int before = quantityFood;
     return showDialog(
       context: context,
       barrierDismissible: false,
@@ -202,14 +203,16 @@ class MenuListState extends State<MenuList> {
                           widget.onUpdateMenu({'key': sortedMenu[index]['key'], 'description': descOrder.text, 'quantity': quantityFood, 'menuname': sortedMenu[index]['name'], 'menuprice': sortedMenu[index]['price']});
                           debugPrint('-------------------------------------------------------');
                           debugPrint('updated ${sortedMenu[index]['name']} in orderList');
+                          quantityFood -= before; 
                         } else {
                           // new
                           widget.onAddMenu({'key': sortedMenu[index]['key'], 'description': descOrder.text, 'quantity': quantityFood, 'menuname': sortedMenu[index]['name'], 'menuprice': sortedMenu[index]['price']});
                           debugPrint('-------------------------------------------------------');
                           debugPrint('added ${sortedMenu[index]['name']} to orderList');
                         }
-                          Navigator.of(context).pop();
-                          resetDetails();
+                        widget.updateSubtotal(int.parse(sortedMenu[index]['price'])*quantityFood);
+                        Navigator.of(context).pop();
+                        resetDetails();
                       }, 
                       child: Text(
                         'Add',

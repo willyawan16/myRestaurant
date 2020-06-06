@@ -27,7 +27,7 @@ class OrderListState extends State<OrderList> {
       barrierDismissible: true,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Update Progress?'),
+          title: Text('Update Order Progress?'),
           elevation: 10,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
@@ -67,7 +67,125 @@ class OrderListState extends State<OrderList> {
                 onPressed: (){
                   details['progress']++;
                   // debugPrint(details['progress'].toString());
-                  updateProgress(details['key'], details['progress']);
+                  updateProgress(details['key'], details['progress'], 0);
+                  Navigator.of(context).pop();
+                },
+                child: Text('Yes'),
+              ),
+            )
+          ],
+        );
+      }
+    );
+  }
+
+  Future<void> _progress2Update(details) {
+    return showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Update Additional Order Progress?'),
+          elevation: 10,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          content: Container(
+            height: 100,
+            child: Column(
+              children: <Widget>[
+                Text('Waiting.. -> Serving.. -> Done!'),
+                SizedBox(
+                  height: 20,
+                ),
+                (details['additionalOrderProgress'] == 0)
+                ? Text('Update to Serving', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red),)
+                : Text('Update to Done!', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red),),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            Container(
+              padding: EdgeInsets.only(right: 10),
+              child: FlatButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                }, 
+                child: Text(
+                  'Cancel',
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: Colors.grey,
+                  ),
+                ),
+              ),
+            ),
+            Container(
+              child: OutlineButton(
+                onPressed: (){
+                  details['additionalOrderProgress']++;
+                  // debugPrint(details['progress'].toString());
+                  updateProgress(details['key'], details['additionalOrderProgress'], 1);
+                  Navigator.of(context).pop();
+                },
+                child: Text('Yes'),
+              ),
+            )
+          ],
+        );
+      }
+    );
+  }
+
+  Future<void> _finalProgressUpdate(details) {
+    return showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Update to "Done!"?'),
+          elevation: 10,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          content: Container(
+            height: 100,
+            child: Column(
+              children: <Widget>[
+                Text('Waiting.. -> Serving.. -> Done!'),
+                SizedBox(
+                  height: 20,
+                ),
+                (details['progress'] == 0)
+                ? Text('Update to Serving', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red),)
+                : Text('Update to Done!', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red),),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            Container(
+              padding: EdgeInsets.only(right: 10),
+              child: FlatButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                }, 
+                child: Text(
+                  'Cancel',
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: Colors.grey,
+                  ),
+                ),
+              ),
+            ),
+            Container(
+              child: OutlineButton(
+                onPressed: (){
+                  details['progress']++;
+                  updateProgress(details['key'], details['progress'], 0);
+                  details['additionalOrderProgress']++;
+                  debugPrint(details['additionalOrderProgress'].toString());
+                  updateProgress(details['key'], details['additionalOrderProgress'], 1);
                   Navigator.of(context).pop();
                 },
                 child: Text('Yes'),
@@ -130,15 +248,26 @@ class OrderListState extends State<OrderList> {
     );
   }
 
-  void updateProgress(doc, nextState) async {
-    Firestore.instance.runTransaction((Transaction transaction) async{
-      CollectionReference reference = Firestore.instance.collection('orderList');
-      await reference
-      .document(doc)
-      .updateData({
-        'progress': nextState
+  void updateProgress(doc, nextState, int number) async {
+    if(number == 0) {
+      Firestore.instance.runTransaction((Transaction transaction) async{
+        CollectionReference reference = Firestore.instance.collection('orderList');
+        await reference
+        .document(doc)
+        .updateData({
+          'progress': nextState
+        });
       });
-    });
+    } else if (number == 1) {
+      Firestore.instance.runTransaction((Transaction transaction) async{
+        CollectionReference reference = Firestore.instance.collection('orderList');
+        await reference
+        .document(doc)
+        .updateData({
+          'additionalOrderProgress': nextState
+        });
+      });
+    }
   }
 
   Widget orderDetails(BuildContext context, index, details) {
@@ -152,7 +281,13 @@ class OrderListState extends State<OrderList> {
     return GestureDetector(
       onDoubleTap: (){
         if(details['progress'] != 2) {
-          _progressUpdate(details);
+          if(details['progress'] == 1 && details['additionalOrderProgress'] == 0) {
+            _progress2Update(details);
+          } else if(details['progress'] == 1 && details['additionalOrderProgress'] == 1) {
+            _finalProgressUpdate(details);
+          } else {
+            _progressUpdate(details);
+          }
         } else if (details['progress'] == 2){
           _proceedPayment();
         }
@@ -160,9 +295,7 @@ class OrderListState extends State<OrderList> {
       onTap: (){
         Navigator.push(
           context, 
-          MaterialPageRoute(builder: (context) => CheckSummary(
-            orderList: details,
-          )),
+          MaterialPageRoute(builder: (context) => CheckSummary(orderList: details,)),
         );
       },
       child: Container(
@@ -362,6 +495,8 @@ class OrderListState extends State<OrderList> {
               'time': time,
               'orders': snapshot.data.documents[i]['orders'],
               'progress': snapshot.data.documents[i]['progress'],
+              'additionalOrder': snapshot.data.documents[i]['additionalOrder'],
+              'additionalOrderProgress': snapshot.data.documents[i]['additionalOrderProgress'],
               'paid': snapshot.data.documents[i]['paid'],
               'status': snapshot.data.documents[i]['status'],
               'key': snapshot.data.documents[i].documentID,

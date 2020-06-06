@@ -354,6 +354,8 @@ class CheckOrderState extends State<CheckOrder> {
       'orders': widget.orderList,
       'status': finalStatus,
       'progress': 0,
+      'additionalOrder': [],
+      'additionalOrderProgress': -1,
       'paid': '',
     });
   }
