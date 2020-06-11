@@ -112,7 +112,16 @@ class CheckSummaryState extends State<CheckSummary> {
     }
   }
 
-  
+  _updatePayment(doc){
+    Firestore.instance.runTransaction((Transaction transaction) async{
+      CollectionReference reference = Firestore.instance.collection('orderList');
+      await reference
+      .document(doc)
+      .updateData({
+        'paid': 'Paid',
+      });
+    });
+  }
 
   Future<void> _showVerifyDialog(BuildContext context) {
     return showDialog(
@@ -297,7 +306,8 @@ class CheckSummaryState extends State<CheckSummary> {
                       borderRadius: BorderRadius.circular(20)
                     ),
                     onPressed: (){
-
+                      _updatePayment(widget.orderList['key']);
+                      Navigator.of(context).pop();
                     },
                     child: Text('Payment', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),),
                   ),

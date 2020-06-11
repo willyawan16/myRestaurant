@@ -361,13 +361,23 @@ class OrderListState extends State<OrderList> {
                             text: 'Progress: ',
                             style: DefaultTextStyle.of(context).style,
                             children: <TextSpan>[
-                              TextSpan(text: '${progress[details['progress']]}', style: TextStyle(fontWeight: FontWeight.w800, color: Colors.red))
+                              TextSpan(text: '${progress[details['progress']]}', style: (details['progress'] == 2) ? TextStyle(fontWeight: FontWeight.w800, color: Colors.green) : TextStyle(fontWeight: FontWeight.w800, color: Colors.red))
                             ],
                           ),
                         ),
                       ),
                       Container(
-                        child: Text('Paid: -'),
+                        child: (details['progress'] == 2)
+                        ? RichText(
+                          text: TextSpan(
+                            text: 'Paid: ',
+                            style: DefaultTextStyle.of(context).style, 
+                            children: <TextSpan>[
+                               TextSpan(text: '${details['paid']}', style: (details['paid'] == 'Paid') ? TextStyle(fontWeight: FontWeight.w800, color: Colors.green) : TextStyle(fontWeight: FontWeight.w800, color: Colors.red))
+                            ],
+                          ),
+                        )
+                        : Text(''),
                       ),
                     ],
                   ),
@@ -504,7 +514,8 @@ class OrderListState extends State<OrderList> {
               'status': snapshot.data.documents[i]['status'],
               'key': snapshot.data.documents[i].documentID,
             });
-            orderList.add(_temp);
+            if(_temp['paid'] != 'Paid')
+              orderList.add(_temp);
             _temp = {};
           }
           orderList.sort((a, b) {

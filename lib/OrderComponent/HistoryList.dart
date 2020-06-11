@@ -77,12 +77,14 @@ class HistoryListState extends State<HistoryList> {
               'key': snapshot.data.documents[i].documentID,
             });
             orderList.add(_temp);
-            if(_temp['timeago'] == 'a day ago') {
-              _yesterday.add(_temp);
-            } else if(_temp['timeago'] == 'two days ago') {
-              _twoDaysAgo.add(_temp);
-            } else {
-              _oneWeekMore.add(_temp);
+            if(_temp['paid'] == 'Paid'){
+              if(_temp['timeago'] == 'a day ago') {
+                _yesterday.add(_temp);
+              } else if(_temp['timeago'] == 'two days ago') {
+                _twoDaysAgo.add(_temp);
+              } else {
+                _oneWeekMore.add(_temp);
+              }
             }
             _temp = {};
           }
@@ -128,8 +130,23 @@ class HistoryListState extends State<HistoryList> {
     );
   }
   
+  Widget iconNumber(int number) {
+    return Container(
+      height: 20,
+      width: 20,
+      decoration: BoxDecoration(
+        color: Colors.red,
+        borderRadius: BorderRadius.all(Radius.circular(10)),
+      ),
+      child: Center(
+        child: Text(number.toString(), style: TextStyle(color: Colors.white, fontSize: 10)),
+      ),
+    );
+  }
+
   Widget _buildExpansion(index){
     return ExpansionTile(
+      leading: iconNumber(all[index].length),
       title: Text(expansionHeader[index]),
       children: <Widget>[
         Column(
@@ -223,13 +240,23 @@ class HistoryListState extends State<HistoryList> {
                             text: 'Progress: ',
                             style: DefaultTextStyle.of(context).style,
                             children: <TextSpan>[
-                              TextSpan(text: '${progress[details['progress']]}', style: TextStyle(fontWeight: FontWeight.w800, color: Colors.red))
+                              TextSpan(text: '${progress[details['progress']]}', style: (details['progress'] == 2) ? TextStyle(fontWeight: FontWeight.w800, color: Colors.green) : TextStyle(fontWeight: FontWeight.w800, color: Colors.red))
                             ],
                           ),
                         ),
                       ),
                       Container(
-                        child: Text('Paid: -'),
+                        child: (details['progress'] == 2)
+                        ? RichText(
+                          text: TextSpan(
+                            text: 'Paid: ',
+                            style: DefaultTextStyle.of(context).style, 
+                            children: <TextSpan>[
+                              TextSpan(text: '${details['paid']}', style: (details['paid'] == 'Paid') ? TextStyle(fontWeight: FontWeight.w800, color: Colors.green) : TextStyle(fontWeight: FontWeight.w800, color: Colors.red))
+                            ],
+                          ),
+                        )
+                        : Text(''),
                       ),
                     ],
                   ),

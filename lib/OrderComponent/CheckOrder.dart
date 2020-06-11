@@ -356,7 +356,7 @@ class CheckOrderState extends State<CheckOrder> {
       'progress': 0,
       'additionalOrder': [],
       'additionalOrderProgress': -1,
-      'paid': '',
+      'paid': 'Not Paid',
     });
   }
 
