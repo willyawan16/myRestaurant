@@ -197,11 +197,11 @@ class OrderListState extends State<OrderList> {
     );
   }
 
-  Future<void> _proceedPayment() {
+  Future<void> _proceedPayment(Map details) {
     return showDialog(
       context: context,
       barrierDismissible: true,
-      builder: (BuildContext context) {
+      builder: (BuildContext dialogContext) {
         return AlertDialog(
           title: Text('Payment..'),
           elevation: 10,
@@ -236,8 +236,11 @@ class OrderListState extends State<OrderList> {
               child: OutlineButton(
                 onPressed: (){
                   // payment page
-                  
-                  Navigator.of(context).pop();
+                  Navigator.of(dialogContext).pop();
+                  Navigator.push(
+                    context, 
+                    MaterialPageRoute(builder: (context) => CheckSummary(orderList: details,)),
+                  );
                 },
                 child: Text('Yes'),
               ),
@@ -289,7 +292,7 @@ class OrderListState extends State<OrderList> {
             _progressUpdate(details);
           }
         } else if (details['progress'] == 2){
-          _proceedPayment();
+          _proceedPayment(details);
         }
       },
       onTap: (){

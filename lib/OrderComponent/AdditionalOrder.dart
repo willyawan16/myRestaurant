@@ -9,8 +9,10 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 class AdditionalOrder extends StatefulWidget {
   String docID;
   List additionalList;
+  bool cekBool;
+  Function(List) callbackAdditionalList;
 
-  AdditionalOrder({Key key, this.docID, this.additionalList}) : super(key: key);
+  AdditionalOrder({Key key, this.docID, this.additionalList, this.callbackAdditionalList, this.cekBool}) : super(key: key);
   @override
   AdditionalOrderState createState() => AdditionalOrderState();
 }
@@ -21,6 +23,7 @@ class AdditionalOrderState extends State<AdditionalOrder> with SingleTickerProvi
   List<Tab> menu = [];
   int recIndex;
   int subtotal = 0;
+  bool changed = false;
 
   TabController _tabController;
 
@@ -30,11 +33,10 @@ class AdditionalOrderState extends State<AdditionalOrder> with SingleTickerProvi
     for(int i = 0; i < widget.additionalList.length; i++){
       _orderList.add(widget.additionalList[i]);
     }
-
     if(_orderList.isNotEmpty){
       for(int i = 0; i < _orderList.length; i++){
-      subtotal += (int.parse(_orderList[i]['menuprice'])*_orderList[i]['quantity']);
-    }
+        subtotal += (int.parse(_orderList[i]['menuprice'])*_orderList[i]['quantity']);
+      }
     }
 
     if(menu.isNotEmpty)
@@ -57,6 +59,23 @@ class AdditionalOrderState extends State<AdditionalOrder> with SingleTickerProvi
       }
     } else {
       debugPrint('Additional Order list is empty!');
+    }
+    var _onPressed;
+    if(changed){
+      _onPressed = (){
+        if(!widget.cekBool){
+          _updateData(widget.docID);
+          int count = 0;
+          Navigator.popUntil(context, (route) {
+            return count++ == 2;
+        });
+        } else {
+          widget.callbackAdditionalList(_orderList);
+          Navigator.of(context).pop();
+        }
+      };
+    } else{
+      _onPressed = null;
     }
     return Scaffold(
       appBar: AppBar(
@@ -153,19 +172,14 @@ class AdditionalOrderState extends State<AdditionalOrder> with SingleTickerProvi
                   height: 50,
                   child: FlatButton(
                     //splashColor: Colors.green,
+                    disabledColor: Colors.grey[400],
+                    disabledTextColor: Colors.grey[300],
                     textColor: Colors.white,
                     color: Colors.green,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    onPressed: (){
-                      _updateData(widget.docID);
-                      Navigator.of(context).pop();
-                      int count = 0;
-                      Navigator.popUntil(context, (route) {
-                          return count++ == 1;
-                      });
-                    }, 
+                    onPressed: _onPressed,
                     child: Text('Submit Order', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),),
                   ),
                 ),
@@ -212,6 +226,7 @@ class AdditionalOrderState extends State<AdditionalOrder> with SingleTickerProvi
               child: TabBarView(
                 children: menu.map<Widget>((Tab tab) {
                   return MenuList(
+                    whoCall: 'AdditionalOrder',
                     category:tab.text, 
                     wholeMenu: wholeMenu,
                     orderList: _orderList,
@@ -235,6 +250,11 @@ class AdditionalOrderState extends State<AdditionalOrder> with SingleTickerProvi
                     updateSubtotal: (val){
                       setState(() {
                         subtotal += val;
+                      });
+                    },
+                    changed: (val){
+                      setState(() {
+                        changed = val;
                       });
                     },
                   );

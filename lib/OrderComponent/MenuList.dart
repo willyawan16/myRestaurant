@@ -3,13 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_counter/flutter_counter.dart';
 
 class MenuList extends StatefulWidget {
-  final String category;
+  final String category, whoCall;
   final List wholeMenu, orderList;
 
   final Function(Map) onAddMenu, onUpdateMenu;
   final Function(int) getIndex, updateSubtotal;
+  final Function(bool) changed;
 
-  MenuList({Key key, @required this.category, @required this.wholeMenu, this.onAddMenu, this.orderList, this.onUpdateMenu, this.getIndex, this.updateSubtotal}) : super(key: key);
+  MenuList({Key key, @required this.category, @required this.wholeMenu, this.onAddMenu, this.orderList, this.onUpdateMenu, this.getIndex, this.updateSubtotal, @required this.whoCall, this.changed}) : super(key: key);
   @override
   MenuListState createState() => MenuListState();
 }
@@ -64,7 +65,7 @@ class MenuListState extends State<MenuList> {
     return showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (BuildContext context) {
+      builder: (BuildContext addcontext) {
         return StatefulBuilder(
           builder: (context, setState) {
             return GestureDetector(
@@ -172,7 +173,7 @@ class MenuListState extends State<MenuList> {
                     padding: EdgeInsets.only(right: 10),
                     child: FlatButton(
                       onPressed: () {
-                        Navigator.of(context).pop();
+                        Navigator.of(addcontext).pop();
                         resetDetails();
                       }, 
                       child: Text(
@@ -203,15 +204,19 @@ class MenuListState extends State<MenuList> {
                           widget.onUpdateMenu({'key': sortedMenu[index]['key'], 'description': descOrder.text, 'quantity': quantityFood, 'menuname': sortedMenu[index]['name'], 'menuprice': sortedMenu[index]['price']});
                           debugPrint('-------------------------------------------------------');
                           debugPrint('updated ${sortedMenu[index]['name']} in orderList');
-                          quantityFood -= before; 
+                          if(widget.whoCall == 'AdditionalOrder')
+                            quantityFood -= before; 
                         } else {
                           // new
                           widget.onAddMenu({'key': sortedMenu[index]['key'], 'description': descOrder.text, 'quantity': quantityFood, 'menuname': sortedMenu[index]['name'], 'menuprice': sortedMenu[index]['price']});
                           debugPrint('-------------------------------------------------------');
                           debugPrint('added ${sortedMenu[index]['name']} to orderList');
                         }
-                        widget.updateSubtotal(int.parse(sortedMenu[index]['price'])*quantityFood);
-                        Navigator.of(context).pop();
+                        if(widget.whoCall == 'AdditionalOrder'){
+                          widget.updateSubtotal(int.parse(sortedMenu[index]['price'])*quantityFood);
+                          widget.changed(true);
+                        }
+                        Navigator.of(addcontext).pop();
                         resetDetails();
                       }, 
                       child: Text(

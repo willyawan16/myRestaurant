@@ -18,8 +18,11 @@ class CheckSummaryState extends State<CheckSummary> {
   int addSubtotal = 0;
   List orders = [];
   List additionalOrders = [];
-  bool change1;
-  bool change2;
+  int additionalOrderProgress = 0;
+  bool change1 = false;
+  bool change2 = false;
+  bool change3 = false;
+  bool toggleBtn;
 
   @override
   void initState() {
@@ -32,6 +35,12 @@ class CheckSummaryState extends State<CheckSummary> {
     for(int i = 0; i < widget.orderList['additionalOrder'].length; i++){
       addSubtotal += (int.parse(widget.orderList['additionalOrder'][i]['menuprice'])*widget.orderList['additionalOrder'][i]['quantity']);
       additionalOrders.add(widget.orderList['additionalOrder'][i]);
+    }
+    additionalOrderProgress = widget.orderList['additionalOrderProgress'];
+    if(widget.orderList['progress'] == 2) {
+      toggleBtn = false;
+    } else {
+      toggleBtn = true;
     }
     super.initState();
   }
@@ -52,17 +61,58 @@ class CheckSummaryState extends State<CheckSummary> {
       });
     }
     if(change2){
-      Firestore.instance.runTransaction((Transaction transaction) async{
-        CollectionReference reference = Firestore.instance.collection('orderList');
-        await reference
-        .document(doc)
-        .updateData({
-          'additionalOrder': additionalOrders,
-          'additionalOrderProgress': 0,
+      if(additionalOrders.isNotEmpty){
+        Firestore.instance.runTransaction((Transaction transaction) async{
+          CollectionReference reference = Firestore.instance.collection('orderList');
+          await reference
+          .document(doc)
+          .updateData({
+            'additionalOrder': additionalOrders,
+            'additionalOrderProgress': 0,
+          });
         });
-      });
+      } else {
+        Firestore.instance.runTransaction((Transaction transaction) async{
+          CollectionReference reference = Firestore.instance.collection('orderList');
+          await reference
+          .document(doc)
+          .updateData({
+            'additionalOrder': [],
+            'additionalOrderProgress': -1,
+          });
+        });
+      }
+    }
+    if(change3){
+      if(additionalOrders.isNotEmpty){
+        Firestore.instance.runTransaction((Transaction transaction) async{
+          CollectionReference reference = Firestore.instance.collection('orderList');
+          await reference
+          .document(doc)
+          .updateData({
+            'orders': orders, 
+            'progress': 0,
+            'additionalOrder': additionalOrders,
+            'additionalOrderProgress': 0,
+          });
+        });
+      } else {
+        Firestore.instance.runTransaction((Transaction transaction) async{
+          CollectionReference reference = Firestore.instance.collection('orderList');
+          await reference
+          .document(doc)
+          .updateData({
+            'orders': orders, 
+            'progress': 0,
+            'additionalOrder': [],
+            'additionalOrderProgress': -1,
+          });
+        });
+      }
     }
   }
+
+  
 
   Future<void> _showVerifyDialog(BuildContext context) {
     return showDialog(
@@ -125,6 +175,25 @@ class CheckSummaryState extends State<CheckSummary> {
 
   @override
   Widget build(BuildContext context) {
+    // debugPrint(additionalOrders.length.toString());
+    // debugPrint(toggleBtn.toString());
+    var _onPressed;
+    if(toggleBtn) {
+      _onPressed = (){
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (context) => AdditionalOrder(
+            docID: widget.orderList['key'], 
+            additionalList: (!change3) ? additionalOrders : orders,
+            callbackAdditionalList: (val){
+              orders = val;
+            },
+            cekBool: change3,
+          )),
+        ).then((value) => setState((){}));
+      };
+    } else {
+      _onPressed = null;
+    }
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(100),
@@ -153,7 +222,9 @@ class CheckSummaryState extends State<CheckSummary> {
             onPressed: (){
               // _updateWholeData(widget.orderList['key']);
               // Navigator.of(context).pop();
-              if(change1 || change2)
+              if(change3)
+                _showVerifyDialog(context);
+              else if(change1 || change2)
                 _showVerifyDialog(context);
               else
                 Navigator.of(context).pop();
@@ -203,19 +274,32 @@ class CheckSummaryState extends State<CheckSummary> {
                   // color: Colors.purpleAccent,
                   width: MediaQuery.of(context).size.width,
                   height: 50,
-                  child: FlatButton(
+                  child: (toggleBtn)
+                  ? FlatButton(
+                    disabledColor: Colors.grey[400],
+                    disabledTextColor: Colors.grey[300],
                     //splashColor: Colors.green,
                     textColor: Colors.white,
                     color: Colors.green,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20)
                     ),
-                    onPressed: (){
-                      Navigator.of(context).push(
-                        MaterialPageRoute(builder: (context) => AdditionalOrder(docID: widget.orderList['key'], additionalList: widget.orderList['additionalOrder'])),
-                      );
-                    }, 
+                    onPressed: _onPressed,
                     child: Text('Additional Order', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),),
+                  )
+                  : FlatButton(
+                    disabledColor: Colors.grey[400],
+                    disabledTextColor: Colors.grey[300],
+                    //splashColor: Colors.green,
+                    textColor: Colors.white,
+                    color: Colors.red[600],
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)
+                    ),
+                    onPressed: (){
+
+                    },
+                    child: Text('Payment', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),),
                   ),
                 ),
               ],
@@ -277,7 +361,8 @@ class CheckSummaryState extends State<CheckSummary> {
                 ],
               ),
             ),
-            Container(
+            (additionalOrders.isNotEmpty)
+            ? Container(
               child: Column(
                 children: <Widget>[
                   Container(
@@ -292,13 +377,13 @@ class CheckSummaryState extends State<CheckSummary> {
                         ),
                         Container(
                           width: MediaQuery.of(context).size.width*0.2,
-                          child: Text('(${progress[widget.orderList['additionalOrderProgress']]})', style: TextStyle(color: Colors.red),),
+                          child: Text('(${progress[additionalOrderProgress]})', style: TextStyle(color: Colors.red),),
                         ),
                         Container(
                           width: MediaQuery.of(context).size.width*0.29,
                           // color: Colors.red,
                           child: Text('Rp$addSubtotal', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold), textAlign: TextAlign.end,),
-                        )
+                        ),
                       ],
                     ),
                   ),
@@ -312,7 +397,8 @@ class CheckSummaryState extends State<CheckSummary> {
                   ),
                 ],
               ),
-            ),
+            )
+            : Container(),
           ],
         ),
       ),
@@ -333,7 +419,7 @@ class CheckSummaryState extends State<CheckSummary> {
   Future<void> _showEditDialog(BuildContext context, details, index, orderList, bool existing) {
     // debugPrint(quantityFood.text);
     // debugPrint(details[3]);
-    debugPrint(index.toString());
+    // debugPrint(index.toString());
     TextEditingController descOrder = TextEditingController(text: details['description']);
     int quantityFood = details['quantity'];
     // FocusNode quantityFoodNode = new FocusNode();
@@ -453,6 +539,17 @@ class CheckSummaryState extends State<CheckSummary> {
                           } else {
                             addSubtotal = temp;
                             change2 = true;
+                          }
+                        });
+                        setState((){
+                          if(orders.isEmpty){
+                            change3 = true;
+                            change1 = false;
+                            change2 = false;
+                            orders = additionalOrders;
+                            subtotal = addSubtotal;
+                            addSubtotal = 0;
+                            additionalOrders = [];                          
                           }
                         });
                         // debugPrint('added ${sortedMenu[index]['name']}');

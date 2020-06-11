@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import './OrderList.dart';
+import './HistoryList.dart';
 import './NewOrder.dart';
 
 class Orders extends StatefulWidget {
@@ -53,7 +54,7 @@ class OrdersState extends State<Orders> {
             body: TabBarView(
               children: [
                 OrderList(),
-                Icon(Icons.attach_money),
+                HistoryList(),
               ],
             ),
             floatingActionButton: FloatingActionButton.extended(
