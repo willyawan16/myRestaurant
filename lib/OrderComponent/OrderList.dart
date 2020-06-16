@@ -447,7 +447,7 @@ class OrderListState extends State<OrderList> {
     );
   }
 
-  Widget body(List orderList){
+  Widget body(List orderList, bool check){
     return Scaffold(
       backgroundColor: Colors.green[100],
       body: Column(
@@ -476,12 +476,19 @@ class OrderListState extends State<OrderList> {
                 ),
               ),
             ),
-            Expanded(
+            (orderList.isNotEmpty)
+            ? Expanded(
               child: ListView.builder(
                 itemCount: orderList.length,
                 padding: const EdgeInsets.all(10),
                 itemBuilder: (context, i) => orderDetails(context, i, orderList[i]),
               ),
+            )
+            : Container(
+              padding: EdgeInsets.fromLTRB(40,50,40,0),
+              child: (!check)
+              ? Text('Make your First Order Today', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold), textAlign: TextAlign.center,)
+              : Text('Make New Order Again', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold), textAlign: TextAlign.center,),
             ),
           ],
         ),
@@ -496,11 +503,12 @@ class OrderListState extends State<OrderList> {
           List orderList = [];
           Map _temp = {};
           var date, time;
+          bool check = false;
           if(!snapshot.hasData) return const Text('Loading');
           for(int i = 0; i < snapshot.data.documents.length; i++) {
             Timestamp t = snapshot.data.documents[i]['date'];
             DateTime d = t.toDate();
-            date = DateFormat('EEE, MMM d, ''yy').format(d);
+            date = DateFormat('yyyy-MM-dd').format(d);
             time = DateFormat('h:mm a').format(d);
             _temp.addAll({
               'customer': snapshot.data.documents[i]['customer'],
@@ -514,14 +522,17 @@ class OrderListState extends State<OrderList> {
               'status': snapshot.data.documents[i]['status'],
               'key': snapshot.data.documents[i].documentID,
             });
-            if(_temp['paid'] != 'Paid')
+            var today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+            if(_temp['paid'] != 'Paid' && _temp['date'] == today)
               orderList.add(_temp);
+            else if(_temp['date'] == today)
+              check = true;
             _temp = {};
           }
           orderList.sort((a, b) {
             return a['time'].compareTo(b['time']);
           });
-          return body(orderList);
+          return body(orderList, check);
         },
       ),
     );

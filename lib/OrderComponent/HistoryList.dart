@@ -21,12 +21,13 @@ class HistoryList extends StatefulWidget {
 // }
 
 class HistoryListState extends State<HistoryList> {
+  List today = [];
   List yesterday = [];
   List twoDaysAgo = [];
   List oneWeekMore = [];
   List all = [];
   // List<ExpansionItem> _items = <ExpansionItem>[];
-  List<String> expansionHeader = ['Yesterday', '2 days ago', 'One week ago'];
+  List<String> expansionHeader = ['Today', 'Yesterday', '2 days ago', 'One week ago'];
 
   @override
   void initState() {
@@ -47,6 +48,7 @@ class HistoryListState extends State<HistoryList> {
         stream: Firestore.instance.collection('orderList').snapshots(),
         builder: (context, snapshot) {
           List orderList = [];
+          List _today = [];
           List _yesterday = [];
           List _twoDaysAgo = [];
           List _oneWeekMore = [];
@@ -65,7 +67,7 @@ class HistoryListState extends State<HistoryList> {
             time = DateFormat('h:mm a').format(d);
             _temp.addAll({
               'customer': snapshot.data.documents[i]['customer'],
-              'date': date,
+              'date': date2,
               'time': time,
               'timeago': timeago,
               'orders': snapshot.data.documents[i]['orders'],
@@ -77,8 +79,11 @@ class HistoryListState extends State<HistoryList> {
               'key': snapshot.data.documents[i].documentID,
             });
             orderList.add(_temp);
+            var today = DateFormat('yyyy-MM-dd').format(DateTime.now());
             if(_temp['paid'] == 'Paid'){
-              if(_temp['timeago'] == 'a day ago') {
+              if(_temp['date'] == today){
+                _today.add(_temp);
+              }else if(_temp['timeago'] == 'a day ago') {
                 _yesterday.add(_temp);
               } else if(_temp['timeago'] == 'two days ago') {
                 _twoDaysAgo.add(_temp);
@@ -91,12 +96,16 @@ class HistoryListState extends State<HistoryList> {
           orderList.sort((a, b) {
             return a['time'].compareTo(b['time']);
           });
-          yesterday.sort((a, b) {
+          _today.sort((a, b) {
             return a['time'].compareTo(b['time']);
           });
-          twoDaysAgo.sort((a, b) {
+          _yesterday.sort((a, b) {
             return a['time'].compareTo(b['time']);
           });
+          _twoDaysAgo.sort((a, b) {
+            return a['time'].compareTo(b['time']);
+          });
+          today = _today;
           yesterday = _yesterday;
           twoDaysAgo = _twoDaysAgo;
           oneWeekMore = _oneWeekMore;
@@ -105,7 +114,7 @@ class HistoryListState extends State<HistoryList> {
           // debugPrint(oneWeekMore.length.toString());
 
           // debugPrint('ini: ${Jiffy(orderList[0]['date']).fromNow()}');
-          all = [yesterday, twoDaysAgo, oneWeekMore];
+          all = [today, yesterday, twoDaysAgo, oneWeekMore];
           return body();
         },
       ),
