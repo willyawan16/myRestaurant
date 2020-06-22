@@ -8,6 +8,9 @@ import 'package:myapp/OrderComponent/CheckOrder.dart';
 import './MenuList.dart';
 
 class OrderCustomer extends StatefulWidget {  
+  String restoId;
+
+  OrderCustomer({Key key, this.restoId}) : super(key: key);
   @override
   OrderCustomerState createState() => OrderCustomerState();
 }
@@ -56,7 +59,7 @@ class OrderCustomerState extends State<OrderCustomer> with SingleTickerProviderS
     }
     return Scaffold(
       body: StreamBuilder(
-        stream: Firestore.instance.collection('menuList').snapshots(),
+        stream: Firestore.instance.collection('menuList').where('restaurantId', isEqualTo: widget.restoId).snapshots(),
         builder: (context, snapshot) {
           List<String> tabList = [];
           if(!snapshot.hasData) return const SpinKitDualRing(color: Colors.red, size: 50.0,);
@@ -118,6 +121,7 @@ class OrderCustomerState extends State<OrderCustomer> with SingleTickerProviderS
                   table: tableNum.text ,
                   orderList: _orderList,
                   wholeMenu: wholeMenu,
+                  restoId: widget.restoId,
                   status: selectedStatus,
                   onCallbackOrderList: (val) {
                     setState(() {
@@ -165,7 +169,7 @@ class OrderCustomerState extends State<OrderCustomer> with SingleTickerProviderS
                       prefixIcon: Icon(Icons.person),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                       labelText: 'Customer Name',
-                      //hintText: 'Name of New Menu',
+                      hintText: 'Customer',
                       labelStyle: TextStyle(fontSize: 17),
                     ),
                   ),

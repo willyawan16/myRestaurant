@@ -6,11 +6,17 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class Menu extends StatefulWidget {
+  String restoId;
+
+  Menu({Key key, this.restoId}) : super(key: key);
   @override
   MenuState createState() => new MenuState();
 }
 
-
+class BounceScrollBehavior extends ScrollBehavior {
+  @override
+  getScrollPhysics(_) => const BouncingScrollPhysics();
+}
 
 class MenuState extends State<Menu> with SingleTickerProviderStateMixin {
   // final List<Tab> menu = <Tab>[
@@ -45,22 +51,24 @@ class MenuState extends State<Menu> with SingleTickerProviderStateMixin {
           if(!snapshot.hasData) return const SpinKitDualRing(color: Colors.red, size: 50.0,);
           // debugPrint(tabList.toString());
           for(int i = 0; i < snapshot.data.documents.length; i++){
-            if(tabList.isEmpty)
-            {
-              tabList.add(snapshot.data.documents[i]['category']);
-            }
-            else
-            {
-              bool needChange = true;
-              for(int j = 0; j < tabList.length; j++){
-                if(snapshot.data.documents[i]['category'] == tabList[j]){
-                  needChange = false;
-                }
+            if(snapshot.data.documents[i]['restaurantId'] == widget.restoId) {
+              if(tabList.isEmpty)
+              {
+                tabList.add(snapshot.data.documents[i]['category']);
               }
-              if(needChange == true){
-                  tabList.add(snapshot.data.documents[i]['category']);
-              } 
-              needChange = true;
+              else
+              {
+                bool needChange = true;
+                for(int j = 0; j < tabList.length; j++){
+                  if(snapshot.data.documents[i]['category'] == tabList[j]){
+                    needChange = false;
+                  }
+                }
+                if(needChange == true){
+                    tabList.add(snapshot.data.documents[i]['category']);
+                } 
+                needChange = true;
+              }
             }
           }
           tabList.sort();
@@ -68,50 +76,53 @@ class MenuState extends State<Menu> with SingleTickerProviderStateMixin {
           // debugPrint(tabList[1].toString());
           List<Tab> menu = tabList.map((tab) => Tab(text: tab)).toList();
           // debugPrint('ok');
-          return DefaultTabController(
-            length: menu.length,
-            child: Scaffold(
-              appBar: AppBar(
-                actions: <Widget>[
-                  IconButton(
-                    icon: Icon(Icons.search),
-                    tooltip: 'search',
-                    onPressed: (){
+          return ScrollConfiguration(
+            behavior: BounceScrollBehavior(), 
+            child: DefaultTabController(
+              length: menu.length,
+              child: Scaffold(
+                appBar: AppBar(
+                  actions: <Widget>[
+                    IconButton(
+                      icon: Icon(Icons.search),
+                      tooltip: 'search',
+                      onPressed: (){
 
-                    },  
+                      },  
+                    ),
+                  ],
+                  bottom: new TabBar(
+                    indicatorColor: Colors.lime,
+                    controller: _tabController,
+                    isScrollable: true,
+                    labelStyle: TextStyle(fontSize: 20),
+                    unselectedLabelStyle: TextStyle(fontSize: 15),
+                    tabs: menu,
                   ),
-                ],
-                bottom: new TabBar(
-                  indicatorColor: Colors.lime,
-                  controller: _tabController,
-                  isScrollable: true,
-                  labelStyle: TextStyle(fontSize: 20),
-                  unselectedLabelStyle: TextStyle(fontSize: 15),
-                  tabs: menu,
+                  title: const Text('Menu', style: TextStyle(fontSize: 30),),
+                  backgroundColor: Colors.deepOrange[400],
                 ),
-                title: const Text('Menu', style: TextStyle(fontSize: 30),),
-                backgroundColor: Colors.deepOrange[400],
-              ),
-              body: (!(tabList.length == 0)) ?
-                TabBarView(
-                  controller: _tabController,
-                  children: menu.map((Tab tab) {
-                    return new MenuList(category: tab.text,);
-                  }).toList(),
-                )
-                :
-                _ifBlank()
-              ,
-              floatingActionButton: FloatingActionButton.extended(
-                onPressed: (){
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => NewMenu()),
-                  );
-                },
-                label: Text('New Menu'),
-                icon: Icon(Icons.create),
-                backgroundColor: Colors.orangeAccent[400],
+                body: (!(tabList.length == 0)) ?
+                  TabBarView(
+                    controller: _tabController,
+                    children: menu.map((Tab tab) {
+                      return new MenuList(category: tab.text,);
+                    }).toList(),
+                  )
+                  :
+                  _ifBlank()
+                ,
+                floatingActionButton: FloatingActionButton.extended(
+                  onPressed: (){
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => NewMenu(restoId: widget.restoId)),
+                    );
+                  },
+                  label: Text('New Menu'),
+                  icon: Icon(Icons.create),
+                  backgroundColor: Colors.orangeAccent[400],
+                ),
               ),
             ),
           );

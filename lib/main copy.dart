@@ -29,43 +29,43 @@
   //   Home(),
   //   Menu(),
   // ];
-//   @override
-//   Widget build(BuildContext context){
-//     return MaterialApp(
-//       title: 'main',
-//       home: Scaffold(
-//         // appBar: AppBar(
-//         //   title: Text('Trial'),
-//         // ),
-//         body: _pageOptions[_currentIndex],
-//         bottomNavigationBar: BottomNavigationBar(
-//           currentIndex: _currentIndex,
-//           items: [
-//             BottomNavigationBarItem(
-//               icon: Icon(Icons.assignment),
-//               title: Text('Orders'),
-//               backgroundColor: Colors.red
-//             ),
+  // @override
+  // Widget build(BuildContext context){
+  //   return MaterialApp(
+  //     title: 'main',
+  //     home: Scaffold(
+  //       // appBar: AppBar(
+  //       //   title: Text('Trial'),
+  //       // ),
+  //       body: _pageOptions[_currentIndex],
+  //       bottomNavigationBar: BottomNavigationBar(
+  //         currentIndex: _currentIndex,
+  //         items: [
+  //           BottomNavigationBarItem(
+  //             icon: Icon(Icons.assignment),
+  //             title: Text('Orders'),
+  //             backgroundColor: Colors.red
+  //           ),
 
-//             BottomNavigationBarItem(
-//               icon: Icon(
-//                 Icons.restaurant_menu, 
-//                 //color: Colors.deepOrange[400],
-//               ),
-//               title: Text(
-//                 'Menu', 
-//                 // style: TextStyle(color: Colors.deepOrange[400],)
-//               ),
-//             ),
-//           ],
-//           onTap: (index) {
-//             setState(() {
-//               _currentIndex = index;
-//             });
-//           },
-//           ),
-//       )
-//     );
-//   }
+  //           BottomNavigationBarItem(
+  //             icon: Icon(
+  //               Icons.restaurant_menu, 
+  //               //color: Colors.deepOrange[400],
+  //             ),
+  //             title: Text(
+  //               'Menu', 
+  //               // style: TextStyle(color: Colors.deepOrange[400],)
+  //             ),
+  //           ),
+  //         ],
+  //         onTap: (index) {
+  //           setState(() {
+  //             _currentIndex = index;
+  //           });
+  //         },
+  //         ),
+  //     )
+  //   );
+  // }
 // }
 

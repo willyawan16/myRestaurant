@@ -4,6 +4,9 @@ import './HistoryList.dart';
 import './NewOrder.dart';
 
 class Orders extends StatefulWidget {
+  String restoId;
+
+  Orders({Key key, this.restoId}) : super(key: key);
   @override
   OrdersState createState() => OrdersState();
 }
@@ -53,15 +56,15 @@ class OrdersState extends State<Orders> {
             ),
             body: TabBarView(
               children: [
-                OrderList(),
-                HistoryList(),
+                OrderList(restoId: widget.restoId),
+                HistoryList(restoId: widget.restoId),
               ],
             ),
             floatingActionButton: FloatingActionButton.extended(
               onPressed: (){
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => NewOrder()),
+                  MaterialPageRoute(builder: (context) => NewOrder(restoId: widget.restoId,)),
                 );
               },
               label: Text('New Order'),

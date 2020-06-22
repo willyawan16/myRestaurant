@@ -7,6 +7,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 
 class OrderList extends StatefulWidget {
+  String restoId;
+
+  OrderList({Key key, this.restoId}) : super(key: key);
+
   @override
   OrderListState createState() => OrderListState();
 }
@@ -496,9 +500,10 @@ class OrderListState extends State<OrderList> {
   }
 
   Widget build(BuildContext context) {
+    debugPrint('Get Id: ${widget.restoId}');
     return Scaffold(
       body: StreamBuilder(
-        stream: Firestore.instance.collection('orderList').snapshots(),
+        stream: Firestore.instance.collection('orderList').where('restaurantId', isEqualTo: widget.restoId).snapshots(),
         builder: (context, snapshot) {
           List orderList = [];
           Map _temp = {};

@@ -4,6 +4,9 @@ import 'package:intl/intl.dart';
 import 'package:jiffy/jiffy.dart';
 
 class HistoryList extends StatefulWidget {
+  String restoId;
+
+  HistoryList({Key key, this.restoId}) : super(key: key);
   @override
   HistoryListState createState() => HistoryListState();
 }
@@ -45,7 +48,7 @@ class HistoryListState extends State<HistoryList> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: StreamBuilder(
-        stream: Firestore.instance.collection('orderList').snapshots(),
+        stream: Firestore.instance.collection('orderList').where('restaurantId', isEqualTo: widget.restoId).snapshots(),
         builder: (context, snapshot) {
           List orderList = [];
           List _today = [];
@@ -130,6 +133,7 @@ class HistoryListState extends State<HistoryList> {
         // return _buildPanel(index);
     //   },
     // );
+    debugPrint('Get Id: ${widget.restoId}');
     return Scaffold(
       backgroundColor: Colors.green[100],
       body: ListView.builder(

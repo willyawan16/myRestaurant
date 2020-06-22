@@ -48,12 +48,13 @@ class NewMenuState extends State<NewMenu>{
       'description': menuDesc,
       'price': menuPric,
       'category': menuCate,
+      'restaurantId': widget.restoId,
     });
 
     String docID = docRef.documentID;
       if(imageFile != null) {
         final StorageReference firebaseStorageRef =
-          FirebaseStorage.instance.ref().child('images/$docID');
+          FirebaseStorage.instance.ref().child('images/${widget.restoId}/$docID');
         final StorageUploadTask uploadTask = firebaseStorageRef.putFile(imageFile); 
         final StreamSubscription<StorageTaskEvent> streamSubscription = uploadTask.events.listen((event) {
           // You can use this to notify yourself or your user in any kind of way.
@@ -491,57 +492,65 @@ class NewMenuState extends State<NewMenu>{
 
   @override
   Widget build(BuildContext context){
-    return Scaffold(
-      resizeToAvoidBottomPadding: false,
-      appBar: AppBar(
-        backgroundColor: Colors.deepOrange[400],
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          tooltip: 'back',
-          onPressed: (){
-            Navigator.pop(context);
-          },
+    debugPrint('Get Id: ${widget.restoId}');
+    return MaterialApp(
+      home:Scaffold(
+        resizeToAvoidBottomPadding: false,
+        appBar: AppBar(
+          backgroundColor: Colors.deepOrange[400],
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            tooltip: 'back',
+            onPressed: (){
+              Navigator.pop(context);
+            },
+          ),
+          title: Text('New Menu'),
         ),
-        title: Text('New Menu'),
-      ),
-      body: StreamBuilder(
-        stream: Firestore.instance.collection('menuList').snapshots(),
-        builder: (context, snapshot){
-          List<String> getCate = [];
-          if(!snapshot.hasData) return const Text('Loading');
-          for(int i = 0; i < snapshot.data.documents.length; i++){
-            if(getCate.isEmpty)
-            {
-              getCate.add(snapshot.data.documents[i]['category']);
-            }
-            else
-            {
-              bool needChange = true;
-              for(int j = 0; j < getCate.length; j++){
-                if(snapshot.data.documents[i]['category'] == getCate[j]){
-                  needChange = false;
+        body: StreamBuilder(
+          stream: Firestore.instance.collection('menuList').snapshots(),
+          builder: (context, snapshot){
+            List<String> getCate = [];
+            if(!snapshot.hasData) return const Text('Loading');
+            for(int i = 0; i < snapshot.data.documents.length; i++){
+              if(snapshot.data.documents[i]['restaurantId'] == widget.restoId) {
+                if(getCate.isEmpty)
+                {
+                  getCate.add(snapshot.data.documents[i]['category']);
+                }
+                else
+                {
+                  bool needChange = true;
+                  for(int j = 0; j < getCate.length; j++){
+                    if(snapshot.data.documents[i]['category'] == getCate[j]){
+                      needChange = false;
+                    }
+                  }
+                  if(needChange == true){
+                      getCate.add(snapshot.data.documents[i]['category']);
+                  } 
+                  needChange = true;
                 }
               }
-              if(needChange == true){
-                  getCate.add(snapshot.data.documents[i]['category']);
-              } 
-              needChange = true;
             }
+            getCate.sort();
+            _initCate = getCate;
+            //debugPrint(_initCate.toString());
+            _initCate.insert(0, 'Select Category');
+            _initCate.add('+');
+            // debugPrint(selectedVal);
+            return body();
           }
-          getCate.sort();
-          _initCate = getCate;
-          //debugPrint(_initCate.toString());
-          _initCate.insert(0, 'Select Category');
-          _initCate.add('+');
-          // debugPrint(selectedVal);
-          return body();
-        }
-      )
+        )
+      ),
     );
   }
 } 
 
 class NewMenu extends StatefulWidget{
+  String restoId;
+
+  NewMenu({Key key, this.restoId}) : super(key :key);
   @override
   NewMenuState createState() => NewMenuState();
 }

@@ -8,12 +8,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 
 class CheckOrder extends StatefulWidget {
-  String name, table, status;
+  String name, table, status, restoId;
   List orderList, wholeMenu;
   
   final Function(List) onCallbackOrderList;
 
-  CheckOrder({Key key, this.name, this.table, this.orderList, this.wholeMenu, this.status, this.onCallbackOrderList}) : super(key: key);
+  CheckOrder({Key key, this.name, this.table, this.orderList, this.wholeMenu, this.status, this.onCallbackOrderList, this.restoId}) : super(key: key);
   @override
   CheckOrderState createState() => CheckOrderState();
 }
@@ -356,6 +356,7 @@ class CheckOrderState extends State<CheckOrder> {
       'progress': 0,
       'additionalOrder': [],
       'additionalOrderProgress': -1,
+      'restaurantId': widget.restoId,
       'paid': 'Not Paid',
     });
   }
