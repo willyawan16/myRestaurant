@@ -1,3 +1,4 @@
+import 'package:bubble_tab_indicator/bubble_tab_indicator.dart';
 import 'package:flutter/material.dart';
 
 import './MenuList.dart';
@@ -7,12 +8,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class AdditionalOrder extends StatefulWidget {
-  String docID;
+  String docID, restoId;
   List additionalList;
   bool cekBool;
   Function(List) callbackAdditionalList;
 
-  AdditionalOrder({Key key, this.docID, this.additionalList, this.callbackAdditionalList, this.cekBool}) : super(key: key);
+  AdditionalOrder({Key key, this.docID, this.additionalList, this.callbackAdditionalList, this.cekBool, this.restoId}) : super(key: key);
   @override
   AdditionalOrderState createState() => AdditionalOrderState();
 }
@@ -80,10 +81,10 @@ class AdditionalOrderState extends State<AdditionalOrder> with SingleTickerProvi
     return Scaffold(
       appBar: AppBar(
         title: Text('Additional Order'),
-        backgroundColor: Colors.green,
+        backgroundColor: Colors.orange,
       ),
       body: StreamBuilder(
-        stream: Firestore.instance.collection('menuList').snapshots(),
+        stream: Firestore.instance.collection('menuList').where('restaurantId', isEqualTo: widget.restoId).snapshots(),
         builder: (context, snapshot) {
           List<String> tabList = [];
           if(!snapshot.hasData) return const SpinKitDualRing(color: Colors.red, size: 50.0,);
@@ -205,7 +206,7 @@ class AdditionalOrderState extends State<AdditionalOrder> with SingleTickerProvi
 
   Widget menuList(List<Tab> menu) {
     return Container(
-      color: Colors.green[100],
+      color: Colors.orange[200],
       child: DefaultTabController(
         length: menu.length, 
         child: Column(
@@ -213,12 +214,19 @@ class AdditionalOrderState extends State<AdditionalOrder> with SingleTickerProvi
             Container(
               height: 60,
               child: TabBar(
-                isScrollable: true,
-                labelStyle: TextStyle(fontSize: 20),
-                unselectedLabelStyle: TextStyle(fontSize: 15),
+                indicatorColor: Colors.lime,
+                indicator: new BubbleTabIndicator(
+                  indicatorHeight: 40.0,
+                  indicatorColor: Colors.orangeAccent[400],
+                  tabBarIndicatorSize: TabBarIndicatorSize.tab,
+                ),
                 controller: _tabController,
+                isScrollable: true,
+                labelStyle: TextStyle(fontSize: 20, fontFamily: 'Balsamiq_Sans'),
+                unselectedLabelStyle: TextStyle(fontFamily: 'Balsamiq_Sans', fontSize: 15,),
+                unselectedLabelColor: Colors.grey,
                 tabs: menu,
-              ),
+              ), 
             ),
             Container(
               color: Colors.white,

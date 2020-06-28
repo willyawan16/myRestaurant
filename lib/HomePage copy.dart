@@ -50,49 +50,46 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context){
     debugPrint(widget.userData.toString());
     debugPrint(widget.restoData.toString());
-    return Scaffold(
+    return MaterialApp(
+      title: 'main',
+      home: Scaffold(
         // appBar: AppBar(
         //   title: Text('Trial'),
         // ),
         body: _pageOptions[_selectedIndex],
         bottomNavigationBar: BottomNavigationBar(
           currentIndex: _selectedIndex,
-          type: BottomNavigationBarType.fixed,
-          backgroundColor: Colors.orange[100],
-          showSelectedLabels: false,
-          showUnselectedLabels: false,
-          selectedItemColor: Colors.white,
-          unselectedItemColor: Colors.grey,
-          elevation: 0.0,
-          items: [Icons.assignment, Icons.restaurant, Icons.person]
-            .asMap()
-            .map((key, value) => MapEntry(
-                key, 
-                BottomNavigationBarItem(
-                  title: Text(''),
-                  icon: Container(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 6.0,
-                      horizontal: 16.0,
-                    ),
-                    decoration: BoxDecoration(
-                      color: _selectedIndex == key
-                        ? Colors.orange[600]
-                        : Colors.transparent,
-                      borderRadius: BorderRadius.circular(20.0),
-                    ),
-                    child: Icon(value),
-                  ), 
-                ),
+          items: [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.assignment),
+              title: Text('Orders'),
+              backgroundColor: Colors.red
+            ),
+
+            BottomNavigationBarItem(
+              icon: Icon(
+                Icons.restaurant_menu, 
+                //color: Colors.deepOrange[400],
               ),
-            ).values.toList(),
+              title: Text(
+                'Menu', 
+                // style: TextStyle(color: Colors.deepOrange[400],)
+              ),
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person),
+              title: Text('Profile'),
+              backgroundColor: Colors.red
+            ),
+          ],
           onTap: (index) {
             setState(() {
               _selectedIndex = index;
             });
           },
           ),
-      );
+      )
+    );
   }
 
   // @override

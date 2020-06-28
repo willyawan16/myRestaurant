@@ -21,6 +21,8 @@ class NewMenuState extends State<NewMenu>{
   // bool enableText;
   FocusNode myFocusNode;
 
+  final formKey = new GlobalKey<FormState>();
+
   @override
   void initState() {
     super.initState();
@@ -37,6 +39,28 @@ class NewMenuState extends State<NewMenu>{
   void dispose(){
     myFocusNode.dispose();
     super.dispose();
+  }
+
+  bool validateAndSave() {
+    final form = formKey.currentState;
+    if(form.validate()){
+      form.save();
+      debugPrint('Form is valid. Menu Name: $menuName, Description: $menuDesc, menuPric: $menuPric, category: $menuCate' );
+      return true;
+    } else {
+      debugPrint('Form is invalid. Menu Name: $menuName, Description: $menuDesc, menuPric: $menuPric, category: $menuCate');
+      return false;
+    }
+  }
+
+  void validating() {
+    if(validateAndSave()) {
+      try {
+        _accDialog();
+      } catch (e) {
+        debugPrint('Error: $e');
+      }
+    }
   }
 
   Future<void> _addData(String fileName) async{
@@ -157,49 +181,11 @@ class NewMenuState extends State<NewMenu>{
     );
   }
 
-  int _currentLine = 0;
-  Future<void> _nullDialog() async {
-    int currentLine = _currentLine;
-    String currentText;
-    if(currentLine == 1){
-      currentText = 'New Menu';
-    }else if(currentLine == 3){
-      currentText = 'Price';
-    }else if(currentLine == 4){
-      currentText = 'Category';
-    }
-    return showDialog<void>(
-      context: context,
-      barrierDismissible: true,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Oops! Something is missing.'),
-          content: SingleChildScrollView(
-            child: ListBody(
-              children: <Widget>[
-                Text('Please fill in the missing box'),
-                Text(currentText, style: TextStyle(fontWeight: FontWeight.bold),),
-              ],
-            ),
-          ),
-          actions: <Widget>[
-            FlatButton(
-              child: Text('Okay', style: TextStyle(fontSize: 15),),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   Future<void> _accDialog() async {
     return showDialog<void>(
       context: context,
       barrierDismissible: false,
-      builder: (BuildContext context) {
+      builder: (BuildContext dialogContext) {
         return AlertDialog(
           title: Text('Do you want to add this Menu?'),
           content: SingleChildScrollView(
@@ -220,6 +206,7 @@ class NewMenuState extends State<NewMenu>{
               child: Text('Sure', style: TextStyle(fontSize: 15),),
               onPressed: () {
                 _addData(menuName.toString());
+                Navigator.of(dialogContext).pop();
                 Navigator.of(context).pop();
                 debugPrint(menuCate.toString());
               },
@@ -232,142 +219,93 @@ class NewMenuState extends State<NewMenu>{
   
   Widget body () {
     double widthImport = (MediaQuery.of(context).size.width-28)/2;
-    double spacingHeight = 25;
+    double spacingHeight = 30;
     if(selectedVal != '+')
     {
       menuCate = selectedVal;
-    }
-    else
-    {
-
     }
     return new GestureDetector(
       onTap: (){
         FocusScope.of(context).requestFocus(new FocusNode());
       },
       child: SingleChildScrollView(
-        child: Container(
-          color: Colors.orangeAccent[100],
-          padding: EdgeInsets.fromLTRB(10, 20, 10, 10),
-          child: SizedBox(
-            // height: MediaQuery.of(context).size.height * 0.8,
-            child: Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15.0),
-              ),
-              elevation: 0,
-              color: Colors.orange[100],
-              child: new Column(
+        child: new Form(
+          key: formKey,
+          child: Container(
+            width: MediaQuery.of(context).size.width,
+            // height: MediaQuery.of(context).size.height-100,
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(20, 50, 20, 0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: <Widget>[
-                  Container(
-                    padding: EdgeInsets.only(top:10),
-                    child: Text(
-                      'New Menu', 
-                      style: TextStyle(
-                        //fontFamily: 'Pacifico',
-                        fontSize: 35, 
-                        fontWeight: FontWeight.bold
-                        ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 5,
-                  ),
-                  Container(
-                    padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
-                    child: TextField(
-                      // controller: menuName,
-                      onChanged: (String str){
-                        setState(() {
-                          menuName = str;
-                        });
-                      },
-                      decoration: InputDecoration(
-                        prefixIcon: Icon(Icons.restaurant),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                        labelText: 'New Menu',
-                        //hintText: 'Name of New Menu',
-                        labelStyle: TextStyle(fontSize: 17),
-                      ),
+                  TextFormField(
+                    validator: (value) => value.isEmpty ? 'Menu name can\'t be empty' : null,
+                    onSaved: (value) => menuName = value,
+                    decoration: InputDecoration(
+                      prefixIcon: Icon(Icons.restaurant),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                      labelText: 'New Menu',
+                      //hintText: 'Name of New Menu',
+                      labelStyle: TextStyle(fontSize: 17),
                     ),
                   ),
                   SizedBox(
                     height: spacingHeight,
                   ),
-                  Container(
-                    padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
-                    child: TextField(
-                      // controller: menuDesc,
-                      onChanged: (String str){
-                        setState(() {
-                          menuDesc = str;
-                        });
-                      },
-                      maxLength: 60,
-                      maxLines: 3,
-                      decoration: InputDecoration(
-                        prefixIcon: Icon(Icons.description),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                        labelText: 'Menu Description',
-                        hintText: 'Enter Description',
-                        labelStyle: TextStyle(fontSize: 17),
-                      ),
+                  TextFormField(
+                    validator: (value) => value.isEmpty ? null : null,
+                    onSaved: (value) => menuDesc = value,
+                    maxLength: 60,
+                    maxLines: 3,
+                    decoration: InputDecoration(
+                      prefixIcon: Icon(Icons.description),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                      labelText: 'Description',
+                      //hintText: 'Name of New Menu',
+                      labelStyle: TextStyle(fontSize: 17),
+                    ),
+                  ),
+                  TextFormField(
+                    validator: (value) => value.isEmpty ? 'Price name can\'t be empty' : null,
+                    onSaved: (value) => menuPric = value,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      prefixIcon: Icon(Icons.label),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                      labelText: 'Price',
+                      //hintText: 'Name of New Menu',
+                      labelStyle: TextStyle(fontSize: 17),
                     ),
                   ),
                   SizedBox(
                     height: spacingHeight,
                   ),
-                  Container(
-                    padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
-                    child: TextField(
-                      // controller: menuPric,
-                      onChanged: (String str){
-                        setState(() {
-                          menuPric = str;
-                        });
-                      },
-                      keyboardType: TextInputType.number,
-                      //textAlign: TextAlign.end,
-                      decoration: InputDecoration(
-                        prefixIcon: Icon(Icons.label),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                        labelText: 'Price',
-                        hintText: 'Enter Price',
-                        labelStyle: TextStyle(fontSize: 17),
-                      ),
+                  DropdownButton<String>(
+                    value: selectedVal,
+                    isExpanded: true,
+                    icon: Icon(Icons.arrow_downward),
+                    iconSize: 24,
+                    elevation: 16,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 17,
                     ),
-                  ),
-                  SizedBox(
-                    height: spacingHeight,
-                  ),
-                  Container(
-                    padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
-                    child: DropdownButton<String>(
-                      value: selectedVal,
-                      isExpanded: true,
-                      icon: Icon(Icons.arrow_downward),
-                      iconSize: 24,
-                      elevation: 16,
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 17,
-                      ),
-                      underline: Container(
-                        height: 2,
-                        color: Colors.grey,
-                      ),
-                      items: _initCate.map<DropdownMenuItem<String>>((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                      }).toList(),
-                      onChanged: (String str) {
-                        setState(() {
-                          selectedVal = str;
-                        });
-                      },
+                    underline: Container(
+                      height: 2,
+                      color: Colors.grey,
                     ),
+                    items: _initCate.map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                    }).toList(),
+                    onChanged: (String str) {
+                      setState(() {
+                        selectedVal = str;
+                      });
+                    },
                   ),
                   SizedBox(
                     height: spacingHeight,
@@ -377,15 +315,11 @@ class NewMenuState extends State<NewMenu>{
                       Column(
                         children: <Widget>[
                           Container(
-                            padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
-                            child: TextField(
+                            child: TextFormField(
                               autofocus: true,
                               // controller: menuPric,
-                              onChanged: (String str){
-                                setState(() {
-                                  menuCate = capitalize(str);
-                                });
-                              },
+                              validator: (value) => value.isEmpty ? 'Category can\'t be empty' : null,
+                              onSaved: (value) => menuCate = capitalize(value),
                               //textAlign: TextAlign.end,
                               decoration: InputDecoration(
                                 prefixIcon: Icon(Icons.category),
@@ -405,84 +339,66 @@ class NewMenuState extends State<NewMenu>{
                     :
                     Container(),
                   ),
-                  Container(
-                    width: widthImport*2,
-                    // color: Colors.yellow,
-                    child: new Column(
-                      children: <Widget>[
-                        new Row(
-                          children: <Widget>[
-                            Container(
-                              // color: Colors.red,
-                              width: widthImport,
-                              padding: EdgeInsets.only(left: 20),
-                              child: Text('Menu Image', style: TextStyle(fontSize: 17),),
-                            ),
-                            SizedBox(
-                              width: widthImport/2,
-                            ),
-                            Container(
-                              child: (imageFile == null) ?
-                                FlatButton(
-                                  textColor: Colors.orange,
-                                  onPressed: (){
-                                    _showImportDialog(context);
-                                  },
-                                  child: Text('import',),
-                                )
-                                :
-                                FlatButton(
-                                  textColor: Colors.orange,
-                                  onPressed: (){
-                                    this.setState((){
-                                      imageFile = null;
-                                    });
-                                  },
-                                  child: Text('reset',),
-                                )
-                            ),
-                          ],
-                        ),
-                        Container(
-                          height: 150,
-                          width: 150,
-                          // color: Colors.red,
-                          child: _decideImage(),
-                        ),
-                      ],
-                    ),
+                  new Column(
+                    children: <Widget>[
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          Container(
+                            // color: Colors.red,
+                            child: Text('Menu Image', style: TextStyle(fontSize: 17),),
+                          ),  
+                          Container(
+                            child: (imageFile == null) 
+                            ? OutlineButton(
+                              textColor: Colors.orange,
+                              onPressed: (){
+                                _showImportDialog(context);
+                              },
+                              child: Text('import',),
+                            )
+                            : FlatButton(
+                              textColor: Colors.red,
+                              onPressed: (){
+                                this.setState((){
+                                  imageFile = null;
+                                });
+                              },
+                              child: Text('reset',),
+                            )
+                          ),
+                        ],
+                      ),
+                      Container(
+                        height: 150,
+                        width: 150,
+                        // color: Colors.red,
+                        child: _decideImage(),
+                      ),
+                    ],
                   ),
                   SizedBox(
                     height: 20,
                   ),
                   Container(
-                    child: FloatingActionButton.extended(
-                      backgroundColor: Colors.deepOrangeAccent,
-                      label: Text('Submit'),
+                    width: 300,
+                    child: RaisedButton(
+                      elevation: 10,
+                      color: Colors.orangeAccent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(20)),
+                      ),
+                      child: Text('Create', style: TextStyle(fontSize: 20)),
                       onPressed: (){
-                        if(menuName == null || menuName.length == 0){
-                          _currentLine = 1;
-                          _nullDialog();
-                        }else if(menuPric == null || menuPric.length == 0){
-                          _currentLine = 3;
-                          _nullDialog();
-                        }else if(menuCate == null || menuCate.length == 0 || menuCate == 'Select Category'){
-                          _currentLine = 4;
-                          _nullDialog();
-                        }else if(menuDesc != null || menuDesc == '' || menuDesc == null){
-                          if(menuDesc == null)
-                            menuDesc = '';
-                          _accDialog();
-                          Navigator.pop(context);
-                        }
-                      },
+                        validating();
+                      }
                     ),
                   ),
                   SizedBox(
-                    height: 20,
+                    height: 30,
                   ),
                 ],
-              ),
+              )
             ),
           ),
         ),
@@ -494,10 +410,14 @@ class NewMenuState extends State<NewMenu>{
   Widget build(BuildContext context){
     debugPrint('Get Id: ${widget.restoId}');
     return MaterialApp(
+      theme: ThemeData(
+        fontFamily: 'Balsamiq_Sans',
+      ),
       home:Scaffold(
+        backgroundColor: Colors.orange[50],
         resizeToAvoidBottomPadding: false,
         appBar: AppBar(
-          backgroundColor: Colors.deepOrange[400],
+          backgroundColor: Colors.orange,
           leading: IconButton(
             icon: Icon(Icons.arrow_back),
             tooltip: 'back',
@@ -508,29 +428,27 @@ class NewMenuState extends State<NewMenu>{
           title: Text('New Menu'),
         ),
         body: StreamBuilder(
-          stream: Firestore.instance.collection('menuList').snapshots(),
+          stream: Firestore.instance.collection('menuList').where('restaurantId', isEqualTo: widget.restoId).snapshots(),
           builder: (context, snapshot){
             List<String> getCate = [];
             if(!snapshot.hasData) return const Text('Loading');
             for(int i = 0; i < snapshot.data.documents.length; i++){
-              if(snapshot.data.documents[i]['restaurantId'] == widget.restoId) {
-                if(getCate.isEmpty)
-                {
-                  getCate.add(snapshot.data.documents[i]['category']);
-                }
-                else
-                {
-                  bool needChange = true;
-                  for(int j = 0; j < getCate.length; j++){
-                    if(snapshot.data.documents[i]['category'] == getCate[j]){
-                      needChange = false;
-                    }
+              if(getCate.isEmpty)
+              {
+                getCate.add(snapshot.data.documents[i]['category']);
+              }
+              else
+              {
+                bool needChange = true;
+                for(int j = 0; j < getCate.length; j++){
+                  if(snapshot.data.documents[i]['category'] == getCate[j]){
+                    needChange = false;
                   }
-                  if(needChange == true){
-                      getCate.add(snapshot.data.documents[i]['category']);
-                  } 
-                  needChange = true;
                 }
+                if(needChange == true){
+                    getCate.add(snapshot.data.documents[i]['category']);
+                } 
+                needChange = true;
               }
             }
             getCate.sort();

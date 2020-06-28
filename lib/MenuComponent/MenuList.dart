@@ -70,15 +70,17 @@ class MenuListState extends State<MenuList> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(15.0),
         ),
-        elevation: 5,
-        color: Colors.blue[50],
+        elevation: 20,
+        color: Colors.white,
         child: Row(
           children: <Widget>[
             Padding(padding: EdgeInsets.only(left: 10)),
             Container(
+              // decoration: BoxDecoration(
+              //   borderRadius: BorderRadius.circular(30),
+              // ),
               height: whPic,
               width: whPic,
-              color: Colors.red,
               child: (document['picture'] != null) 
               ? Image.network(document['picture'])
               : Container(),
@@ -191,8 +193,7 @@ class MenuListState extends State<MenuList> {
     var indexIni = wholeMenu.indexOf(sortedMenu[currentIndex]);
     var dataIni = wholeMenu[indexIni];
     if (choice == Constants.Edit[0]) {
-      Navigator.push(
-        context, 
+      Navigator.of(context, rootNavigator: true).push(
         MaterialPageRoute(builder: (context) => EditMenu(
           name: dataIni['name'],
           desc: dataIni['description'],
@@ -200,6 +201,7 @@ class MenuListState extends State<MenuList> {
           cate: dataIni['category'],
           pict: dataIni['picture'],
           docID: dataIni['key'],
+          restoId: widget.restoId,
         )),
       );
     }else if(choice == Constants.Delete[0]) {
@@ -217,7 +219,7 @@ class MenuListState extends State<MenuList> {
   Widget build(BuildContext context){
     return Scaffold(
       body: menuCards(),
-      backgroundColor: Colors.orangeAccent[100],
+      backgroundColor: Colors.orange[50]
     );
   }
 
@@ -239,8 +241,9 @@ class Constants {
 
 class MenuList extends StatefulWidget{
   final String category;
+  final String restoId;
 
-  MenuList({Key key, @required this.category}) : super(key: key);
+  MenuList({Key key, @required this.category, this.restoId}) : super(key: key);
   @override
   MenuListState createState() => MenuListState();
 }

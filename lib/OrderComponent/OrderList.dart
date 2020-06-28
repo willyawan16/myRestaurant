@@ -300,9 +300,8 @@ class OrderListState extends State<OrderList> {
         }
       },
       onTap: (){
-        Navigator.push(
-          context, 
-          MaterialPageRoute(builder: (context) => CheckSummary(orderList: details,)),
+        Navigator.of(context, rootNavigator: true).push(
+          MaterialPageRoute(builder: (context) => CheckSummary(orderList: details, restoId: widget.restoId,)),
         );
       },
       child: Container(
@@ -318,7 +317,7 @@ class OrderListState extends State<OrderList> {
                 // height: 100,
                 width: widthNum,
                 decoration: BoxDecoration(
-                  color: Colors.grey,
+                  color: Colors.orange[300],
                   borderRadius: BorderRadius.only(topLeft: Radius.circular(5), bottomLeft: Radius.circular(5)),
                 ),
                 child: Center(
@@ -402,14 +401,15 @@ class OrderListState extends State<OrderList> {
                         child: Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(20),
-                            color: Colors.green,
+                            color: Colors.orange[300],
                           ),
                           child: Center(
                             child: Text(
                               'Table ${details['status'][1]}', 
                               style: TextStyle(
                                 fontSize: 20, 
-                                fontWeight: FontWeight.bold,shadows: [
+                                fontWeight: FontWeight.bold,
+                                shadows: [
                                   Shadow( // bottomLeft
                                     offset: Offset(-0.5, -0.5),
                                     color: Colors.white
@@ -453,13 +453,13 @@ class OrderListState extends State<OrderList> {
 
   Widget body(List orderList, bool check){
     return Scaffold(
-      backgroundColor: Colors.green[100],
+      backgroundColor: Colors.orange[50],
       body: Column(
           children: <Widget>[
             Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(0.0),
-                color: Colors.green[100],
+                color: Colors.orange[50],
                 boxShadow: [
                   BoxShadow(
                       color: Colors.grey,

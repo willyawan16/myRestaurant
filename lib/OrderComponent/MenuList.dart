@@ -15,6 +15,11 @@ class MenuList extends StatefulWidget {
   MenuListState createState() => MenuListState();
 }
 
+class BounceScrollBehavior extends ScrollBehavior {
+  @override
+  getScrollPhysics(_) => const BouncingScrollPhysics();
+}
+
 class MenuListState extends State<MenuList> { 
   TextEditingController descOrder;
   List sortedMenu;
@@ -48,6 +53,7 @@ class MenuListState extends State<MenuList> {
   @override
   Widget build(BuildContext context){
     return Scaffold(
+      backgroundColor: Colors.orange[200],
       body: viewMenu(),
     );
   }
@@ -249,13 +255,16 @@ class MenuListState extends State<MenuList> {
     
     sortedMenu = _sortedMenu;
 
-    return ListView.builder(
-      itemCount: _sortedMenu.length,
-      itemBuilder: (context, i) => menuDetails(context, _sortedMenu[i], i),
+    return ScrollConfiguration(
+      behavior: BounceScrollBehavior(),
+      child: ListView.builder(
+        itemCount: _sortedMenu.length,
+        itemBuilder: (context, i) => menuDetails(context, _sortedMenu[i], i, _sortedMenu),
+      ),
     );
   }
 
-  Widget menuDetails(BuildContext context, document, int index) {
+  Widget menuDetails(BuildContext context, document, int index, wholeDoc) {
     var totWidth = MediaQuery.of(context).size.width;
     var widthDetail = totWidth * 0.5;
     var widthIcon = totWidth / 12;
@@ -278,7 +287,7 @@ class MenuListState extends State<MenuList> {
               _showAddDialog(context, quantityFood, descOrder, index);
             },
             child: Container(
-              color: Colors.white,
+              color: Colors.orange[50],
               height: 150,
               child: Container(
                 child: Row(
@@ -287,7 +296,7 @@ class MenuListState extends State<MenuList> {
                     Container(
                       height: whPic,
                       width: whPic,
-                      color: Colors.red,
+                      color: Colors.white,
                       child: (document['picture'] != null) 
                       ? Image.network(document['picture'])
                       : Container(),
@@ -339,7 +348,12 @@ class MenuListState extends State<MenuList> {
               ),
             ),
           ),
-          Divider(thickness: 5,)
+          SizedBox(
+            height: 1,
+          ),
+          (index == wholeDoc.length-1)
+          ? SizedBox(height: 100)
+          : Container(),
         ],
       ),
     );

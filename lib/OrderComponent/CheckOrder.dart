@@ -203,7 +203,7 @@ class CheckOrderState extends State<CheckOrder> {
               ],
             ),
           ),
-          backgroundColor: Colors.green,
+          backgroundColor: Colors.orange,
           leading: IconButton(
             icon: Icon(Icons.arrow_back_ios),
             onPressed: (){
@@ -383,12 +383,12 @@ class CheckOrderState extends State<CheckOrder> {
                     height: 30,
                     width: iconWidth,
                     child: Center(
-                      child: Text('x${details['quantity']}', style: TextStyle(fontWeight: FontWeight.bold),),
+                      child: Text('x${details['quantity']}', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
                     ),
                     decoration: BoxDecoration(
                       // color: Colors.lightGreen,
                       border: Border.all(
-                        color: Colors.green,
+                        color: Colors.orange,
                         width: 3
                       ),
                       borderRadius: BorderRadius.circular(5)

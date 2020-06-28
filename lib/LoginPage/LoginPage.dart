@@ -111,7 +111,7 @@ class LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixi
               onPressed: (){
                 Navigator.push(
                   context, 
-                  MaterialPageRoute(builder: (context) => CreateAccountPage(auth: widget.auth, userType: 'Main',))
+                  MaterialPageRoute(builder: (context) => CreateAccountPage(auth: widget.auth, userType: 'Main', bgColor: Colors.red))
                 );
                 debugPrint('userType: Main');
               },
@@ -168,131 +168,146 @@ class LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixi
         // child: onLoading(),
         child: Scaffold(
           resizeToAvoidBottomPadding: false,
-          backgroundColor: Colors.grey,
           body: Container(
+            decoration: BoxDecoration(
+              // gradient: LinearGradient(
+              //   begin: Alignment.topLeft,
+              //   // end: Alignment(0.8, 0.0), // 10% of the width, so there are ten blinds.
+              //   end: Alignment.bottomRight,
+              //   colors: [Colors.yellow[400], Colors.orange[600]], // whitish to gray
+              //   tileMode: TileMode.repeated, // repeats the gradient over the canvas
+              // ),
+            ),
             child: Column(
               children: <Widget>[
                 Container(
-                  height: totHeight*1/3,
-                  child: Container(),
+                  height: totHeight * 0.4,
+                  width: totWidth,
+                  decoration: new BoxDecoration(
+                    color: Colors.orange,
+                    borderRadius: new BorderRadius.only(
+                      bottomLeft: const Radius.circular(100.0),
+                    )
+                  ),
                 ),
                 Container(
-                  height: totHeight*2/3,
-                  width: totWidth,
-                  child: Card(
-                    elevation: 20,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
-                    ), 
-                    child: Padding(
-                      padding: EdgeInsets.fromLTRB(40,30,40,0),
-                      child: new Form(
-                        key: formKey,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: <Widget>[
-                            Text('Login Form', style: TextStyle(fontFamily: 'Sriracha', fontSize: 30, fontWeight: FontWeight.bold),),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            TextFormField(
-                              // onChanged: (String str){
-                              //   setState(() {
-                              //     email = str;
-                              //   });
-                              // },
-                              validator: (value) => value.isEmpty ? 'Email can\'t be empty': null,
-                              onSaved: (value) => _email = value,
-                              decoration: InputDecoration(
-                                // prefixIcon: Icon(Icons.person),
-                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                                labelText: 'Email',
-                                labelStyle: TextStyle(fontSize: 17),
-                              ),
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            TextFormField(
-                              // onChanged: (String str){
-                              //   setState(() {
-                              //     password = str;
-                              //   });
-                              // },
-                              validator: (value) => value.isEmpty ? 'Password can\'t be empty': null,
-                              onSaved: (value) => _password = value,
-                              obscureText: hidePassword,
-                              decoration: InputDecoration(
-                                suffixIcon: IconButton(
-                                  icon: Icon(Icons.remove_red_eye),
-                                  onPressed: (){
-                                    setState(() {
-                                      hidePassword = !hidePassword;
-                                    });
-                                  },
+                  child: Column(
+                    children: <Widget>[
+                      Container(
+                        child: Padding(
+                          padding: EdgeInsets.fromLTRB(40,10,40,0),
+                          child: new Form(
+                            key: formKey,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: <Widget>[
+                                Text('Welcome', style: TextStyle(fontFamily: 'Sriracha', fontSize: 30, fontWeight: FontWeight.bold),),
+                                SizedBox(
+                                  height: 10,
                                 ),
-                                // prefixIcon: Icon(Icons.),
-                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                                labelText: 'Password',
-                                labelStyle: TextStyle(fontSize: 17),
-                              ),
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Container(
-                              // width: totWidth-80,                          
-                              child: RaisedButton(
-                                color: Colors.blue[100],
-                                child: Text('Login', style: TextStyle(fontSize: 20,)),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.all(Radius.circular(10)),
-                                ),
-                                onPressed: (){
-                                  FocusScope.of(context).requestFocus(new FocusNode());
-                                  setState(() {
-                                    isLoading = true;
-                                  });
-                                  validateAndSubmit();
-                                },
-                              ),
-                            ),
-                            Container(
-                              // width: totWidth-80,                          
-                              child: FlatButton(
-                                child: Text('Create an account', style: TextStyle(fontSize: 15,)),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.all(Radius.circular(10)),
-                                ),
-                                onPressed: (){
-                                  formKey.currentState.reset();
-                                  setState(() {
-                                    failedSignIn = false;
-                                  });
-                                  _showAskDialog(context);
-                                },
-                              ),
-                            ),
-                            (isLoading)
-                            ? SpinKitWave(
-                              size: 50.0,
-                              itemBuilder: (BuildContext context, int index){
-                                return DecoratedBox(
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Colors.red,
+                                TextFormField(
+                                  // onChanged: (String str){
+                                  //   setState(() {
+                                  //     email = str;
+                                  //   });
+                                  // },
+                                  keyboardType: TextInputType.emailAddress,
+                                  validator: (value) => value.isEmpty ? 'Email can\'t be empty': null,
+                                  onSaved: (value) => _email = value,
+                                  decoration: InputDecoration(
+                                    // prefixIcon: Icon(Icons.person),
+                                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                                    labelText: 'Email',
+                                    labelStyle: TextStyle(fontSize: 17),
                                   ),
-                                );
-                              },
-                              // controller: AnimationController(vsync: this,duration: const Duration(milliseconds: 1200)),
-                            )
-                            : (failedSignIn)
-                              ? Text('Email or Password might be incorrect', style: TextStyle(color: Colors.red), textAlign: TextAlign.center,)
-                              : Container(),
-                          ],
+                                ),
+                                SizedBox(
+                                  height: 10,
+                                ),
+                                TextFormField(
+                                  // onChanged: (String str){
+                                  //   setState(() {
+                                  //     password = str;
+                                  //   });
+                                  // },
+                                  validator: (value) => value.isEmpty ? 'Password can\'t be empty': null,
+                                  onSaved: (value) => _password = value,
+                                  obscureText: hidePassword,
+                                  decoration: InputDecoration(
+                                    suffixIcon: IconButton(
+                                      icon: Icon(Icons.remove_red_eye),
+                                      onPressed: (){
+                                        setState(() {
+                                          hidePassword = !hidePassword;
+                                        });
+                                      },
+                                    ),
+                                    // prefixIcon: Icon(Icons.),
+                                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                                    labelText: 'Password',
+                                    labelStyle: TextStyle(fontSize: 17),
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 10,
+                                ),
+                                Container(
+                                  // width: totWidth-80,                          
+                                  child: RaisedButton(
+                                    color: Colors.orange,
+                                    elevation: 7,
+                                    child: Text('Sign In', style: TextStyle(fontSize: 17,)),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.all(Radius.circular(40)),
+                                    ),
+                                    onPressed: (){
+                                      FocusScope.of(context).requestFocus(new FocusNode());
+                                      setState(() {
+                                        isLoading = true;
+                                      });
+                                      validateAndSubmit();
+                                    },
+                                  ),
+                                ),
+                                Container(
+                                  // width: totWidth-80,                          
+                                  child: OutlineButton(
+                                    child: Text('Create an account', style: TextStyle(fontSize: 15,)),
+                                    highlightedBorderColor: Colors.orange,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.all(Radius.circular(40)),
+                                    ),
+                                    onPressed: (){
+                                      formKey.currentState.reset();
+                                      setState(() {
+                                        failedSignIn = false;
+                                      });
+                                      _showAskDialog(context);
+                                    },
+                                  ),
+                                ),
+                                (isLoading)
+                                ? SpinKitWave(
+                                  size: 50.0,
+                                  itemBuilder: (BuildContext context, int index){
+                                    return DecoratedBox(
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: Colors.red,
+                                      ),
+                                    );
+                                  },
+                                  // controller: AnimationController(vsync: this,duration: const Duration(milliseconds: 1200)),
+                                )
+                                : (failedSignIn)
+                                  ? Text('Email or Password might be incorrect', style: TextStyle(color: Colors.red), textAlign: TextAlign.center,)
+                                  : Container(),
+                              ],
+                            ),
+                          )
                         ),
-                      )
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ],

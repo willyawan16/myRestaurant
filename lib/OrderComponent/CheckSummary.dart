@@ -7,8 +7,9 @@ import './AdditionalOrder.dart';
 
 class CheckSummary extends StatefulWidget {
   Map orderList;
+  String restoId;
 
-  CheckSummary({Key key, this.orderList}) : super(key: key);
+  CheckSummary({Key key, this.orderList, this.restoId}) : super(key: key);
   @override
   CheckSummaryState createState() => CheckSummaryState();
 }
@@ -192,6 +193,7 @@ class CheckSummaryState extends State<CheckSummary> {
         Navigator.of(context).push(
           MaterialPageRoute(builder: (context) => AdditionalOrder(
             docID: widget.orderList['key'], 
+            restoId: widget.restoId,
             additionalList: (!change3) ? additionalOrders : orders,
             callbackAdditionalList: (val){
               orders = val;
@@ -225,7 +227,7 @@ class CheckSummaryState extends State<CheckSummary> {
               ],
             ),
           ),
-          backgroundColor: Colors.green,
+          backgroundColor: Colors.orange,
           leading: IconButton(
             icon: Icon(Icons.arrow_back_ios),
             onPressed: (){
@@ -610,7 +612,7 @@ class CheckSummaryState extends State<CheckSummary> {
                     decoration: BoxDecoration(
                       // color: Colors.lightGreen,
                       border: Border.all(
-                        color: Colors.green,
+                        color: Colors.orange,
                         width: 3
                       ),
                       borderRadius: BorderRadius.circular(5)

@@ -8,8 +8,9 @@ import './auth.dart';
 class CreateAccountPage extends StatefulWidget {
   final BaseAuth auth;
   String userType;
+  Color bgColor;
 
-  CreateAccountPage({this.auth, @required this.userType});
+  CreateAccountPage({this.auth, @required this.userType, this.bgColor});
   @override
   CreateAccountPageState createState() => CreateAccountPageState();
 }
@@ -317,7 +318,7 @@ class CreateAccountPageState extends State<CreateAccountPage> {
           // }
           _organizationList = [];
           return Scaffold(
-            backgroundColor: sliverColor,
+            backgroundColor: widget.bgColor,
             body: CustomScrollView(
               slivers: <Widget>[
                 SliverAppBar(
@@ -342,11 +343,10 @@ class CreateAccountPageState extends State<CreateAccountPage> {
                   expandedHeight: 200.0,
                 ),
                 SliverGroupBuilder(
-                  padding: EdgeInsets.fromLTRB(15,30,15,0),
+                  padding: EdgeInsets.fromLTRB(15,40,15,0),
                   decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10)),
-                      border: Border.all(color: Color.fromRGBO(238, 237, 238, 1))
+                      borderRadius: BorderRadius.only(topLeft: Radius.circular(50)),
                   ),
                   child: SliverList(
                     delegate: new SliverChildListDelegate([
@@ -542,10 +542,11 @@ class CreateAccountPageState extends State<CreateAccountPage> {
                         height: spaceBetween
                       ),
                       RaisedButton(
-                        color: Colors.yellow,
+                        color: widget.bgColor,
+                        elevation: 7,
                         child: Text('Create', style: TextStyle(fontFamily: 'Balsamiq_Sans', fontSize: 20,)),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          borderRadius: BorderRadius.all(Radius.circular(40)),
                         ),
                         onPressed: (){
                           FocusScope.of(context).requestFocus(new FocusNode());
@@ -556,24 +557,24 @@ class CreateAccountPageState extends State<CreateAccountPage> {
                         },
                       ),
                       SizedBox(
-                        height: 20,
+                        height: 70,
                       ),
                     ]),
                   ),
                 ),
-                SliverFillRemaining(
-                  hasScrollBody: false,
-                  // fillOverscroll: false,
-                  child: Container(
-                    height: 400,
-                    color: Colors.blue[100],
-                    child: Icon(
-                      Icons.sentiment_very_satisfied,
-                      size: 75,
-                      color: Colors.blue[900],
-                    ),
-                  ),
-                ),
+                // SliverFillRemaining(
+                //   hasScrollBody: false,
+                //   // fillOverscroll: false,
+                //   child: Container(
+                //     height: 400,
+                //     color: Colors.blue[100],
+                //     child: Icon(
+                //       Icons.sentiment_very_satisfied,
+                //       size: 75,
+                //       color: Colors.blue[900],
+                //     ),
+                //   ),
+                // ),
               ],
             ),
           );

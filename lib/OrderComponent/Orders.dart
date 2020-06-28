@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import './OrderList.dart';
 import './HistoryList.dart';
 import './NewOrder.dart';
+import '../MenuComponent/NewMenu.dart';
 
 class Orders extends StatefulWidget {
   String restoId;
@@ -20,6 +21,9 @@ class OrdersState extends State<Orders> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: ThemeData(
+        fontFamily: 'Balsamiq_Sans',
+      ),
       home: ScrollConfiguration(
         behavior: BounceScrollBehavior(),
         child: DefaultTabController(
@@ -27,28 +31,28 @@ class OrdersState extends State<Orders> {
           child: Scaffold(
             appBar: AppBar(
               elevation: 0,
-              title: Text('Orders', style: TextStyle(fontSize: 30),),
-              backgroundColor: Colors.green,
+              title: Text('Orders', style: TextStyle(fontSize: 30, color: Colors.black),),
+              backgroundColor: Colors.orange[100],
               bottom: TabBar(
                 indicatorSize: TabBarIndicatorSize.label,
                 unselectedLabelColor: Colors.white,
-                labelColor: Colors.green,
+                labelColor: Colors.orange,
                 indicator: BoxDecoration(
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(10),
                     topRight: Radius.circular(10)),
-                    color: Colors.green[100]),
+                    color: Colors.orange[50]),
                 tabs: <Widget>[
                   Tab(
                     child: Align(
                       alignment: Alignment.center,
-                      child: Text('Orders'),
+                      child: Text('Orders', style: TextStyle(fontFamily: 'Balsamiq_Sans'),),
                     ),
                   ),
                   Tab(
                     child: Align(
                       alignment: Alignment.center,
-                      child: Text('History'),
+                      child: Text('History', style: TextStyle(fontFamily: 'Balsamiq_Sans')),
                     ),
                   ),
                 ],
@@ -69,7 +73,7 @@ class OrdersState extends State<Orders> {
               },
               label: Text('New Order'),
               icon: Icon(Icons.assignment),
-              backgroundColor: Colors.green,
+              backgroundColor: Colors.orangeAccent[400],
             ),
           ),
         ),

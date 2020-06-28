@@ -1,16 +1,16 @@
+
 import 'package:flutter/material.dart';
-import './NewMenu.dart';
-import 'package:bubble_tab_indicator/bubble_tab_indicator.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import './MenuList.dart';
+import './NewMenu.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class Menu extends StatefulWidget {
   String restoId;
 
   Menu({Key key, this.restoId}) : super(key: key);
   @override
-  MenuState createState() => MenuState();
+  MenuState createState() => new MenuState();
 }
 
 class BounceScrollBehavior extends ScrollBehavior {
@@ -43,50 +43,47 @@ class MenuState extends State<Menu> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder(
-      stream: Firestore.instance.collection('menuList').snapshots(),
-      builder: (context, snapshot){
-        List<String> tabList = [];
-        if(!snapshot.hasData) return const SpinKitDualRing(color: Colors.red, size: 50.0,);
-        // debugPrint(tabList.toString());
-        for(int i = 0; i < snapshot.data.documents.length; i++){
-          if(snapshot.data.documents[i]['restaurantId'] == widget.restoId) {
-            if(tabList.isEmpty)
-            {
-              tabList.add(snapshot.data.documents[i]['category']);
-            }
-            else
-            {
-              bool needChange = true;
-              for(int j = 0; j < tabList.length; j++){
-                if(snapshot.data.documents[i]['category'] == tabList[j]){
-                  needChange = false;
-                }
+    return MaterialApp(
+      home: StreamBuilder(
+        stream: Firestore.instance.collection('menuList').snapshots(),
+        builder: (context, snapshot){
+          List<String> tabList = [];
+          if(!snapshot.hasData) return const SpinKitDualRing(color: Colors.red, size: 50.0,);
+          // debugPrint(tabList.toString());
+          for(int i = 0; i < snapshot.data.documents.length; i++){
+            if(snapshot.data.documents[i]['restaurantId'] == widget.restoId) {
+              if(tabList.isEmpty)
+              {
+                tabList.add(snapshot.data.documents[i]['category']);
               }
-              if(needChange == true){
-                  tabList.add(snapshot.data.documents[i]['category']);
-              } 
-              needChange = true;
+              else
+              {
+                bool needChange = true;
+                for(int j = 0; j < tabList.length; j++){
+                  if(snapshot.data.documents[i]['category'] == tabList[j]){
+                    needChange = false;
+                  }
+                }
+                if(needChange == true){
+                    tabList.add(snapshot.data.documents[i]['category']);
+                } 
+                needChange = true;
+              }
             }
           }
-        }
-        tabList.sort();
-        //debugPrint(tabList.toString());
-        // debugPrint(tabList[1].toString());
-        List<Tab> menu = tabList.map((tab) => Tab(text: tab)).toList();
-        return MaterialApp(
-          theme: ThemeData(
-            fontFamily: 'Balsamiq_Sans',
-          ),
-          home: ScrollConfiguration(
-            behavior: BounceScrollBehavior(),
+          tabList.sort();
+          //debugPrint(tabList.toString());
+          // debugPrint(tabList[1].toString());
+          List<Tab> menu = tabList.map((tab) => Tab(text: tab)).toList();
+          // debugPrint('ok');
+          return ScrollConfiguration(
+            behavior: BounceScrollBehavior(), 
             child: DefaultTabController(
               length: menu.length,
               child: Scaffold(
                 appBar: AppBar(
                   actions: <Widget>[
                     IconButton(
-                      color: Colors.black,
                       icon: Icon(Icons.search),
                       tooltip: 'search',
                       onPressed: (){
@@ -96,26 +93,20 @@ class MenuState extends State<Menu> with SingleTickerProviderStateMixin {
                   ],
                   bottom: new TabBar(
                     indicatorColor: Colors.lime,
-                    indicator: new BubbleTabIndicator(
-                      indicatorHeight: 40.0,
-                      indicatorColor: Colors.orangeAccent[400],
-                      tabBarIndicatorSize: TabBarIndicatorSize.tab,
-                    ),
                     controller: _tabController,
                     isScrollable: true,
-                    labelStyle: TextStyle(fontSize: 20, fontFamily: 'Balsamiq_Sans'),
-                    unselectedLabelStyle: TextStyle(fontFamily: 'Balsamiq_Sans', fontSize: 15,),
-                    unselectedLabelColor: Colors.grey,
+                    labelStyle: TextStyle(fontSize: 20),
+                    unselectedLabelStyle: TextStyle(fontSize: 15),
                     tabs: menu,
                   ),
-                  title: const Text('Menu', style: TextStyle(fontFamily: 'Balsamiq_Sans', fontWeight: FontWeight.bold, color: Colors.black, fontSize: 30),),
-                  backgroundColor: Colors.orange[100],
+                  title: const Text('Menu', style: TextStyle(fontSize: 30),),
+                  backgroundColor: Colors.deepOrange[400],
                 ),
                 body: (!(tabList.length == 0)) ?
                   TabBarView(
                     controller: _tabController,
                     children: menu.map((Tab tab) {
-                      return new MenuList(category: tab.text, restoId: widget.restoId,);
+                      return new MenuList(category: tab.text,);
                     }).toList(),
                   )
                   :
@@ -131,12 +122,12 @@ class MenuState extends State<Menu> with SingleTickerProviderStateMixin {
                   label: Text('New Menu'),
                   icon: Icon(Icons.create),
                   backgroundColor: Colors.orangeAccent[400],
-                ),  
+                ),
               ),
             ),
-          ),
-        );
-      },
+          );
+        }
+      ),
     );
   }
 
@@ -145,4 +136,5 @@ class MenuState extends State<Menu> with SingleTickerProviderStateMixin {
       backgroundColor: Colors.orangeAccent[100],
     );
   }
+
 }
