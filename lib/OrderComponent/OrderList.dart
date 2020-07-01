@@ -8,14 +8,17 @@ import 'package:intl/intl.dart';
 
 class OrderList extends StatefulWidget {
   String restoId;
+  Function(int) count;
 
-  OrderList({Key key, this.restoId}) : super(key: key);
+  OrderList({Key key, this.restoId, this.count}) : super(key: key);
 
   @override
   OrderListState createState() => OrderListState();
 }
 
 class OrderListState extends State<OrderList> {
+  String delete;
+  int count;
 
   Widget orderCards(List order) {
     return ListView.builder(
@@ -241,8 +244,7 @@ class OrderListState extends State<OrderList> {
                 onPressed: (){
                   // payment page
                   Navigator.of(dialogContext).pop();
-                  Navigator.push(
-                    context, 
+                  Navigator.of(context, rootNavigator: true).push( 
                     MaterialPageRoute(builder: (context) => CheckSummary(orderList: details,)),
                   );
                 },
@@ -253,6 +255,99 @@ class OrderListState extends State<OrderList> {
         );
       }
     );
+  }
+
+  Future<void> _deleteOrder(doc) {
+    delete = '';
+    var _onPressed = (){
+      deleteOrder(doc);
+    };
+    return showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext addcontext) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return GestureDetector(
+              onTap: (){
+                FocusScope.of(context).requestFocus(new FocusNode());
+              },
+              child: AlertDialog(
+                
+                title: Text('Delete Order?'),
+                elevation: 10,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                content: Container(
+                  height: 40,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text('Are you sure?')
+                      // Container(
+                      //   child: Text('Type "delete" to delete'),
+                      // ),
+                      // SizedBox(
+                      //   height: 10,
+                      // ),
+                      // TextField(
+                      //   onChanged: (val){
+                      //     delete = val;
+                      //     debugPrint('$delete');
+                          
+                      //   },
+                      //   decoration: InputDecoration(
+                      //     hintText: 'Type "Delete"',
+                      //     border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
+                      //   ),
+                      // ),
+                    ],
+                  ),
+                ),
+                actions: <Widget>[
+                  Container(
+                    child: FlatButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      }, 
+                      child: Text(
+                        'Cancel',
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.only(right: 10),
+                    child: RaisedButton(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)
+                      ),
+                      color: Colors.red,
+                      onPressed: _onPressed,
+                      child: Text('Delete', style: TextStyle(color: Colors.white)),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+        );
+      }
+    ).then((value) => setState((){}));
+  }
+
+  void deleteOrder(doc) async {
+    CollectionReference reference = Firestore.instance.collection('orderList');
+    await reference
+    .document(doc)
+    .updateData({
+      'progress': 10,
+      'paid': 'Trash',
+    });
   }
 
   void updateProgress(doc, nextState, int number) async {
@@ -286,6 +381,9 @@ class OrderListState extends State<OrderList> {
     List progress = ['Waiting..', 'Serving..', 'Done!'];
     // debugPrint('[$index]: ${progress[progressCount]}');
     return GestureDetector(
+      onLongPress: (){
+        _deleteOrder(details['key']);
+      },
       onDoubleTap: (){
         if(details['progress'] != 2) {
           if(details['progress'] == 1 && details['additionalOrderProgress'] == 0) {
@@ -331,10 +429,10 @@ class OrderListState extends State<OrderList> {
                       ),
                     ),
                     subtitle: Text(
-                      (index+1).toString(), 
+                      (details['orderNum']).toString(), 
                       textAlign: TextAlign.center, 
                       style: TextStyle(
-                        fontSize: 22, 
+                        fontSize: 20, 
                         fontWeight: FontWeight.bold
                       ),
                     ),
@@ -501,6 +599,7 @@ class OrderListState extends State<OrderList> {
 
   Widget build(BuildContext context) {
     debugPrint('Get Id: ${widget.restoId}');
+    int _count = 0;
     return Scaffold(
       body: StreamBuilder(
         stream: Firestore.instance.collection('orderList').where('restaurantId', isEqualTo: widget.restoId).snapshots(),
@@ -520,6 +619,7 @@ class OrderListState extends State<OrderList> {
               'date': date,
               'time': time,
               'orders': snapshot.data.documents[i]['orders'],
+              'orderNum': snapshot.data.documents[i]['orderNum'],
               'progress': snapshot.data.documents[i]['progress'],
               'additionalOrder': snapshot.data.documents[i]['additionalOrder'],
               'additionalOrderProgress': snapshot.data.documents[i]['additionalOrderProgress'],
@@ -528,15 +628,22 @@ class OrderListState extends State<OrderList> {
               'key': snapshot.data.documents[i].documentID,
             });
             var today = DateFormat('yyyy-MM-dd').format(DateTime.now());
-            if(_temp['paid'] != 'Paid' && _temp['date'] == today)
+            if(_temp['paid'] != 'Paid' && _temp['date'] == today && _temp['progress'] != 10) { 
               orderList.add(_temp);
-            else if(_temp['date'] == today)
+              _count++;
+            } else if(_temp['date'] == today) {
               check = true;
+              _count++;
+            }
             _temp = {};
           }
           orderList.sort((a, b) {
             return a['time'].compareTo(b['time']);
           });
+          count = _count;
+          _count = 0;
+          debugPrint(count.toString());
+          widget.count(count);
           return body(orderList, check);
         },
       ),

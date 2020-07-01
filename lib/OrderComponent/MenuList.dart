@@ -24,6 +24,7 @@ class MenuListState extends State<MenuList> {
   TextEditingController descOrder;
   List sortedMenu;
   int indexSorted, indexWhole, quantityFood;
+  bool addStatus;
 
   FocusNode quantityFoodNode;
 
@@ -65,7 +66,7 @@ class MenuListState extends State<MenuList> {
     });
   }
 
-  Future<void> _showAddDialog(BuildContext context, int quantityFood, TextEditingController descOrder, index) {
+  Future<void> _showAddDialog(BuildContext context, int quantityFood, TextEditingController descOrder, index, addStatus) {
     // debugPrint(quantityFood.text);
     int before = quantityFood;
     return showDialog(
@@ -226,7 +227,9 @@ class MenuListState extends State<MenuList> {
                         resetDetails();
                       }, 
                       child: Text(
-                        'Add',
+                        (addStatus)
+                        ? 'Add'
+                        : 'Update',
                         style: TextStyle(
                           fontSize: 15,
                         ),
@@ -275,16 +278,18 @@ class MenuListState extends State<MenuList> {
           GestureDetector(
             onTap: (){
               // var check = false;
+              addStatus = true;
               for(int i = 0; i < widget.orderList.length; i++) {
                 if(widget.orderList[i]['key'] == sortedMenu[index]['key']) {
                   setState(() {
+                    addStatus = false;
                     quantityFood = widget.orderList[i]['quantity'];
                     descOrder = TextEditingController(text: widget.orderList[i]['description']);
                   });
                   break;
                 }
               }
-              _showAddDialog(context, quantityFood, descOrder, index);
+              _showAddDialog(context, quantityFood, descOrder, index, addStatus);
             },
             child: Container(
               color: Colors.orange[50],
@@ -313,10 +318,10 @@ class MenuListState extends State<MenuList> {
                           children: <Widget>[
                             Container(
                               // Food Name
-                              height: 30,
+                              // height: 30,
                               width: widthDetail,
-                              //color: Colors.yellow[100],
-                              child: Text(document['name'], style: TextStyle(fontSize: 20),),
+                              // color: Colors.yellow[100],
+                              child: Text(document['name'], style: TextStyle(fontSize: 18),),
                               //child: Text(whPic.toString()),
                             ),
                             Container(

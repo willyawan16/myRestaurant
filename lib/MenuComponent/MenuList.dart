@@ -65,7 +65,7 @@ class MenuListState extends State<MenuList> {
     var widthIcon = totWidth / 12;
     var whPic = totWidth - ( widthDetail + widthIcon) - 48;
     return new Container(
-      height: 150,
+      // height: 150,
       child: Card(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(15.0),
@@ -97,10 +97,10 @@ class MenuListState extends State<MenuList> {
                   children: <Widget>[
                     Container(
                       // Food Name
-                      height: 30,
+                      // height: 30,
                       width: widthDetail,
-                      //color: Colors.yellow[100],
-                      child: Text(document['name'], style: TextStyle(fontSize: 20),),
+                      // color: Colors.yellow[100],
+                      child: Text(document['name'], style: TextStyle(fontSize: 18),),
                       //child: Text(whPic.toString()),
                     ),
                     Container(

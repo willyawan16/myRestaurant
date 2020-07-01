@@ -30,7 +30,12 @@ class HistoryListState extends State<HistoryList> {
   List oneWeekMore = [];
   List all = [];
   // List<ExpansionItem> _items = <ExpansionItem>[];
-  List<String> expansionHeader = ['Today', 'Yesterday', '2 days ago', 'One week ago'];
+  List<String> expansionHeader = [
+    'Today', 
+    'Yesterday', 
+    // '2 days ago', 
+    // 'One week ago'
+  ];
 
   @override
   void initState() {
@@ -56,13 +61,15 @@ class HistoryListState extends State<HistoryList> {
           List _twoDaysAgo = [];
           List _oneWeekMore = [];
           Map _temp = {};
-          var date, date2, time, timeago;
+          var date, date2, time, timeago, dateNum;
           if(!snapshot.hasData) return const Text('Loading');
           for(int i = 0; i < snapshot.data.documents.length; i++) {
             Timestamp t = snapshot.data.documents[i]['date'];
             DateTime d = t.toDate();
             date = DateFormat('EEE, MMM d, ''yy').format(d);
             date2 = DateFormat('yyyy-MM-dd').format(d);
+            dateNum = DateFormat('dd').format(d);
+            // debugPrint('$i: ${Jiffy(date2).fromNow().toString()}');
             // debugPrint(date2.toString());
             // debugPrint(date2.toString());
             // debugPrint(Jiffy(date2).fromNow().toString());
@@ -74,6 +81,7 @@ class HistoryListState extends State<HistoryList> {
               'time': time,
               'timeago': timeago,
               'orders': snapshot.data.documents[i]['orders'],
+              'orderNum': snapshot.data.documents[i]['orderNum'],
               'progress': snapshot.data.documents[i]['progress'],
               'additionalOrder': snapshot.data.documents[i]['additionalOrder'],
               'additionalOrderProgress': snapshot.data.documents[i]['additionalOrderProgress'],
@@ -83,16 +91,22 @@ class HistoryListState extends State<HistoryList> {
             });
             orderList.add(_temp);
             var today = DateFormat('yyyy-MM-dd').format(DateTime.now());
-            if(_temp['paid'] == 'Paid'){
-              if(_temp['date'] == today){
+            if(_temp['paid'] == 'Paid' || _temp['paid'] == 'Trash'){
+              if(_temp['date'] == today)
+              {
                 _today.add(_temp);
-              }else if(_temp['timeago'] == 'a day ago') {
-                _yesterday.add(_temp);
-              } else if(_temp['timeago'] == 'two days ago') {
-                _twoDaysAgo.add(_temp);
-              } else {
-                _oneWeekMore.add(_temp);
               }
+              else if(_temp['timeago'] == 'a day ago') 
+              {
+                _yesterday.add(_temp);
+              } 
+              // else if(_temp['timeago'] == '2 days ago') 
+              // {
+              //   _twoDaysAgo.add(_temp);
+              // } 
+              // else {
+              //   _oneWeekMore.add(_temp);
+              // }
             }
             _temp = {};
           }
@@ -105,19 +119,24 @@ class HistoryListState extends State<HistoryList> {
           _yesterday.sort((a, b) {
             return a['time'].compareTo(b['time']);
           });
-          _twoDaysAgo.sort((a, b) {
-            return a['time'].compareTo(b['time']);
-          });
+          // _twoDaysAgo.sort((a, b) {
+          //   return a['time'].compareTo(b['time']);
+          // });
           today = _today;
           yesterday = _yesterday;
-          twoDaysAgo = _twoDaysAgo;
-          oneWeekMore = _oneWeekMore;
+          // twoDaysAgo = _twoDaysAgo;
+          // oneWeekMore = _oneWeekMore;
           // debugPrint(yesterday.length.toString());
           // debugPrint(twoDaysAgo.length.toString());
           // debugPrint(oneWeekMore.length.toString());
 
           // debugPrint('ini: ${Jiffy(orderList[0]['date']).fromNow()}');
-          all = [today, yesterday, twoDaysAgo, oneWeekMore];
+          all = [
+            today, 
+            yesterday, 
+            // twoDaysAgo, 
+            // oneWeekMore
+          ];
           return body();
         },
       ),
@@ -220,10 +239,10 @@ class HistoryListState extends State<HistoryList> {
                       ),
                     ),
                     subtitle: Text(
-                      (index+1).toString(), 
+                      (details['orderNum']).toString(), 
                       textAlign: TextAlign.center, 
                       style: TextStyle(
-                        fontSize: 22, 
+                        fontSize: 20, 
                         fontWeight: FontWeight.bold
                       ),
                     ),
@@ -247,7 +266,8 @@ class HistoryListState extends State<HistoryList> {
                       Container(
                         child: Text('Time: ${details['time']}'),
                       ),
-                      Container(
+                      (details['progress'] != 10)
+                      ? Container(
                         child: RichText(
                           text: TextSpan(
                             text: 'Progress: ',
@@ -257,9 +277,10 @@ class HistoryListState extends State<HistoryList> {
                             ],
                           ),
                         ),
-                      ),
+                      )
+                      : Container(),
                       Container(
-                        child: (details['progress'] == 2)
+                        child: (details['progress'] != 10)
                         ? RichText(
                           text: TextSpan(
                             text: 'Paid: ',
@@ -269,7 +290,15 @@ class HistoryListState extends State<HistoryList> {
                             ],
                           ),
                         )
-                        : Text(''),
+                        : RichText(
+                          text: TextSpan(
+                            text: 'Paid: ',
+                            style: DefaultTextStyle.of(context).style, 
+                            children: <TextSpan>[
+                              TextSpan(text: 'Trash', style: TextStyle(fontWeight: FontWeight.w800, color: Colors.red))
+                            ],
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -290,7 +319,7 @@ class HistoryListState extends State<HistoryList> {
                         child: Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(20),
-                            color: Colors.green,
+                            color: Colors.grey,
                           ),
                           child: Center(
                             child: Text(

@@ -18,26 +18,16 @@ class CheckSummaryState extends State<CheckSummary> {
   int subtotal = 0;
   int addSubtotal = 0;
   List orders = [];
-  List additionalOrders = [];
-  int additionalOrderProgress = 0;
-  bool change1 = false;
-  bool change2 = false;
-  bool change3 = false;
+  bool changes = false;
   bool toggleBtn;
 
   @override
   void initState() {
-    change1 = false;
-    change2 = false;
+    changes = false;
     for(int i = 0; i < widget.orderList['orders'].length; i++){
       subtotal += (int.parse(widget.orderList['orders'][i]['menuprice'])*widget.orderList['orders'][i]['quantity']);
       orders.add(widget.orderList['orders'][i]);
     }
-    for(int i = 0; i < widget.orderList['additionalOrder'].length; i++){
-      addSubtotal += (int.parse(widget.orderList['additionalOrder'][i]['menuprice'])*widget.orderList['additionalOrder'][i]['quantity']);
-      additionalOrders.add(widget.orderList['additionalOrder'][i]);
-    }
-    additionalOrderProgress = widget.orderList['additionalOrderProgress'];
     if(widget.orderList['progress'] == 2) {
       toggleBtn = false;
     } else {
@@ -51,65 +41,16 @@ class CheckSummaryState extends State<CheckSummary> {
   }
 
   _updateWholeData(doc){
-    if(change1){
+    if(changes){
       Firestore.instance.runTransaction((Transaction transaction) async{
         CollectionReference reference = Firestore.instance.collection('orderList');
         await reference
         .document(doc)
         .updateData({
           'orders': orders,
+          'progress': 0,
         });
       });
-    }
-    if(change2){
-      if(additionalOrders.isNotEmpty){
-        Firestore.instance.runTransaction((Transaction transaction) async{
-          CollectionReference reference = Firestore.instance.collection('orderList');
-          await reference
-          .document(doc)
-          .updateData({
-            'additionalOrder': additionalOrders,
-            'additionalOrderProgress': 0,
-          });
-        });
-      } else {
-        Firestore.instance.runTransaction((Transaction transaction) async{
-          CollectionReference reference = Firestore.instance.collection('orderList');
-          await reference
-          .document(doc)
-          .updateData({
-            'additionalOrder': [],
-            'additionalOrderProgress': -1,
-          });
-        });
-      }
-    }
-    if(change3){
-      if(additionalOrders.isNotEmpty){
-        Firestore.instance.runTransaction((Transaction transaction) async{
-          CollectionReference reference = Firestore.instance.collection('orderList');
-          await reference
-          .document(doc)
-          .updateData({
-            'orders': orders, 
-            'progress': 0,
-            'additionalOrder': additionalOrders,
-            'additionalOrderProgress': 0,
-          });
-        });
-      } else {
-        Firestore.instance.runTransaction((Transaction transaction) async{
-          CollectionReference reference = Firestore.instance.collection('orderList');
-          await reference
-          .document(doc)
-          .updateData({
-            'orders': orders, 
-            'progress': 0,
-            'additionalOrder': [],
-            'additionalOrderProgress': -1,
-          });
-        });
-      }
     }
   }
 
@@ -194,11 +135,13 @@ class CheckSummaryState extends State<CheckSummary> {
           MaterialPageRoute(builder: (context) => AdditionalOrder(
             docID: widget.orderList['key'], 
             restoId: widget.restoId,
-            additionalList: (!change3) ? additionalOrders : orders,
+            orderList: orders,
             callbackAdditionalList: (val){
               orders = val;
             },
-            cekBool: change3,
+            updateSubtotal: (val){
+              subtotal = val;
+            },
           )),
         ).then((value) => setState((){}));
       };
@@ -233,9 +176,7 @@ class CheckSummaryState extends State<CheckSummary> {
             onPressed: (){
               // _updateWholeData(widget.orderList['key']);
               // Navigator.of(context).pop();
-              if(change3)
-                _showVerifyDialog(context);
-              else if(change1 || change2)
+              if(changes)
                 _showVerifyDialog(context);
               else
                 Navigator.of(context).pop();
@@ -296,7 +237,7 @@ class CheckSummaryState extends State<CheckSummary> {
                       borderRadius: BorderRadius.circular(20)
                     ),
                     onPressed: _onPressed,
-                    child: Text('Additional Order', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),),
+                    child: Text('Edit Order', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),),
                   )
                   : FlatButton(
                     disabledColor: Colors.grey[400],
@@ -323,7 +264,6 @@ class CheckSummaryState extends State<CheckSummary> {
   }
 
   Widget body(){
-    List progress = ['Waiting..', 'Serving..', 'Done!'];
     return Container(
       child: SingleChildScrollView(
         child: Column(
@@ -345,7 +285,7 @@ class CheckSummaryState extends State<CheckSummary> {
               child: Column(
                 children: mapIndexed(
                   orders,
-                  (index, item) => orderDetails(context, item, index, true),
+                  (index, item) => orderDetails(context, item, index),
                 ).toList(),
               ),
             ),
@@ -373,44 +313,6 @@ class CheckSummaryState extends State<CheckSummary> {
                 ],
               ),
             ),
-            (additionalOrders.isNotEmpty)
-            ? Container(
-              child: Column(
-                children: <Widget>[
-                  Container(
-                    color: Colors.black12,
-                    padding: EdgeInsets.fromLTRB(10, 5, 10, 0),
-                    child: new Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: <Widget>[
-                        Container(
-                          width: MediaQuery.of(context).size.width*0.45,
-                          child: Text('Additional Order', style: TextStyle(fontSize: 20),),
-                        ),
-                        Container(
-                          width: MediaQuery.of(context).size.width*0.2,
-                          child: Text('(${progress[additionalOrderProgress]})', style: TextStyle(color: Colors.red),),
-                        ),
-                        Container(
-                          width: MediaQuery.of(context).size.width*0.29,
-                          // color: Colors.red,
-                          child: Text('Rp$addSubtotal', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold), textAlign: TextAlign.end,),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    child: Column(
-                      children: mapIndexed(
-                        additionalOrders,
-                        (index, item) => orderDetails(context, item, index, false),
-                      ).toList(),
-                    ),
-                  ),
-                ],
-              ),
-            )
-            : Container(),
           ],
         ),
       ),
@@ -428,7 +330,7 @@ class CheckSummaryState extends State<CheckSummary> {
     }
   }
 
-  Future<void> _showEditDialog(BuildContext context, details, index, orderList, bool existing) {
+  Future<void> _showEditDialog(BuildContext context, details, index, orderList) {
     // debugPrint(quantityFood.text);
     // debugPrint(details[3]);
     // debugPrint(index.toString());
@@ -512,13 +414,8 @@ class CheckSummaryState extends State<CheckSummary> {
                           temp += (int.parse(orderList[i]['menuprice'])*orderList[i]['quantity']);
                         }
                         setState((){
-                          if(existing) {
-                            subtotal = temp;
-                            change1 = true;
-                          } else {
-                            addSubtotal = temp;
-                            change2 = true;
-                          }
+                          subtotal = temp;
+                          changes = true;
                         });
                         // debugPrint('added ${sortedMenu[index]['name']}');
                         Navigator.of(context).pop();
@@ -535,36 +432,27 @@ class CheckSummaryState extends State<CheckSummary> {
                       onPressed: (){
                         int temp = 0;
                         setState(() {
-                          if(existing) {
                             orders.removeAt(index);
-                          } else {
-                            additionalOrders.removeAt(index);
-                          }
                         });
                         for(int i = 0; i < orderList.length; i++){
                           temp += (int.parse(orderList[i]['menuprice'])*orderList[i]['quantity']);
                         }
                         setState((){
-                          if(existing) {
-                            subtotal = temp;
-                            change1 = true;
-                          } else {
-                            addSubtotal = temp;
-                            change2 = true;
-                          }
+                          subtotal = temp;
+                          changes = true;
                         });
-                        setState((){
-                          if(orders.isEmpty){
-                            change3 = true;
-                            change1 = false;
-                            change2 = false;
-                            orders = additionalOrders;
-                            subtotal = addSubtotal;
-                            addSubtotal = 0;
-                            additionalOrders = [];                          
-                          }
-                        });
-                        // debugPrint('added ${sortedMenu[index]['name']}');
+                        // setState((){
+                        //   if(orders.isEmpty){
+                        //     change3 = true;
+                        //     change1 = false;
+                        //     change2 = false;
+                        //     orders = additionalOrders;
+                        //     subtotal = addSubtotal;
+                        //     addSubtotal = 0;
+                        //     additionalOrders = [];                          
+                        //   }
+                        // });
+                        // // debugPrint('added ${sortedMenu[index]['name']}');
                         Navigator.of(context).pop();
                       },
                       child: Text(
@@ -585,7 +473,7 @@ class CheckSummaryState extends State<CheckSummary> {
     ).then((value) => setState((){}));
   } 
 
-  Widget orderDetails(BuildContext context, details, int index, bool existing) {
+  Widget orderDetails(BuildContext context, details, int index) {
     double totWidth = MediaQuery.of(context).size.width;
     double iconWidth = 30.0;
     double priceWidth = 80.0;
@@ -642,23 +530,20 @@ class CheckSummaryState extends State<CheckSummary> {
                           ),
                           Container(
                             height: 30,
-                            child: (existing) 
-                            ? (widget.orderList['progress'] == 0)
-                              ? GestureDetector(
-                                onTap: (){
-                                  _showEditDialog(context, details, index, orders, true);
-                                },
-                                child: Text('Edit', style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold)),
-                              )
-                              : Text('Edit', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold))
-                            : (widget.orderList['additionalOrderProgress'] == 0)
-                              ? GestureDetector(
-                                onTap: (){
-                                  _showEditDialog(context, details, index, additionalOrders, false);
-                                },
-                                child: Text('Edit', style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold)),
-                              )
-                              : Text('Edit', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
+                            // child: (widget.orderList['progress'] == 0)
+                            // ? GestureDetector(
+                            //   onTap: (){
+                            //     _showEditDialog(context, details, index, orders, true);
+                            //   },
+                            //   child: Text('Edit', style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold)),
+                            // )
+                            // : Text('Edit', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold))
+                            child: GestureDetector(
+                              onTap: (){
+                                _showEditDialog(context, details, index, orders);
+                              },
+                              child: Text('Edit', style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold)),
+                            ),
                           ),               
                         ],
                       ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 
 import 'package:flutter_counter/flutter_counter.dart';
+import 'package:intl/intl.dart';
 import 'package:myapp/OrderComponent/OrderList.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -10,10 +11,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class CheckOrder extends StatefulWidget {
   String name, table, status, restoId;
   List orderList, wholeMenu;
+  int count;
   
   final Function(List) onCallbackOrderList;
 
-  CheckOrder({Key key, this.name, this.table, this.orderList, this.wholeMenu, this.status, this.onCallbackOrderList, this.restoId}) : super(key: key);
+  CheckOrder({Key key, this.name, this.table, this.orderList, this.wholeMenu, this.status, this.onCallbackOrderList, this.restoId, this.count}) : super(key: key);
   @override
   CheckOrderState createState() => CheckOrderState();
 }
@@ -22,9 +24,26 @@ class CheckOrderState extends State<CheckOrder> {
   List<int> tempTotal =[];
   int subtotal = 0; 
   List finalStatus; 
+  String invoiceCode;
 
   @override
   void initState() {
+    String code;
+    String today = '${DateFormat('yyyyMMdd').format(DateTime.now())}';
+    debugPrint(today);
+    String number = (widget.count+1).toString();
+    if(number.length == 1) {
+      code = '000$number';
+    } else if(number.length == 2) {
+      code = '00$number';
+    } else if(number.length == 3) {
+      code = '0$number';
+    } else if(number.length == 4) {
+      code = '$number';
+    }
+    invoiceCode = '$code';
+    debugPrint('invoiceCode: $invoiceCode');
+
     for(int i = 0; i < widget.orderList.length; i++){
       subtotal += (int.parse(widget.orderList[i]['menuprice'])*widget.orderList[i]['quantity']);
     }
@@ -127,7 +146,7 @@ class CheckOrderState extends State<CheckOrder> {
                         
                       }, 
                       child: Text(
-                        'Add',
+                        'Update',
                         style: TextStyle(
                           fontSize: 15,
                         ),
@@ -354,10 +373,9 @@ class CheckOrderState extends State<CheckOrder> {
       'orders': widget.orderList,
       'status': finalStatus,
       'progress': 0,
-      'additionalOrder': [],
-      'additionalOrderProgress': -1,
       'restaurantId': widget.restoId,
       'paid': 'Not Paid',
+      'orderNum': invoiceCode,
     });
   }
 

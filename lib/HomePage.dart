@@ -19,7 +19,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _selectedIndex = 0;
+  int _selectedIndex = 2;
   List _pageOptions;
   Map userData, restoData;
   
@@ -34,7 +34,6 @@ class _MyHomePageState extends State<MyHomePage> {
   
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     userData = widget.userData;
     restoData = widget.restoData;
@@ -42,14 +41,14 @@ class _MyHomePageState extends State<MyHomePage> {
       Orders(restoId: widget.restoData['restaurantId'],),
       // CheckOrder(),
       Menu(restoId: widget.restoData['restaurantId'],),
-      Profile(signOut: _signOut),
+      Profile(signOut: _signOut, restoData: widget.restoData,),
     ];
   }
 
     @override
   Widget build(BuildContext context){
-    debugPrint(widget.userData.toString());
-    debugPrint(widget.restoData.toString());
+    // debugPrint(widget.userData.toString());
+    // debugPrint(widget.restoData.toString());
     return Scaffold(
         // appBar: AppBar(
         //   title: Text('Trial'),
@@ -86,66 +85,12 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ),
             ).values.toList(),
-          onTap: (index) {
-            setState(() {
-              _selectedIndex = index;
-            });
-          },
+            onTap: (index) {
+              setState(() {
+                _selectedIndex = index;
+              });
+            },
           ),
       );
   }
-
-  // @override
-  // Widget build(BuildContext context) {
-  //   // debugPrint('userId: ${widget.userId}');
-  //   return Scaffold(
-  //     body: Center(
-  //       child: _pageOptions[_selectedIndex]
-  //     ),
-  //     bottomNavigationBar: FFNavigationBar(
-  //       theme: FFNavigationBarTheme(
-  //         barBackgroundColor: Colors.white,
-  //         selectedItemBorderColor: Colors.transparent,
-  //         selectedItemBackgroundColor: Colors.green,
-  //         selectedItemIconColor: Colors.white,
-  //         selectedItemLabelColor: Colors.black,
-  //         showSelectedItemShadow: false,
-  //         barHeight: 60,
-  //       ),
-  //       selectedIndex: _selectedIndex,
-  //       onSelectTab: (index) {
-  //         setState(() {
-  //           _selectedIndex = index;
-  //         });
-  //       },
-  //       items: [
-  //         FFNavigationBarItem(
-  //           iconData: Icons.assignment_turned_in,
-  //           label: 'Orders',
-  //           selectedBackgroundColor: Colors.green,
-  //         ),
-  //         FFNavigationBarItem(
-  //           iconData: Icons.restaurant_menu,
-  //           label: 'Menu',
-  //           selectedBackgroundColor: Colors.orange,
-  //         ),
-  //         FFNavigationBarItem(
-  //           iconData: Icons.person,
-  //           label: 'Profile',
-  //           selectedBackgroundColor: Colors.red,
-  //         ),
-  //         // FFNavigationBarItem(
-  //         //   iconData: Icons.note,
-  //         //   label: 'Blue',
-  //         //   selectedBackgroundColor: Colors.blue,
-  //         // ),
-  //         // FFNavigationBarItem(
-  //         //   iconData: Icons.settings,
-  //         //   label: 'Red Item',
-  //         //   selectedBackgroundColor: Colors.red,
-  //         // ),
-  //       ],
-  //     ),
-  //   );
-  // }
 }

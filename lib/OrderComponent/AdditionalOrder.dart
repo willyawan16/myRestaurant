@@ -9,11 +9,12 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class AdditionalOrder extends StatefulWidget {
   String docID, restoId;
-  List additionalList;
+  List orderList;
   bool cekBool;
   Function(List) callbackAdditionalList;
+  Function(int) updateSubtotal;
 
-  AdditionalOrder({Key key, this.docID, this.additionalList, this.callbackAdditionalList, this.cekBool, this.restoId}) : super(key: key);
+  AdditionalOrder({Key key, this.docID, this.orderList, this.callbackAdditionalList, this.cekBool, this.restoId, this.updateSubtotal}) : super(key: key);
   @override
   AdditionalOrderState createState() => AdditionalOrderState();
 }
@@ -31,8 +32,8 @@ class AdditionalOrderState extends State<AdditionalOrder> with SingleTickerProvi
   @override
   void initState() {
     super.initState();
-    for(int i = 0; i < widget.additionalList.length; i++){
-      _orderList.add(widget.additionalList[i]);
+    for(int i = 0; i < widget.orderList.length; i++){
+      _orderList.add(widget.orderList[i]);
     }
     if(_orderList.isNotEmpty){
       for(int i = 0; i < _orderList.length; i++){
@@ -64,16 +65,11 @@ class AdditionalOrderState extends State<AdditionalOrder> with SingleTickerProvi
     var _onPressed;
     if(changed){
       _onPressed = (){
-        if(!widget.cekBool){
-          _updateData(widget.docID);
-          int count = 0;
-          Navigator.popUntil(context, (route) {
-            return count++ == 2;
-        });
-        } else {
-          widget.callbackAdditionalList(_orderList);
-          Navigator.of(context).pop();
-        }
+        _updateData(widget.docID);
+        debugPrint(_orderList.toString());
+        widget.callbackAdditionalList(_orderList);
+        widget.updateSubtotal(subtotal);
+        Navigator.of(context).pop();
       };
     } else{
       _onPressed = null;
@@ -198,8 +194,8 @@ class AdditionalOrderState extends State<AdditionalOrder> with SingleTickerProvi
       await reference
       .document(doc)
       .updateData({
-        'additionalOrder': _orderList,
-        'additionalOrderProgress': 0,
+        'orders': _orderList,
+        'progress': 0,
       });
     });
   }
@@ -235,7 +231,7 @@ class AdditionalOrderState extends State<AdditionalOrder> with SingleTickerProvi
                 children: menu.map<Widget>((Tab tab) {
                   return MenuList(
                     whoCall: 'AdditionalOrder',
-                    category:tab.text, 
+                    category: tab.text, 
                     wholeMenu: wholeMenu,
                     orderList: _orderList,
                     onAddMenu: (val) {

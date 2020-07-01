@@ -10,8 +10,9 @@ import './MenuList.dart';
 
 class NewOrder extends StatefulWidget {  
   String restoId;
+  int count;
 
-  NewOrder({Key key, this.restoId}) : super(key: key);
+  NewOrder({Key key, this.restoId, this.count}) : super(key: key);
   @override
   NewOrderState createState() => NewOrderState();
 }
@@ -70,6 +71,7 @@ class NewOrderState extends State<NewOrder> with SingleTickerProviderStateMixin{
         fontFamily: 'Balsamiq_Sans',
       ),
       home: Scaffold(
+        resizeToAvoidBottomPadding: false,
         backgroundColor: Colors.orange[50],
         body: StreamBuilder(
           stream: Firestore.instance.collection('menuList').where('restaurantId', isEqualTo: widget.restoId).snapshots(),
@@ -137,6 +139,7 @@ class NewOrderState extends State<NewOrder> with SingleTickerProviderStateMixin{
                     wholeMenu: wholeMenu,
                     restoId: widget.restoId,
                     status: selectedStatus,
+                    count: widget.count,
                     onCallbackOrderList: (val) {
                       setState(() {
                         _orderList = val;
@@ -323,6 +326,7 @@ class NewOrderState extends State<NewOrder> with SingleTickerProviderStateMixin{
                   elevation: 7,
                   child: Text('Proceed to Menu'),
                   onPressed: (){
+                    FocusScope.of(context).requestFocus(new FocusNode());
                     _pageController.animateToPage(1, duration: Duration(milliseconds: 400), curve: Curves.easeInCubic);
                   },
                 ),

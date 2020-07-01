@@ -18,6 +18,7 @@ class BounceScrollBehavior extends ScrollBehavior {
 }
 
 class OrdersState extends State<Orders> {
+  int count;
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -31,7 +32,7 @@ class OrdersState extends State<Orders> {
           child: Scaffold(
             appBar: AppBar(
               elevation: 0,
-              title: Text('Orders', style: TextStyle(fontSize: 30, color: Colors.black),),
+              title: Text('Orders', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30, color: Colors.black),),
               backgroundColor: Colors.orange[100],
               bottom: TabBar(
                 indicatorSize: TabBarIndicatorSize.label,
@@ -60,7 +61,12 @@ class OrdersState extends State<Orders> {
             ),
             body: TabBarView(
               children: [
-                OrderList(restoId: widget.restoId),
+                OrderList(
+                  restoId: widget.restoId, 
+                  count: (val){
+                    count = val;
+                  },
+                ),
                 HistoryList(restoId: widget.restoId),
               ],
             ),
@@ -68,7 +74,7 @@ class OrdersState extends State<Orders> {
               onPressed: (){
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => NewOrder(restoId: widget.restoId,)),
+                  MaterialPageRoute(builder: (context) => NewOrder(restoId: widget.restoId, count: count)),
                 );
               },
               label: Text('New Order'),
