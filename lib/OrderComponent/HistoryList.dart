@@ -87,6 +87,8 @@ class HistoryListState extends State<HistoryList> {
               'additionalOrderProgress': snapshot.data.documents[i]['additionalOrderProgress'],
               'paid': snapshot.data.documents[i]['paid'],
               'status': snapshot.data.documents[i]['status'],
+              'verified': snapshot.data.documents[i]['verified'],
+              'createdBy': snapshot.data.documents[i]['createdBy'],
               'key': snapshot.data.documents[i].documentID,
             });
             orderList.add(_temp);
@@ -265,6 +267,9 @@ class HistoryListState extends State<HistoryList> {
                       ),
                       Container(
                         child: Text('Time: ${details['time']}'),
+                      ),
+                      Container(
+                        child: Text('Created By: ${details['createdBy']}'),
                       ),
                       (details['progress'] != 10)
                       ? Container(

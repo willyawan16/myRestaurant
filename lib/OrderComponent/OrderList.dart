@@ -457,6 +457,9 @@ class OrderListState extends State<OrderList> {
                         child: Text('Time: ${details['time']}'),
                       ),
                       Container(
+                        child: Text('Created By: ${details['createdBy']}'),
+                      ),
+                      Container(
                         child: RichText(
                           text: TextSpan(
                             text: 'Progress: ',
@@ -625,10 +628,12 @@ class OrderListState extends State<OrderList> {
               'additionalOrderProgress': snapshot.data.documents[i]['additionalOrderProgress'],
               'paid': snapshot.data.documents[i]['paid'],
               'status': snapshot.data.documents[i]['status'],
+              'verified': snapshot.data.documents[i]['verified'],
+              'createdBy': snapshot.data.documents[i]['createdBy'],
               'key': snapshot.data.documents[i].documentID,
             });
             var today = DateFormat('yyyy-MM-dd').format(DateTime.now());
-            if(_temp['paid'] != 'Paid' && _temp['date'] == today && _temp['progress'] != 10) { 
+            if(_temp['paid'] != 'Paid' && _temp['date'] == today && _temp['progress'] != 10 && _temp['verified'] == true) { 
               orderList.add(_temp);
               _count++;
             } else if(_temp['date'] == today) {

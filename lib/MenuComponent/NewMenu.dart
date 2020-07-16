@@ -78,7 +78,7 @@ class NewMenuState extends State<NewMenu>{
     String docID = docRef.documentID;
       if(imageFile != null) {
         final StorageReference firebaseStorageRef =
-          FirebaseStorage.instance.ref().child('images/${widget.restoId}/$docID');
+          FirebaseStorage.instance.ref().child('${widget.restoId}/images/foodPic/$docID');
         final StorageUploadTask uploadTask = firebaseStorageRef.putFile(imageFile); 
         final StreamSubscription<StorageTaskEvent> streamSubscription = uploadTask.events.listen((event) {
           // You can use this to notify yourself or your user in any kind of way.
@@ -409,58 +409,53 @@ class NewMenuState extends State<NewMenu>{
   @override
   Widget build(BuildContext context){
     debugPrint('Get Id: ${widget.restoId}');
-    return MaterialApp(
-      theme: ThemeData(
-        fontFamily: 'Balsamiq_Sans',
-      ),
-      home:Scaffold(
-        backgroundColor: Colors.orange[50],
-        resizeToAvoidBottomPadding: false,
-        appBar: AppBar(
-          backgroundColor: Colors.orange,
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back),
-            tooltip: 'back',
-            onPressed: (){
-              Navigator.pop(context);
-            },
-          ),
-          title: Text('New Menu'),
+    return Scaffold(
+      backgroundColor: Colors.orange[50],
+      resizeToAvoidBottomPadding: false,
+      appBar: AppBar(
+        backgroundColor: Colors.orange,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          tooltip: 'back',
+          onPressed: (){
+            Navigator.pop(context);
+          },
         ),
-        body: StreamBuilder(
-          stream: Firestore.instance.collection('menuList').where('restaurantId', isEqualTo: widget.restoId).snapshots(),
-          builder: (context, snapshot){
-            List<String> getCate = [];
-            if(!snapshot.hasData) return const Text('Loading');
-            for(int i = 0; i < snapshot.data.documents.length; i++){
-              if(getCate.isEmpty)
-              {
-                getCate.add(snapshot.data.documents[i]['category']);
-              }
-              else
-              {
-                bool needChange = true;
-                for(int j = 0; j < getCate.length; j++){
-                  if(snapshot.data.documents[i]['category'] == getCate[j]){
-                    needChange = false;
-                  }
-                }
-                if(needChange == true){
-                    getCate.add(snapshot.data.documents[i]['category']);
-                } 
-                needChange = true;
-              }
-            }
-            getCate.sort();
-            _initCate = getCate;
-            //debugPrint(_initCate.toString());
-            _initCate.insert(0, 'Select Category');
-            _initCate.add('+');
-            // debugPrint(selectedVal);
-            return body();
-          }
-        )
+        title: Text('New Menu'),
       ),
+      body: StreamBuilder(
+        stream: Firestore.instance.collection('menuList').where('restaurantId', isEqualTo: widget.restoId).snapshots(),
+        builder: (context, snapshot){
+          List<String> getCate = [];
+          if(!snapshot.hasData) return const Text('Loading');
+          for(int i = 0; i < snapshot.data.documents.length; i++){
+            if(getCate.isEmpty)
+            {
+              getCate.add(snapshot.data.documents[i]['category']);
+            }
+            else
+            {
+              bool needChange = true;
+              for(int j = 0; j < getCate.length; j++){
+                if(snapshot.data.documents[i]['category'] == getCate[j]){
+                  needChange = false;
+                }
+              }
+              if(needChange == true){
+                  getCate.add(snapshot.data.documents[i]['category']);
+              } 
+              needChange = true;
+            }
+          }
+          getCate.sort();
+          _initCate = getCate;
+          //debugPrint(_initCate.toString());
+          _initCate.insert(0, 'Select Category');
+          _initCate.add('+');
+          // debugPrint(selectedVal);
+          return body();
+        }
+      )
     );
   }
 } 

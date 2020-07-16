@@ -3,8 +3,9 @@ import 'package:ff_navigation_bar/ff_navigation_bar.dart';
 import 'package:myapp/LoginPage/auth.dart';
 import './OrderComponent/Orders.dart';
 import './MenuComponent/Menu.dart';
-import './ProfileComponent/Profile.dart';
+import './AccountComponent/Account.dart';
 import './LoginPage/auth.dart';
+import 'VerifyComponent/VerifyPage.dart';
 
 class MyHomePage extends StatefulWidget {
   final BaseAuth auth;
@@ -19,7 +20,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _selectedIndex = 2;
+  int _selectedIndex = 3;
   List _pageOptions;
   Map userData, restoData;
   
@@ -41,7 +42,8 @@ class _MyHomePageState extends State<MyHomePage> {
       Orders(restoId: widget.restoData['restaurantId'],),
       // CheckOrder(),
       Menu(restoId: widget.restoData['restaurantId'],),
-      Profile(signOut: _signOut, restoData: widget.restoData,),
+      VerifyPage(restoId: widget.restoData['restaurantId'],),
+      Account(signOut: _signOut, restoData: widget.restoData),
     ];
   }
 
@@ -63,7 +65,7 @@ class _MyHomePageState extends State<MyHomePage> {
           selectedItemColor: Colors.white,
           unselectedItemColor: Colors.grey,
           elevation: 0.0,
-          items: [Icons.assignment, Icons.restaurant, Icons.person]
+          items: [Icons.assignment, Icons.restaurant, Icons.assignment_late, Icons.person]
             .asMap()
             .map((key, value) => MapEntry(
                 key, 

@@ -74,65 +74,61 @@ class MenuState extends State<Menu> with SingleTickerProviderStateMixin {
         //debugPrint(tabList.toString());
         // debugPrint(tabList[1].toString());
         List<Tab> menu = tabList.map((tab) => Tab(text: tab)).toList();
-        return MaterialApp(
-          theme: ThemeData(
-            fontFamily: 'Balsamiq_Sans',
-          ),
-          home: ScrollConfiguration(
-            behavior: BounceScrollBehavior(),
-            child: DefaultTabController(
-              length: menu.length,
-              child: Scaffold(
-                appBar: AppBar(
-                  actions: <Widget>[
-                    IconButton(
-                      color: Colors.black,
-                      icon: Icon(Icons.search),
-                      tooltip: 'search',
-                      onPressed: (){
+        return ScrollConfiguration(
+          behavior: BounceScrollBehavior(),
+          child: DefaultTabController(
+            length: menu.length,
+            child: Scaffold(
+              appBar: AppBar(
+                automaticallyImplyLeading: false,
+                actions: <Widget>[
+                  IconButton(
+                    color: Colors.black,
+                    icon: Icon(Icons.search),
+                    tooltip: 'search',
+                    onPressed: (){
 
-                      },  
-                    ),
-                  ],
-                  bottom: new TabBar(
-                    indicatorColor: Colors.lime,
-                    indicator: new BubbleTabIndicator(
-                      indicatorHeight: 40.0,
-                      indicatorColor: Colors.orangeAccent[400],
-                      tabBarIndicatorSize: TabBarIndicatorSize.tab,
-                    ),
-                    controller: _tabController,
-                    isScrollable: true,
-                    labelStyle: TextStyle(fontSize: 20, fontFamily: 'Balsamiq_Sans'),
-                    unselectedLabelStyle: TextStyle(fontFamily: 'Balsamiq_Sans', fontSize: 15,),
-                    unselectedLabelColor: Colors.grey,
-                    tabs: menu,
+                    },  
                   ),
-                  title: const Text('Menu', style: TextStyle(fontFamily: 'Balsamiq_Sans', fontWeight: FontWeight.bold, color: Colors.black, fontSize: 30),),
-                  backgroundColor: Colors.orange[100],
+                ],
+                bottom: new TabBar(
+                  indicatorColor: Colors.lime,
+                  indicator: new BubbleTabIndicator(
+                    indicatorHeight: 40.0,
+                    indicatorColor: Colors.orangeAccent[400],
+                    tabBarIndicatorSize: TabBarIndicatorSize.tab,
+                  ),
+                  controller: _tabController,
+                  isScrollable: true,
+                  labelStyle: TextStyle(fontSize: 20, fontFamily: 'Balsamiq_Sans'),
+                  unselectedLabelStyle: TextStyle(fontFamily: 'Balsamiq_Sans', fontSize: 15,),
+                  unselectedLabelColor: Colors.grey,
+                  tabs: menu,
                 ),
-                body: (!(tabList.length == 0)) ?
-                  TabBarView(
-                    controller: _tabController,
-                    children: menu.map((Tab tab) {
-                      return new MenuList(category: tab.text, restoId: widget.restoId,);
-                    }).toList(),
-                  )
-                  :
-                  _ifBlank()
-                ,
-                floatingActionButton: FloatingActionButton.extended(
-                  onPressed: (){
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => NewMenu(restoId: widget.restoId)),
-                    );
-                  },
-                  label: Text('New Menu'),
-                  icon: Icon(Icons.create),
-                  backgroundColor: Colors.orangeAccent[400],
-                ),  
+                title: const Text('Menu', style: TextStyle(fontFamily: 'Balsamiq_Sans', fontWeight: FontWeight.bold, color: Colors.black, fontSize: 30),),
+                backgroundColor: Colors.orange[100],
               ),
+              body: (!(tabList.length == 0)) ?
+                TabBarView(
+                  controller: _tabController,
+                  children: menu.map((Tab tab) {
+                    return new MenuList(category: tab.text, restoId: widget.restoId,);
+                  }).toList(),
+                )
+                :
+                _ifBlank()
+              ,
+              floatingActionButton: FloatingActionButton.extended(
+                onPressed: (){
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => NewMenu(restoId: widget.restoId)),
+                  );
+                },
+                label: Text('New Menu'),
+                icon: Icon(Icons.create),
+                backgroundColor: Colors.orangeAccent[400],
+              ),  
             ),
           ),
         );

@@ -8,6 +8,7 @@ import './MenuComponent/Menu.dart';
 import './LoginPage/LoginPage.dart';
 import './LoginPage/auth.dart';
 import './RootPage.dart';
+import './RootPageForWorker.dart';
 
 void main() {
   FlutterError.onError = (FlutterErrorDetails details) {
@@ -23,18 +24,115 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'myApp',
       theme: ThemeData(
         primarySwatch: Colors.blue,
         fontFamily: 'Balsamiq_Sans',
       ),
-      // initialRoute: '/',
-      routes: {
-        '/menu': (context) => Menu(),
-        '/order': (context) => Orders(),
-      },
       // home: MyHomePage(),
-      home: new RootPage(auth: new Auth()),
+      // home: new RootPage(auth: new Auth()),
+      home: SelectionPage(),
+    );
+  }
+}
+
+class SelectionPage extends StatefulWidget {
+  @override
+  SelectionPageState createState() => SelectionPageState();
+}
+
+class SelectionPageState extends State<SelectionPage> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.orange[50],
+      body: Container(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Container(
+              height: MediaQuery.of(context).size.height * 2 / 5,
+              // width: MediaQuery.of(context).size.width * 2,
+              decoration: BoxDecoration(
+                color: Colors.orange,
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(300), 
+                  // bottomRight: Radius.circular(150),
+                )
+              ),
+            ),
+            Container(
+              padding: EdgeInsets.fromLTRB(30, 70, 30, 0),
+              // color: Colors.pink,
+              child: Text('Sign In as..', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+            ),
+            Container(
+              padding: EdgeInsets.fromLTRB(30, 10, 30, 50),
+              // color: Colors.red,
+              child: new Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  RaisedButton(
+                    onPressed: (){
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => new RootPage(auth: new Auth()),)
+                      );
+                    },
+                    child: Text('Restaurant Admin'),
+                    color: Colors.orange[100],
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  RaisedButton(
+                    onPressed: (){
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => new RootPageForWorker(),)
+                      );
+                    },
+                    child: Text('Restaurant Worker'),
+                    color: Colors.orange[100],
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              height: 50,
+              width: 100,
+              // padding: EdgeInsets.only(top: 5),
+              decoration: BoxDecoration(
+                color: Colors.orange,
+              ), 
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.orange[50],
+                  // border: Border.all(color: Colors.orange[50]),
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(150), 
+                    // topRight: Radius.circular(500),
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              child: Container(
+                // height: MediaQuery.of(context).size.height / 3,
+                // width: MediaQuery.of(context).size.width * 2,
+                decoration: BoxDecoration(
+                  color: Colors.orange,
+                  borderRadius: BorderRadius.only(
+                    // topLeft: Radius.circular(150), 
+                    topRight: Radius.circular(500),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

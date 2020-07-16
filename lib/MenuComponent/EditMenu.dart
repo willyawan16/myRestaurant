@@ -118,7 +118,7 @@ class EditMenuState extends State<EditMenu> {
     if(imageFile != null){
       if(imageFile != null) {
       final StorageReference firebaseStorageRef =
-          FirebaseStorage.instance.ref().child('images/${widget.restoId}/$doc');
+          FirebaseStorage.instance.ref().child('${widget.restoId}/images/foodPic/$doc');
         final StorageUploadTask uploadTask = firebaseStorageRef.putFile(imageFile); 
         final StreamSubscription<StorageTaskEvent> streamSubscription = uploadTask.events.listen((event) {
           // You can use this to notify yourself or your user in any kind of way.
@@ -492,26 +492,21 @@ class EditMenuState extends State<EditMenu> {
         // _initCate.insert(0, 'Select Category');
         _initCate.add('+');
         // debugPrint(selectedVal);
-        return MaterialApp(
-          theme: ThemeData(
-            fontFamily: 'Balsamiq_Sans',
-          ),
-          home: Scaffold(
-            resizeToAvoidBottomPadding: false,
-            backgroundColor: Colors.orange[50],
-            appBar: AppBar(
-              backgroundColor: Colors.orange,
-              leading: IconButton(
-                icon: Icon(Icons.arrow_back),
-                tooltip: 'back',
-                onPressed: (){
-                  Navigator.pop(context);
-                },
-              ),
-              title: Text('Edit Menu'),
+        return Scaffold(
+          resizeToAvoidBottomPadding: false,
+          backgroundColor: Colors.orange[50],
+          appBar: AppBar(
+            backgroundColor: Colors.orange,
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back),
+              tooltip: 'back',
+              onPressed: (){
+                Navigator.pop(context);
+              },
             ),
-            body: _body(),
+            title: Text('Edit Menu'),
           ),
+          body: _body(),
         );
       }
     );

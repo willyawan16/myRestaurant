@@ -80,6 +80,7 @@ class CreateAccountPageState extends State<CreateAccountPage> {
       'restaurantId': '',
       'branch': [],
       'email': email,
+      'worker': [],
     });
     var docId = docRef.documentID;
     debugPrint('---------$docId---------');

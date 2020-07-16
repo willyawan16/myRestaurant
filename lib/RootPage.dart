@@ -61,7 +61,7 @@ class RootPageState extends State<RootPage> {
           auth: widget.auth,
           onSignedIn: _signedIn,
           email: (val) {
-            _email = val;
+            _email = val.toLowerCase();
           },
           userId: (val){
             _userId = val;
@@ -100,8 +100,11 @@ class RootPageState extends State<RootPage> {
                   'city': restoSnapshot.data['city'],
                   'address': restoSnapshot.data['address'],
                   'addressNo': restoSnapshot.data['addressNo'],
-                  'branch': restoSnapshot.data['branch'],                
+                  'branch': restoSnapshot.data['branch'],   
+                  'worker': restoSnapshot.data['worker'],    
+                  'restoDocId': restoSnapshot.data.documentID,         
                 });
+                // debugPrint('${_temp2['restoDocId']}');
                 _restoData = _temp2;
               } else if(_userData['userType'] == 'Branch'){
                 List branchSnapshot = restoSnapshot.data['branch'];

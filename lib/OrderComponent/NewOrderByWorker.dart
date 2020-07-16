@@ -8,13 +8,13 @@ import 'package:bubble_tab_indicator/bubble_tab_indicator.dart';
 
 import './MenuList.dart';
 
-class NewOrder extends StatefulWidget {  
-  String restoId;
+class NewOrderByWorker extends StatefulWidget {  
+  String restoId, tableNum, name;
   int count;
 
-  NewOrder({Key key, this.restoId, this.count}) : super(key: key);
+  NewOrderByWorker({Key key, this.restoId, this.count, this.tableNum, this.name}) : super(key: key);
   @override
-  NewOrderState createState() => NewOrderState();
+  NewOrderByWorkerState createState() => NewOrderByWorkerState();
 }
 
 class BounceScrollBehavior extends ScrollBehavior {
@@ -22,7 +22,7 @@ class BounceScrollBehavior extends ScrollBehavior {
   getScrollPhysics(_) => const BouncingScrollPhysics();
 }
 
-class NewOrderState extends State<NewOrder> with SingleTickerProviderStateMixin{
+class NewOrderByWorkerState extends State<NewOrderByWorker> with SingleTickerProviderStateMixin{
   TextEditingController custName, tableNum;
   int currentIndex;
   String selectedStatus;
@@ -42,7 +42,7 @@ class NewOrderState extends State<NewOrder> with SingleTickerProviderStateMixin{
   void initState() {
     super.initState();
     custName = TextEditingController(text: '');
-    tableNum = TextEditingController(text: ''); 
+    tableNum = TextEditingController(text: widget.tableNum); 
     toTableNum = new FocusNode();
     selectedStatus = 'Dine-in';
     if(menu.isNotEmpty)
@@ -54,6 +54,83 @@ class NewOrderState extends State<NewOrder> with SingleTickerProviderStateMixin{
     if(menu.isNotEmpty)
       _tabController.dispose();
     super.dispose();
+  }
+
+  Widget loadingScreen() {
+    return CustomScrollView(
+      // physics: const AlwaysScrollableScrollPhysics(),
+      slivers: [
+        SliverAppBar(
+          floating: true,
+          pinned: true,
+          snap: false,
+          leading: Container(
+            padding: EdgeInsets.all(5),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(40)),
+              color: Colors.transparent,
+            ),
+            child: IconButton(
+              color: Colors.black,
+              onPressed: (){
+                Navigator.of(context).pop();
+              },
+              icon: Icon(Icons.arrow_back),
+            ),
+          ),
+          expandedHeight: 150,
+          flexibleSpace: const FlexibleSpaceBar(
+            centerTitle: true,
+            title: Text('Create Order', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+          ),
+          backgroundColor: Colors.orange[50],
+        ),
+        SliverGroupBuilder(
+          margin: EdgeInsets.only(top: 10),
+          decoration: BoxDecoration(
+            // boxShadow: [
+            //   BoxShadow(
+            //       color: Colors.grey,
+            //       blurRadius: 5.0,
+            //       spreadRadius: 5.0,
+            //       offset: Offset(0, 0),
+            //   )
+            // ],
+            color: Colors.orange[200],
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(150), 
+              // topRight: Radius.circular(40)
+            ),
+          ),
+          child: SliverList(
+            delegate: SliverChildListDelegate([
+              Container(
+                padding: EdgeInsets.fromLTRB(20, 150, 20, 20),
+                child: Container(
+                  width: 200,
+                  height: 200,
+                  child: SpinKitChasingDots(
+                    size: 100,
+                    color: Colors.orange
+                  ),
+                ),
+                
+              ),
+              
+            ]),
+          ),
+        ),
+        SliverFillRemaining(
+          hasScrollBody: false,
+          // fillOverscroll: false,
+          child: Container(
+            // height: 400,
+            color: Colors.orange[200],
+            
+          ),
+        ),
+      ],
+    );
   }
   
   @override
@@ -73,7 +150,7 @@ class NewOrderState extends State<NewOrder> with SingleTickerProviderStateMixin{
         stream: Firestore.instance.collection('menuList').where('restaurantId', isEqualTo: widget.restoId).snapshots(),
         builder: (context, snapshot) {
           List<String> tabList = [];
-          if(!snapshot.hasData) return const SpinKitDualRing(color: Colors.red, size: 50.0,);
+          if(!snapshot.hasData) return loadingScreen();
           // debugPrint(tabList.toString());
           List _wholeMenu = [];
           Map _temp = {};
@@ -115,6 +192,7 @@ class NewOrderState extends State<NewOrder> with SingleTickerProviderStateMixin{
           menu = tabList.map((tab) => Tab(text: tab)).toList();
           //debugPrint(tes);
           return customerDetails(menu, tabList);
+          // return loadingScreen();
         },
       ),
       floatingActionButton: AnimatedOpacity(
@@ -136,6 +214,7 @@ class NewOrderState extends State<NewOrder> with SingleTickerProviderStateMixin{
                   restoId: widget.restoId,
                   status: selectedStatus,
                   count: widget.count,
+                  createdBy: widget.name,
                   onCallbackOrderList: (val) {
                     setState(() {
                       _orderList = val;
