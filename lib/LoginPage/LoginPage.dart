@@ -285,7 +285,11 @@ class LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixi
                                     setState(() {
                                       failedSignIn = false;
                                     });
-                                    _showAskDialog(context);
+                                    // _showAskDialog(context);
+                                    Navigator.push(
+                                      context, 
+                                      MaterialPageRoute(builder: (context) => CreateAccountPage(auth: widget.auth, userType: 'Main', bgColor: Colors.orange))
+                                    );
                                   },
                                 ),
                               ),

@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_group_sliver/flutter_group_sliver.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:intl/intl.dart';
-import 'package:myapp/OrderComponent/CheckSummaryForWorker.dart';
+import 'OrderComponent/ForWorker/NewOrderByWorker.dart';
 import './LoginPageForWorker/LoginPageForWorker.dart';
-import 'OrderComponent/NewOrderByWorker.dart';
+import 'OrderComponent/ForWorker/CheckSummaryForWorker.dart';
 
 class RootPageForWorker extends StatefulWidget {
   @override
@@ -41,6 +43,99 @@ class RootPageForWorkerState extends State<RootPageForWorker> {
     });
   }
 
+  // Widget onLoading() {
+  //   return Center(
+  //     child: Container(
+  //       height: 50,
+  //       width: 50,
+  //       child: Card(
+  //         elevation: 10,
+  //         child: SpinKitCubeGrid(
+  //           size: 30,
+  //           color: Colors.red,
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
+
+  Widget onLoading() {
+    return CustomScrollView(
+      // physics: const AlwaysScrollableScrollPhysics(),
+      slivers: [
+        SliverAppBar(
+          floating: true,
+          pinned: true,
+          snap: false,
+          leading: Container(
+            padding: EdgeInsets.all(5),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(40)),
+              color: Colors.transparent,
+            ),
+            child: IconButton(
+              color: Colors.black,
+              onPressed: (){
+                Navigator.of(context).pop();
+              },
+              icon: Icon(Icons.arrow_back),
+            ),
+          ),
+          expandedHeight: 150,
+          flexibleSpace: const FlexibleSpaceBar(
+            centerTitle: true,
+            title: Text('Create Order', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+          ),
+          backgroundColor: Colors.orange[50],
+        ),
+        SliverGroupBuilder(
+          margin: EdgeInsets.only(top: 10),
+          decoration: BoxDecoration(
+            // boxShadow: [
+            //   BoxShadow(
+            //       color: Colors.grey,
+            //       blurRadius: 5.0,
+            //       spreadRadius: 5.0,
+            //       offset: Offset(0, 0),
+            //   )
+            // ],
+            color: Colors.orange[200],
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(150), 
+              // topRight: Radius.circular(40)
+            ),
+          ),
+          child: SliverList(
+            delegate: SliverChildListDelegate([
+              Container(
+                padding: EdgeInsets.fromLTRB(20, 150, 20, 20),
+                child: Container(
+                  width: 200,
+                  height: 200,
+                  child: SpinKitChasingDots(
+                    size: 100,
+                    color: Colors.orange
+                  ),
+                ),
+                
+              ),
+              
+            ]),
+          ),
+        ),
+        SliverFillRemaining(
+          hasScrollBody: false,
+          // fillOverscroll: false,
+          child: Container(
+            // height: 400,
+            color: Colors.orange[200],
+            
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     switch(authStatus) {
@@ -50,11 +145,11 @@ class RootPageForWorkerState extends State<RootPageForWorker> {
           restoDocId: (val) {
             restoDocId = val;
           },
-          restoId: (val) {
-            restoId = val;
-          },
           tableNum: (val) {
             tableNum = val;
+          },
+          restoId: (val) {
+            restoId = val;
           },
           name: (val) {
             name = val;
@@ -70,7 +165,7 @@ class RootPageForWorkerState extends State<RootPageForWorker> {
             var date, time;
             bool check = false, newOrder = true;
             int _count = 0;
-            if(!snapshot.hasData) return const Text('Loading');
+            if(!snapshot.hasData) return onLoading();
             for(int i = 0; i < snapshot.data.documents.length; i++) {
               Timestamp t = snapshot.data.documents[i]['date'];
               DateTime d = t.toDate();
@@ -81,6 +176,9 @@ class RootPageForWorkerState extends State<RootPageForWorker> {
                 'date': date,
                 'time': time,
                 'orders': snapshot.data.documents[i]['orders'],
+                'additionalOrders': snapshot.data.documents[i]['additionalOrders'],
+                'printed': snapshot.data.documents[i]['printed'],
+                'verified': snapshot.data.documents[i]['verified'],
                 'orderNum': snapshot.data.documents[i]['orderNum'],
                 'progress': snapshot.data.documents[i]['progress'],
                 'paid': snapshot.data.documents[i]['paid'],
@@ -111,19 +209,23 @@ class RootPageForWorkerState extends State<RootPageForWorker> {
                 break;
               }
             }
+            // debugPrint('$currentOrder');
             
             if(newOrder) {
               return NewOrderByWorker(
                 restoId: restoId,
                 count: count,
-                tableNum: tableNum,
                 name: name,
+                tableNum: tableNum,
+                restoDocId: restoDocId,
                 // onSignedOut: _signedOut,
               );
             } else {
               return CheckSummaryForWorker(
                 restoId: restoId,
                 orderList: currentOrder,
+                tableNum: tableNum,
+                name: name,
               );
             }
           },

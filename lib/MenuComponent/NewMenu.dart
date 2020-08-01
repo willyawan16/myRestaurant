@@ -114,7 +114,8 @@ class NewMenuState extends State<NewMenu>{
 
   _getImage(BuildContext context, ImageSource source) async {
     File cropped;
-    File picture = await ImagePicker.pickImage(source: source);
+    try {
+      File picture = await ImagePicker.pickImage(source: source);
     if(picture != null){
       cropped = await ImageCropper.cropImage(
         sourcePath: picture.path,
@@ -137,6 +138,10 @@ class NewMenuState extends State<NewMenu>{
     this.setState((){
       imageFile = cropped;
     });
+    } catch(e) {
+      print(e);
+    }
+    
     Navigator.of(context).pop();
   }
 

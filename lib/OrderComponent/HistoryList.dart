@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:intl/intl.dart';
 import 'package:jiffy/jiffy.dart';
 
@@ -48,6 +49,15 @@ class HistoryListState extends State<HistoryList> {
     //   ];
     // }
   }
+
+  Widget onLoading() {
+    return Center(
+      child: SpinKitDualRing(
+        size: 100,
+        color: Colors.orange
+      ),
+    );
+  }
   
   @override
   Widget build(BuildContext context) {
@@ -62,7 +72,7 @@ class HistoryListState extends State<HistoryList> {
           List _oneWeekMore = [];
           Map _temp = {};
           var date, date2, time, timeago, dateNum;
-          if(!snapshot.hasData) return const Text('Loading');
+          if(!snapshot.hasData) return onLoading();
           for(int i = 0; i < snapshot.data.documents.length; i++) {
             Timestamp t = snapshot.data.documents[i]['date'];
             DateTime d = t.toDate();
@@ -211,7 +221,7 @@ class HistoryListState extends State<HistoryList> {
     var widthDetail = totWidth * 0.5;
     var widthLeft = totWidth - widthNum - widthDetail -10;
     var totHeight = 150.0;
-    List progress = ['Waiting..', 'Serving..', 'Done!'];
+    List progress = ['Not Printed', 'On going..', 'Done!'];
     // debugPrint('[$index]: ${progress[progressCount]}');
     return GestureDetector(
       child: Container(

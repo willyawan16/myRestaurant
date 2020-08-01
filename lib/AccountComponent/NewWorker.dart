@@ -132,17 +132,24 @@ class NewWorkerState extends State<NewWorker> {
                             child: _decideImage(),
                           ),
                           Container(
-                            padding: EdgeInsets.fromLTRB(20, 15, 20, 20),
+                            padding: EdgeInsets.fromLTRB(20, 15, 20, 0),
                             child: TextFormField(            
                               validator: (value) => (value.isEmpty) ? 'Name can\'t be empty' : null,
                               onSaved: (value) => name = value,
                               decoration: InputDecoration(
                                 prefixIcon: Icon(Icons.person),
                                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                                labelText: 'Name',
-                                hintText: 'Worker\'s name',
+                                labelText: 'Username',
+                                hintText: '',
                                 labelStyle: TextStyle(fontSize: 17),
                               ),
+                            ),
+                          ),
+                          Container(
+                            padding: EdgeInsets.fromLTRB(30, 0, 30, 20),
+                            child: Text(
+                              'NB: This will be use for create an order by worker', 
+                              style: TextStyle(color: Colors.red),  
                             ),
                           ),
                           Container(
@@ -234,35 +241,35 @@ class NewWorkerState extends State<NewWorker> {
                               ),
                             ),
                           ),
-                          Container(
-                            padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
-                            child: DropdownButton<String>(
-                              value: selectedStatus,
-                              isExpanded: true,
-                              icon: Icon(Icons.arrow_downward),
-                              iconSize: 24,
-                              elevation: 16,
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 17,
-                              ),
-                              underline: Container(
-                                height: 2,
-                                color: Colors.grey,
-                              ),
-                              items: workAs.map<DropdownMenuItem<String>>((String value) {
-                                  return DropdownMenuItem<String>(
-                                    value: value,
-                                    child: Text(value),
-                                  );
-                              }).toList(),
-                              onChanged: (String str) {
-                                setState(() {
-                                  selectedStatus = str;
-                                });
-                              },
-                            ),
-                          ),
+                          // Container(
+                          //   padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
+                          //   child: DropdownButton<String>(
+                          //     value: selectedStatus,
+                          //     isExpanded: true,
+                          //     icon: Icon(Icons.arrow_downward),
+                          //     iconSize: 24,
+                          //     elevation: 16,
+                          //     style: TextStyle(
+                          //       color: Colors.black,
+                          //       fontSize: 17,
+                          //     ),
+                          //     underline: Container(
+                          //       height: 2,
+                          //       color: Colors.grey,
+                          //     ),
+                          //     items: workAs.map<DropdownMenuItem<String>>((String value) {
+                          //         return DropdownMenuItem<String>(
+                          //           value: value,
+                          //           child: Text(value),
+                          //         );
+                          //     }).toList(),
+                          //     onChanged: (String str) {
+                          //       setState(() {
+                          //         selectedStatus = str;
+                          //       });
+                          //     },
+                          //   ),
+                          // ),
                         ],
                       ),
                     ),
@@ -306,14 +313,16 @@ class NewWorkerState extends State<NewWorker> {
                                     content: Text('Too young! Re-check your DOB'),
                                   )
                                 );
-                              } else if(selectedStatus == 'Select Role') {
-                                Scaffold.of(context).showSnackBar(
-                                  SnackBar(
-                                    elevation: 5,
-                                    content: Text('Haven\'t decided a role yet? Select "Waiter" as default!'),
-                                  )
-                                );
-                              } else {
+                              } 
+                              // else if(selectedStatus == 'Select Role') {
+                              //   Scaffold.of(context).showSnackBar(
+                              //     SnackBar(
+                              //       elevation: 5,
+                              //       content: Text('Haven\'t decided a role yet? Select "Waiter" as default!'),
+                              //     )
+                              //   );
+                              // } 
+                              else {
                                 validateAndSubmit();
                               }
                             },
@@ -377,7 +386,7 @@ class NewWorkerState extends State<NewWorker> {
       'name': name,
       'dob': _dateTime.toString().substring(0, 10), 
       'phoneNum': phoneNum,
-      'role': selectedStatus,
+      // 'role': selectedStatus,
       'gender': gender,
       'picture': imageUrl,
     };

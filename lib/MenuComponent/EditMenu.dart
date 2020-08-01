@@ -64,6 +64,7 @@ class EditMenuState extends State<EditMenu> {
   void validating() {
     if(validateAndSave()) {
       try {
+        FocusScope.of(context).requestFocus(new FocusNode());
         _accDialog(docID, menuName);
       } catch (e) {
         debugPrint('Error: $e');
@@ -71,9 +72,9 @@ class EditMenuState extends State<EditMenu> {
     }
   }
 
-  Future deleteImage(String fileName, folder) async {
+  Future deleteImage(String fileName) async {
     final StorageReference firebaseStorageRef = 
-      FirebaseStorage.instance.ref().child('images/$folder/$fileName');
+      FirebaseStorage.instance.ref().child('${widget.restoId}/images/foodPic/$fileName');
     try {
       await firebaseStorageRef.delete();
       return true;
@@ -111,7 +112,7 @@ class EditMenuState extends State<EditMenu> {
   void updateData(oldFileName, fileName, doc) async{  
     String imageUrl;
     if(reset == true && widget.pict != null) {
-      deleteImage(doc, widget.restoId);
+      deleteImage(doc);
       debugPrint('deleted previous image');
     }  
     // debugPrint(fileName.toString());
@@ -142,43 +143,62 @@ class EditMenuState extends State<EditMenu> {
     debugPrint(imageUrl.toString());
     Firestore.instance.runTransaction((Transaction transaction) async{
       CollectionReference reference = db.collection('menuList');
-      await reference
+      if(reset == true) 
+      {
+        await reference
+        .document(doc)
+        .updateData({
+          'name': menuName,
+          'description': menuDesc,
+          'price': menuPric,
+          'category': menuCate,
+          'picture': imageUrl,
+        });
+      }
+      else 
+      {
+        await reference
       .document(doc)
       .updateData({
         'name': menuName,
         'description': menuDesc,
         'price': menuPric,
         'category': menuCate,
-        'picture': imageUrl,
       });
+      }
     });
   }
 
   _getImage(BuildContext context, ImageSource source) async {
     File cropped;
-    File picture = await ImagePicker.pickImage(source: source);
-    if(picture != null){
-      cropped = await ImageCropper.cropImage(
-        sourcePath: picture.path,
-        aspectRatio: CropAspectRatio(
-          ratioX: 1, 
-          ratioY: 1,
-        ),
-        compressQuality: 100,
-        maxHeight: 700,
-        maxWidth: 700,
-        compressFormat: ImageCompressFormat.jpg,
-        androidUiSettings: AndroidUiSettings(
-          toolbarColor: Colors.orange,
-          toolbarTitle: 'Crop',
-          statusBarColor: Colors.deepOrange,
-          backgroundColor: Colors.white,
-        ),
-      );
+    try {
+      File picture = await ImagePicker.pickImage(source: source);
+      if(picture != null){
+        cropped = await ImageCropper.cropImage(
+          sourcePath: picture.path,
+          aspectRatio: CropAspectRatio(
+            ratioX: 1, 
+            ratioY: 1,
+          ),
+          compressQuality: 100,
+          maxHeight: 700,
+          maxWidth: 700,
+          compressFormat: ImageCompressFormat.jpg,
+          androidUiSettings: AndroidUiSettings(
+            toolbarColor: Colors.orange,
+            toolbarTitle: 'Crop',
+            statusBarColor: Colors.deepOrange,
+            backgroundColor: Colors.white,
+          ),
+        );
+      }
+      this.setState((){
+        imageFile = cropped;
+      });
+    } catch(e) {
+      print(e);
     }
-    this.setState((){
-      imageFile = cropped;
-    });
+    
     Navigator.of(context).pop();
   }
 
@@ -251,6 +271,7 @@ class EditMenuState extends State<EditMenu> {
               child: Text('Okay', style: TextStyle(fontSize: 15),),
               onPressed: () {
                 updateData(oldFileName, menuName, key);
+                Navigator.of(context).pop();
                 Navigator.of(context).pop();
               },
             ),

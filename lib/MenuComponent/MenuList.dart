@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 import './EditMenu.dart';
 
@@ -17,6 +18,15 @@ class MenuListState extends State<MenuList> {
   List wholeMenu = [];
   List sortedMenu = [];
 
+  Widget onLoading() {
+    return Center(
+      child: SpinKitDualRing(
+        size: 100,
+        color: Colors.orange
+      ),
+    );
+  }
+
   Widget menuCards() {
     return StreamBuilder(
       stream: Firestore.instance.collection('menuList').snapshots(),
@@ -24,7 +34,7 @@ class MenuListState extends State<MenuList> {
         List _sortedMenu = [];
         List _wholeMenu = [];
         Map _temp = {};
-        if(!snapshot.hasData) return const Text('Loading...');
+        if(!snapshot.hasData) return onLoading();
         for(int i = 0; i < snapshot.data.documents.length; i++){
           _temp.addAll({
             'name': snapshot.data.documents[i]['name'],
@@ -82,8 +92,38 @@ class MenuListState extends State<MenuList> {
               height: whPic,
               width: whPic,
               child: (document['picture'] != null) 
-              ? Image.network(document['picture'])
-              : Container(),
+              // ? Image.network(document['picture'])
+              // : Container(),
+              ?ClipRRect(
+                borderRadius: BorderRadius.circular(15.0),
+                child: Image.network(
+                  document['picture'],
+                  loadingBuilder:(BuildContext context, Widget child,ImageChunkEvent loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return Center(
+                      child: CircularProgressIndicator(
+                        backgroundColor: Colors.orange,
+                        value: loadingProgress.expectedTotalBytes != null 
+                        ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes
+                        : null,
+                      ),
+                    );
+                  },
+                ),
+              )
+              : Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15.0),
+                  color: Colors.black
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(15.0),
+                  child: Image.asset(
+                    'assets/img/no_image.jpg',
+                    fit: BoxFit.fill,
+                  ),
+                )
+              ),
             ),
             Container(
               // height: 150,
@@ -166,7 +206,7 @@ class MenuListState extends State<MenuList> {
 
   Future deleteImage(String imageFileName) async {
     final StorageReference firebaseStorageRef = 
-      FirebaseStorage.instance.ref().child('images/$imageFileName');
+      FirebaseStorage.instance.ref().child('${widget.restoId}/images/foodPic/$imageFileName');
     try {
       await firebaseStorageRef.delete();
       return true;
@@ -211,9 +251,10 @@ class MenuListState extends State<MenuList> {
       debugPrint('deleting... ${sortedMenu[currentIndex]['name'].toString()} ${wholeMenu[indexIni]['key'].toString()}');
       debugPrint(wholeMenu[indexIni]['name']);
       deleteData(wholeMenu[indexIni]['name'], wholeMenu[indexIni]['picture'], wholeMenu[indexIni]['key']);
-    }else if(choice == Constants.Share[0]) {
-
     }
+    // else if(choice == Constants.Share[0]) {
+
+    // }
   }
 
   Widget build(BuildContext context){
@@ -228,12 +269,12 @@ class MenuListState extends State<MenuList> {
 class Constants {
   static const List Edit = ['Edit', Icons.edit];
   static const List Delete = ['Delete', Icons.delete];
-  static const List Share = ['Share', Icons.share];
+  // static const List Share = ['Share', Icons.share];
 
   static const List choices = [
     Edit,
     Delete,
-    Share,
+    // Share,
   ];
 }
 

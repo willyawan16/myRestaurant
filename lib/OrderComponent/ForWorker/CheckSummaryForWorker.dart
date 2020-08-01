@@ -1,41 +1,45 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/OrderComponent/AdditionalOrderForWorker.dart';
+import 'package:intl/intl.dart';
+import 'package:myapp/OrderComponent/AdditionalOrdersHistory.dart';
 import 'package:myapp/OrderComponent/OrderList.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_counter/flutter_counter.dart';
 
-import './AdditionalOrder.dart';
+import '../AdditionalOrder.dart';
+import 'AdditionalOrderForWorker.dart';
 
 class CheckSummaryForWorker extends StatefulWidget {
+  String name;
   Map orderList;
-  String restoId;
+  String restoId, tableNum;
 
-  CheckSummaryForWorker({Key key, this.orderList, this.restoId}) : super(key: key);
+  CheckSummaryForWorker({Key key, this.orderList, this.restoId, this.name, tableNum}) : super(key: key);
   @override
   CheckSummaryForWorkerState createState() => CheckSummaryForWorkerState();
 }
 
 class CheckSummaryForWorkerState extends State<CheckSummaryForWorker> with SingleTickerProviderStateMixin{
   int subtotal = 0;
+  int firstSubtotal = 0;
   int addSubtotal = 0;
-  List orders = [];
+  // Map orderData = {};
+  List orders = [], additionalOrders = [];
   bool changes = false;
   bool toggleBtn;
 
   AnimationController _animationController;
   Animation _animation;
 
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   @override
   void initState() {
-    changes = false;
-    for(int i = 0; i < widget.orderList['orders'].length; i++){
-      subtotal += (int.parse(widget.orderList['orders'][i]['menuprice'])*widget.orderList['orders'][i]['quantity']);
-      orders.add(widget.orderList['orders'][i]);
-    }
-    if(widget.orderList['progress'] == 2) {
-      toggleBtn = false;
-    } else {
+    
+    
+    if(widget.orderList['progress'] != 2) {
       toggleBtn = true;
+    } else {
+      toggleBtn = false;
     }
 
     _animationController = AnimationController(vsync:this,duration: Duration(seconds: 2));
@@ -48,6 +52,7 @@ class CheckSummaryForWorkerState extends State<CheckSummaryForWorker> with Singl
 
     super.initState();
   }
+
   @override
   void dispose() {
     _animationController.dispose();
@@ -68,6 +73,18 @@ class CheckSummaryForWorkerState extends State<CheckSummaryForWorker> with Singl
     }
   }
 
+  _updatePrint(doc){
+    Firestore.instance.runTransaction((Transaction transaction) async{
+      CollectionReference reference = Firestore.instance.collection('orderList');
+      await reference
+      .document(doc)
+      .updateData({
+        'printed': true,
+        'progress': 1,
+      });
+    });
+  }
+
   _updatePayment(doc){
     Firestore.instance.runTransaction((Transaction transaction) async{
       CollectionReference reference = Firestore.instance.collection('orderList');
@@ -75,6 +92,7 @@ class CheckSummaryForWorkerState extends State<CheckSummaryForWorker> with Singl
       .document(doc)
       .updateData({
         'paid': 'Paid',
+        'income': subtotal,
       });
     });
   }
@@ -138,187 +156,335 @@ class CheckSummaryForWorkerState extends State<CheckSummaryForWorker> with Singl
     );
   }
 
+  Future<void> _takeAwayDialog() {
+    return showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20)
+          ),
+          title: Text('Take-away?'),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('Cancel', style: TextStyle(color: Colors.grey, fontSize: 15),),
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+              },
+            ),
+            FlatButton(
+              child: Text('No', style: TextStyle(fontSize: 15, color: Colors.orange)),
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => AdditionalOrderForWorker(
+                    docID: widget.orderList['key'], 
+                    restoId: widget.restoId,
+                    orderList: orders,
+                    orderData: widget.orderList,
+                    createdBy: widget.name,
+                    takeaway: false,
+                  )),
+                ).then((value) => setState((){}));
+              },
+            ),
+            OutlineButton(
+              highlightedBorderColor: Colors.orange,
+              splashColor: Colors.orange[50],
+              child: Text('Yes', style: TextStyle(fontSize: 15, color: Colors.orange),),
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => AdditionalOrderForWorker(
+                    docID: widget.orderList['key'], 
+                    restoId: widget.restoId,
+                    orderList: orders,
+                    orderData: widget.orderList,
+                    createdBy: widget.name,
+                    takeaway: true,
+                  )),
+                ).then((value) => setState((){}));
+              },
+            ),
+          ],
+        );
+      }
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    // debugPrint('${widget.orderList}');
     // debugPrint(additionalOrders.length.toString());
     // debugPrint(toggleBtn.toString());
-    var _onPressedSubmit;
-    if(changes) {
-      _onPressedSubmit = (){
-        _showVerifyDialog(context);
-      };
-    } else {
-      _onPressedSubmit = null;
-    }
+    // debugPrint('${widget.orderList['orders']}');
     var _onPressed;
     if(toggleBtn) {
       _onPressed = (){
-        Navigator.of(context).push(
-          MaterialPageRoute(builder: (context) => AdditionalOrderForWorker(
-            docID: widget.orderList['key'], 
-            restoId: widget.restoId,
-            orderList: orders,
-            callbackAdditionalList: (val){
-              orders = val;
-            },
-            updateSubtotal: (val){
-              subtotal = val;
-            },
-            changes: (val) {
-              changes = val;
-            }
-          )),
-        ).then((value) => setState((){}));
+        _takeAwayDialog();
       };
     } else {
       _onPressed = null;
     }
-    return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(100),
-        child: AppBar(
-          title: Text('Order Overview'),
-          flexibleSpace: FlexibleSpaceBar(
-            title: Row(
-              children: <Widget>[
-                Text(widget.orderList['customer'], style: TextStyle(fontSize: 17)),
-                SizedBox(
-                  width: 5,
-                ),
-                Text('|'),
-                SizedBox(
-                  width: 5,
-                ),
-                (widget.orderList['status'][0] == 'Dine-in') 
-                ? Text('Table ${widget.orderList['status'][1]}', style: TextStyle(fontSize: 17))
-                : Text('Take-away', style: TextStyle(fontSize: 17)),
-              ],
-            ),
-          ),
-          backgroundColor: Colors.orange,
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back_ios),
-            onPressed: (){
-              // _updateWholeData(widget.orderList['key']);
-              // Navigator.of(context).pop();
-              if(changes)
-                _showVerifyDialog(context);
-              else
-                Navigator.of(context).pop();
-            },
-          ),
-        ),
-      ), 
-      body: body(),
-      bottomNavigationBar: Container(
-        height: 110,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(0.0),
-          color: Colors.white,
-          boxShadow: [
-              BoxShadow(
-                  color: Colors.grey,
-                  blurRadius: 5.0,
-                  spreadRadius: 5.0,
-                  offset: Offset(2.0, 2.0),
-              )
-          ],
-        ),
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
-          child: Container(
-            // color: Colors.amber,
-            child: Column(
-              children: <Widget>[
-                Container(
-                  padding: EdgeInsets.only(top: 0, bottom: 10,),
-                  child: Row(
+    return StreamBuilder(
+      stream: Firestore.instance.collection('orderList').document('${widget.orderList['key']}').snapshots(),
+      builder: (context, snapshot) {
+        var _temp = {};
+        var orderData;
+        var _orders = [], _snapshotOrder = [], _snapshotAddOrder = [];
+        var _subtotal1 = 0, _subtotal2 = 0;
+        List tempOrders = [];
+        if(!snapshot.hasData) return const Text('Loading...');
+        _snapshotOrder = snapshot.data['orders'];
+        _snapshotAddOrder = snapshot.data['additionalOrders'];
+
+        for(int i = 0; i < _snapshotOrder.length; i++){
+          _subtotal1 += (int.parse(_snapshotOrder[i]['menuprice'])*_snapshotOrder[i]['quantity']);
+          tempOrders.add(_snapshotOrder[i]);
+          tempOrders[tempOrders.length-1]['takeaway'] = 0;
+        }
+        _orders = tempOrders;
+        tempOrders = [];
+        firstSubtotal = _subtotal1;
+
+        for(int i = 0; i < _snapshotAddOrder.length; i++) {
+          
+          if(_snapshotAddOrder[i]['verified'] == 'yes') {
+          _subtotal2 += _snapshotAddOrder[i]['subtotal'];
+          var currentList = _snapshotAddOrder[i]['orders'];
+
+          for(int j = 0; j < currentList.length; j++) {
+            var indexResult = _orders.indexWhere((item) => item['key'] == currentList[j]['key']);
+              if(indexResult != -1) {
+                var quantity = _orders[indexResult]['quantity'];
+                quantity += currentList[j]['quantity'];
+                _orders[indexResult]['quantity'] = quantity;
+                quantity = 0;
+
+                // _orders[indexResult]['takeaway'] = 0;
+                if(_snapshotAddOrder[i]['takeaway'] == true) {
+                  _orders[indexResult]['takeaway'] += currentList[j]['quantity'];
+                }
+
+              } else {
+                _orders.add(currentList[j]);
+                _orders[_orders.length-1]['takeaway'] = 0;
+                if(_snapshotAddOrder[i]['takeaway'] == true) {
+                  _orders[_orders.length-1]['takeaway'] += currentList[j]['quantity'];
+                }
+              }
+            }
+          }
+        }
+        subtotal = _subtotal1 + _subtotal2;
+        orders = _orders;
+        _subtotal1 = 0;
+        _subtotal2 = 0;
+
+        // debugPrint('$orders');
+        // debugPrint('---> $subtotal');
+
+
+        return WillPopScope(
+          child: Scaffold(
+            key: _scaffoldKey,
+            appBar: PreferredSize(
+              preferredSize: Size.fromHeight(100),
+              child: AppBar(
+                title: Text('Order Overview'),
+                flexibleSpace: FlexibleSpaceBar(
+                  title: Row(
                     children: <Widget>[
-                      Container(
-                        // color: Colors.pink,
-                        width: MediaQuery.of(context).size.width/2 - 10,
-                        child: Text('Total', style: TextStyle(fontSize: 20),),
+                      Text(widget.orderList['customer'], style: TextStyle(fontSize: 17)),
+                      SizedBox(
+                        width: 5,
                       ),
-                      Container(
-                        // color: Colors.blue,
-                        width: MediaQuery.of(context).size.width/2 - 10,
-                        child: Text('Rp${subtotal + addSubtotal}', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold), textAlign:TextAlign.right),
-                      )
+                      Text('|'),
+                      SizedBox(
+                        width: 5,
+                      ),
+                      (widget.orderList['status'][0] == 'Dine-in') 
+                      ? Text('Table ${widget.orderList['status'][1]}', style: TextStyle(fontSize: 17))
+                      : Text('Take-away', style: TextStyle(fontSize: 17)),
                     ],
                   ),
                 ),
-                Container(
-                  // color: Colors.purpleAccent,
-                  width: MediaQuery.of(context).size.width,
-                  height: 50,
-                  child: (toggleBtn)
-                  ? new Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                backgroundColor: Colors.orange,
+                leading: IconButton(
+                  icon: Icon(Icons.close),
+                  onPressed: (){
+                    // _updateWholeData(widget.orderList['key']);
+                    // Navigator.of(context).pop();
+                    if(changes)
+                      _showVerifyDialog(context);
+                    else
+                      Navigator.of(context).pop();
+                  },
+                ),
+                actions: <Widget>[
+                  IconButton(
+                    icon: Icon(Icons.history), 
+                    onPressed: (){
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (context) => AdditionalOrdersHistory(
+                          additionalOrders: widget.orderList['additionalOrders'], 
+                          firstSubtotal: firstSubtotal,
+                          printAccess: false,  
+                        )),
+                      );
+                    }, 
+                    tooltip: 'Additional Order History',
+                  ),
+                ],
+              ),
+            ), 
+            body: body(),
+            bottomNavigationBar: Container(
+              height: 110,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(0.0),
+                color: Colors.white,
+                boxShadow: [
+                    BoxShadow(
+                        color: Colors.grey,
+                        blurRadius: 5.0,
+                        spreadRadius: 5.0,
+                        offset: Offset(2.0, 2.0),
+                    )
+                ],
+              ),
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
+                child: Container(
+                  // color: Colors.amber,
+                  child: Column(
                     children: <Widget>[
                       Container(
-                        // width: 100,
-                        // height: 100,
-                        child: FlatButton(
+                        padding: EdgeInsets.only(top: 0, bottom: 10,),
+                        child: Row(
+                          children: <Widget>[
+                            Container(
+                              // color: Colors.pink,
+                              width: MediaQuery.of(context).size.width/2 - 10,
+                              child: Text('Total', style: TextStyle(fontSize: 20),),
+                            ),
+                            Container(
+                              // color: Colors.blue,
+                              width: MediaQuery.of(context).size.width/2 - 10,
+                              child: Text('Rp${subtotal + addSubtotal}', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold), textAlign:TextAlign.right),
+                            )
+                          ],
+                        ),
+                      ),
+                      Container(
+                        // color: Colors.purpleAccent,
+                        width: MediaQuery.of(context).size.width,
+                        height: 50,
+                        child: (widget.orderList['printed'] != true)
+                        ? FlatButton(
                           disabledColor: Colors.grey[400],
                           disabledTextColor: Colors.grey[300],
-                          //splashColor: Colors.green,
-                          textColor: Colors.white,
-                          color: Colors.green,
+                          child: Text('Not Verified', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 25),),
+                          onPressed: () {
+                            final snackbar = SnackBar(
+                              content: Text('Please contact your admin to verify this Order', style: TextStyle(color: Colors.yellow),), 
+                              backgroundColor: Colors.red,
+                              duration: Duration(seconds: 10),
+                            );
+                            _scaffoldKey.currentState.showSnackBar(snackbar);
+                          },
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20)
                           ),
-                          onPressed: _onPressedSubmit,
-                          child: Text('Submit', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),),
-                        ),
-                        decoration: (changes)
-                        ? BoxDecoration(
-                          shape: BoxShape.rectangle,
-                          borderRadius: BorderRadius.circular(20),
-                          color: Colors.green,
-                          boxShadow: [BoxShadow(
-                            color: Colors.lightGreen[300],
-                            blurRadius: _animation.value,
-                            spreadRadius: _animation.value
-                          )]
+                          color: Colors.red,
                         )
-                        : null
-                        ,
-                      ),
-                      FlatButton(
-                        disabledColor: Colors.grey[400],
-                        disabledTextColor: Colors.grey[300],
-                        //splashColor: Colors.green,
-                        textColor: Colors.white,
-                        color: Colors.orange,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20)
-                        ),
-                        onPressed: _onPressed,
-                        child: Text('Add Order', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),),
+                        : (toggleBtn)
+                          // ? new Row(
+                          //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          //   children: <Widget>[
+                          //     Container(
+                          //       // width: 100,
+                          //       // height: 100,
+                          //       child: FlatButton(
+                                  // disabledColor: Colors.grey[400],
+                                  // disabledTextColor: Colors.grey[300],
+                          //         //splashColor: Colors.green,
+                          //         textColor: Colors.white,
+                          //         color: Colors.green,
+                          //         shape: RoundedRectangleBorder(
+                          //           borderRadius: BorderRadius.circular(20)
+                          //         ),
+                          //         onPressed: _onPressedSubmit,
+                          //         child: Text('Submit', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),),
+                          //       ),
+                          //       decoration: (changes)
+                          //       ? BoxDecoration(
+                          //         shape: BoxShape.rectangle,
+                          //         borderRadius: BorderRadius.circular(20),
+                          //         color: Colors.green,
+                          //         boxShadow: [BoxShadow(
+                          //           color: Colors.lightGreen[300],
+                          //           blurRadius: _animation.value,
+                          //           spreadRadius: _animation.value
+                          //         )]
+                          //       )
+                          //       : null
+                          //       ,
+                          //     ),
+                          //     FlatButton(
+                          //       disabledColor: Colors.grey[400],
+                          //       disabledTextColor: Colors.grey[300],
+                          //       //splashColor: Colors.green,
+                          //       textColor: Colors.white,
+                          //       color: Colors.orange,
+                          //       shape: RoundedRectangleBorder(
+                          //         borderRadius: BorderRadius.circular(20)
+                          //       ),
+                          //       onPressed: _onPressed,
+                          //       child: Text('Add Order', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),),
+                          //     ),
+                          //   ],
+                          // )
+                          ? FlatButton(
+                            disabledColor: Colors.grey[400],
+                            disabledTextColor: Colors.grey[300],
+                            //splashColor: Colors.green,
+                            textColor: Colors.white,
+                            color: Colors.orange,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20)
+                            ),
+                            onPressed: _onPressed,
+                            child: Text('Add Order', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),),
+                          )
+                          : FlatButton(
+                            disabledColor: Colors.grey[400],
+                            disabledTextColor: Colors.grey[300],
+                            //splashColor: Colors.green,
+                            textColor: Colors.white,
+                            color: Colors.red[600],
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20)
+                            ),
+                            onPressed: (){
+                              _updatePayment(widget.orderList['key']);
+                              Navigator.of(context).pop();
+                            },
+                            child: Text('Payment', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),),
+                          )
                       ),
                     ],
-                  )
-                  : FlatButton(
-                    disabledColor: Colors.grey[400],
-                    disabledTextColor: Colors.grey[300],
-                    //splashColor: Colors.green,
-                    textColor: Colors.white,
-                    color: Colors.red[600],
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20)
-                    ),
-                    onPressed: (){
-                      // _updatePayment(widget.orderList['key']);
-                      Navigator.of(context).pop();
-                    },
-                    child: Text('Payment', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),),
-                  )
+                  ),
                 ),
-              ],
+              ),
             ),
-          ),
-        ),
-      ),
+          ), 
+          onWillPop: () async {
+            return false;
+          },
+        );
+      }
     );
   }
 
@@ -577,7 +743,9 @@ class CheckSummaryForWorkerState extends State<CheckSummaryForWorker> with Singl
                           Container(
                             height: 20,
                             //width: 290,
-                            child: Text(details['menuname'], style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),),
+                            child: (details['takeaway'] > 0)
+                            ? Text('${details['menuname']} (${details['takeaway']} T-A)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),)
+                            : Text('${details['menuname']}', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),),
                           ),
                           (details['description'] != '') 
                           ? Container(
@@ -589,20 +757,21 @@ class CheckSummaryForWorkerState extends State<CheckSummaryForWorker> with Singl
                           ),
                           Container(
                             height: 30,
+                            child: Text('Edit', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold))
                             // child: (widget.orderList['progress'] == 0)
                             // ? GestureDetector(
                             //   onTap: (){
-                            //     _showEditDialog(context, details, index, orders, true);
+                            //     _showEditDialog(context, details, index, orders);
                             //   },
                             //   child: Text('Edit', style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold)),
                             // )
                             // : Text('Edit', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold))
-                            child: GestureDetector(
-                              onTap: (){
-                                _showEditDialog(context, details, index, orders);
-                              },
-                              child: Text('Edit', style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold)),
-                            ),
+                            // child: GestureDetector(
+                            //   onTap: (){
+                            //     _showEditDialog(context, details, index, orders);
+                            //   },
+                            //   child: Text('Edit', style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold)),
+                            // ),
                           ),               
                         ],
                       ),

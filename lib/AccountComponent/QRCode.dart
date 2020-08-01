@@ -16,7 +16,7 @@ class QRCodeState extends State<QRCode> {
       body: Center(
         child: Container(
           child: QrImage(
-            data: '${widget.restoDocId}${widget.restoId}_5',
+            data: '${widget.restoDocId}${widget.restoId}_2A',
             version: QrVersions.auto,
             size: 200.0,
           ),

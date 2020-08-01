@@ -8,19 +8,22 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 
-class CheckOrder extends StatefulWidget {
-  String name, table, status, restoId, createdBy;
+class CheckAdditionalOrder extends StatefulWidget {
+  String restoId, createdBy;
   List orderList, wholeMenu;
+  Map orderData;
   int count;
+  bool takeaway;
   
   final Function(List) onCallbackOrderList;
+  final Function(int) subtotal;
 
-  CheckOrder({Key key, this.name, this.table, this.orderList, this.wholeMenu, this.status, this.onCallbackOrderList, this.restoId, this.count, this.createdBy}) : super(key: key);
+  CheckAdditionalOrder({Key key, this.orderData, this.orderList, this.subtotal, this.wholeMenu, this.onCallbackOrderList, this.restoId, this.count, this.createdBy, this.takeaway}) : super(key: key);
   @override
-  CheckOrderState createState() => CheckOrderState();
+  CheckAdditionalOrderState createState() => CheckAdditionalOrderState();
 }
 
-class CheckOrderState extends State<CheckOrder> {
+class CheckAdditionalOrderState extends State<CheckAdditionalOrder> {
   List<int> tempTotal =[];
   int subtotal = 0; 
   List finalStatus; 
@@ -28,29 +31,8 @@ class CheckOrderState extends State<CheckOrder> {
 
   @override
   void initState() {
-    String code;
-    String today = '${DateFormat('yyyyMMdd').format(DateTime.now())}';
-    debugPrint(today);
-    String number = (widget.count+1).toString();
-    if(number.length == 1) {
-      code = '000$number';
-    } else if(number.length == 2) {
-      code = '00$number';
-    } else if(number.length == 3) {
-      code = '0$number';
-    } else if(number.length == 4) {
-      code = '$number';
-    }
-    invoiceCode = '$code';
-    debugPrint('invoiceCode: $invoiceCode');
-
     for(int i = 0; i < widget.orderList.length; i++){
       subtotal += (int.parse(widget.orderList[i]['menuprice'])*widget.orderList[i]['quantity']);
-    }
-    if(widget.status == 'Take-away'){
-      finalStatus = [widget.status, 0];
-    } else if(widget.status == 'Dine-in'){
-      finalStatus = [widget.status, widget.table];
     }
     super.initState();
   }
@@ -134,6 +116,7 @@ class CheckOrderState extends State<CheckOrder> {
                           details['quantity'] = quantityFood;
                           details['description'] = descOrder.text;
                         });
+                        debugPrint('------$orderList');
                         for(int i = 0; i < orderList.length; i++){
                           temp += (int.parse(orderList[i]['menuprice'])*orderList[i]['quantity']);
                         }
@@ -141,6 +124,7 @@ class CheckOrderState extends State<CheckOrder> {
                           subtotal = temp;
                         });
                         widget.onCallbackOrderList(orderList);
+                        widget.subtotal(subtotal);
                         // debugPrint('added ${sortedMenu[index]['name']}');
                         Navigator.of(context).pop();
                         
@@ -188,9 +172,6 @@ class CheckOrderState extends State<CheckOrder> {
   
   @override
   Widget build(BuildContext context) {
-    if(widget.name == '') {
-      widget.name = 'Customer';
-    }
     if(widget.orderList.isNotEmpty) {
       debugPrint('------------------------------------------------------');
       debugPrint('Received order list: ');
@@ -204,11 +185,11 @@ class CheckOrderState extends State<CheckOrder> {
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(100),
         child: AppBar(
-          title: Text('Check Orders'),
+          title: Text((widget.takeaway) ? 'Check TAKE-AWAY Orders' : 'Check Orders'),
           flexibleSpace: FlexibleSpaceBar(
             title: Row(
               children: <Widget>[
-                Text(widget.name, style: TextStyle(fontSize: 17)),
+                Text(widget.orderData['customer'], style: TextStyle(fontSize: 17)),
                 SizedBox(
                   width: 5,
                 ),
@@ -216,8 +197,8 @@ class CheckOrderState extends State<CheckOrder> {
                 SizedBox(
                   width: 5,
                 ),
-                (widget.status == 'Dine-in') 
-                ? Text('Table ${widget.table}', style: TextStyle(fontSize: 17))
+                (widget.orderData['status'][0] == 'Dine-in') 
+                ? Text('Table ${widget.orderData['status'][1]}', style: TextStyle(fontSize: 17))
                 : Text('Take-away', style: TextStyle(fontSize: 17)),
               ],
             ),
@@ -275,23 +256,15 @@ class CheckOrderState extends State<CheckOrder> {
                   height: 50,
                   child: FlatButton(
                     //splashColor: Colors.green,
-                    disabledColor: Colors.grey[400],
-                    disabledTextColor: Colors.grey[300],
                     textColor: Colors.white,
-                    color: Colors.green,
+                    color: Colors.red,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20)
                     ),
-                    onPressed: (widget.orderList.isNotEmpty)
-                    ?(){
-                      _addData();
-                      int count = 0;
-                      Navigator.popUntil(context, (route) {
-                          return count++ == 2;
-                      });
-                    }
-                    : null, 
-                    child: Text('Submit Order', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),),
+                    onPressed: () {
+                      _updateData();
+                    }, 
+                    child: Text('Print Invoice', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 25),),
                   ),
                 ),
               ],
@@ -369,21 +342,38 @@ class CheckOrderState extends State<CheckOrder> {
     }
   }
 
-  Future<void> _addData() async{
+  Future<void> _updateData() async {
+    List data = [], obj;
     CollectionReference reference = Firestore.instance.collection('orderList');
-    await reference.add({
-      'customer': widget.name,
-      'date': DateTime.now(),
-      'orders': widget.orderList,
-      'printed': false,
-      'additionalOrders': [], 
-      'status': finalStatus,
-      'progress': 0,
-      'restaurantId': widget.restoId,
-      'paid': 'Not Paid',
-      'verified': (widget.createdBy != null) ? false : true,
-      'createdBy': (widget.createdBy != null) ? widget.createdBy.toUpperCase() : 'You',
-      'orderNum': invoiceCode,
+    DocumentReference addOrderRef = Firestore.instance.document('orderList/${widget.orderData['key']}');
+    await addOrderRef.get().then((value) async {
+      for(int i = 0; i < value['additionalOrders'].length; i++) {
+        debugPrint('${value['additionalOrders'][i]}');
+        data.add(value['additionalOrders'][i]);
+      }
+      var newObj = {
+        'time': DateTime.now(),
+        'orders': widget.orderList,
+        'subtotal': subtotal,
+        'takeaway': widget.takeaway,
+        'createdBy': 'You',
+        'verified': 'yes',
+      };
+      debugPrint('>>>$newObj');
+      data.add(newObj);
+      debugPrint('>>> this is $data');
+
+      await reference
+      .document(widget.orderData['key'])
+      .updateData({
+        'additionalOrders': data,
+      });
+    });
+    
+
+    int count = 0;
+    Navigator.popUntil(context, (route) {
+        return count++ == 3;
     });
   }
 

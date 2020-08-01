@@ -41,13 +41,22 @@ class MenuState extends State<Menu> with SingleTickerProviderStateMixin {
     super.dispose();
   }
 
+  Widget onLoading() {
+    return Center(
+      child: SpinKitDualRing(
+        size: 100,
+        color: Colors.orange
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
       stream: Firestore.instance.collection('menuList').snapshots(),
       builder: (context, snapshot){
         List<String> tabList = [];
-        if(!snapshot.hasData) return const SpinKitDualRing(color: Colors.red, size: 50.0,);
+        if(!snapshot.hasData) return onLoading();
         // debugPrint(tabList.toString());
         for(int i = 0; i < snapshot.data.documents.length; i++){
           if(snapshot.data.documents[i]['restaurantId'] == widget.restoId) {

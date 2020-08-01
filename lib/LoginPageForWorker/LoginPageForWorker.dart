@@ -50,11 +50,11 @@ class LoginPageForWorkerState extends State<LoginPageForWorker> {
         List workerList = restoList[0]['workerList'];
         debugPrint('$tableNum');
         for(int i = 0; i < workerList.length; i++) {
-          if(_username.toUpperCase() == workerList[i]['name'].toUpperCase() && tableNum != null) {
+          if(_username.toUpperCase() == workerList[i]['name'].toUpperCase()) {
               widget.onSignedIn();
               widget.restoDocId(restoDocId);
-              widget.restoId(restoId);
               widget.tableNum(tableNum);
+              widget.restoId(restoId);
               widget.name(_username);
           } else if(tableNum == null) {
             failedSignIn = true;
@@ -98,6 +98,24 @@ class LoginPageForWorkerState extends State<LoginPageForWorker> {
       });
       debugPrint('------$restoDocId');
       debugPrint('------$restoId');
+      // for(int i = 0; i < restoList.length; i++) {
+      //   if(restoDocId == restoList[i]['restoDocId']) {
+      //     if(restoId == restoList[i]['restoId']) {
+      //       finalRestoData = restoList[i]; 
+      //       setState(() {
+      //         finalQrResult = '${finalRestoData['restoName']}\'s Restaurant';
+      //         // tableNum = _tableNum;
+      //         found = true;
+      //       });
+      //     }
+      //     break;
+      //   }
+      // } 
+      // if(!found) {
+      //   setState(() {
+      //     finalQrResult = 'Restaurant Not Found!';
+      //   });
+      // }
       for(int i = qrResult.length-1; i >= 40; i--) {
         // debugPrint('--> $tableNumDigit');
         if(qrResult[i] != '_') {
@@ -141,6 +159,22 @@ class LoginPageForWorkerState extends State<LoginPageForWorker> {
     }
   }
 
+  Widget onLoading() {
+    return Center(
+      child: Container(
+        height: 50,
+        width: 50,
+        child: Card(
+          elevation: 10,
+          child: SpinKitCubeGrid(
+            size: 30,
+            color: Colors.red,
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
@@ -148,7 +182,7 @@ class LoginPageForWorkerState extends State<LoginPageForWorker> {
       builder: (context, snapshot) {
         Map _temp = {};
         List _restoList = [];
-        if(!snapshot.hasData) return const Text('Loading..');
+        if(!snapshot.hasData) return onLoading();
         for(int i = 0; i < snapshot.data.documents.length; i++) {
           _temp.addAll({
             'restoDocId': snapshot.data.documents[i].documentID,

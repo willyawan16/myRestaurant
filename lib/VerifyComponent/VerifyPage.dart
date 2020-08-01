@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:intl/intl.dart';
 
 class VerifyPage extends StatefulWidget {
@@ -45,6 +46,15 @@ class VerifyPageState extends State<VerifyPage> {
     );
   }
 
+  Widget onLoading() {
+    return Center(
+      child: SpinKitDualRing(
+        size: 100,
+        color: Colors.orange
+      ),
+    );
+  }
+
   Widget cardList() {
     return StreamBuilder(
       stream: Firestore.instance.collection('orderList').where('restaurantId', isEqualTo: widget.restoId).snapshots(),
@@ -52,13 +62,13 @@ class VerifyPageState extends State<VerifyPage> {
         List _waitingList = [];
         Map _temp = {};
         var today, date, time;
-        if(!snapshot.hasData) return const Text('Loading');
-        for(int i = 0; i< snapshot.data.documents.length; i++) {
+        if(!snapshot.hasData) return onLoading();
+        for(int i = 0; i < snapshot.data.documents.length; i++) {
           Timestamp t = snapshot.data.documents[i]['date'];
-            DateTime d = t.toDate();
-            today = DateFormat('yyyy-MM-dd').format(DateTime.now());
-            date = DateFormat('yyyy-MM-dd').format(d);
-            time = DateFormat('h:mm a').format(d);
+          DateTime d = t.toDate();
+          today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+          date = DateFormat('yyyy-MM-dd').format(d);
+          time = DateFormat('h:mm a').format(d);
           if(snapshot.data.documents[i]['verified'] == false && date == today) {
             _temp.addAll({
               'name': snapshot.data.documents[i]['customer'],
@@ -67,8 +77,25 @@ class VerifyPageState extends State<VerifyPage> {
               'time': time,
               'createdBy': snapshot.data.documents[i]['createdBy'],
               'docId': snapshot.data.documents[i].documentID,
+              'made': false
             });
             _waitingList.add(_temp);
+          } else if(snapshot.data.documents[i]['verified'] == true && date == today && snapshot.data.documents[i]['additionalOrders'].isNotEmpty) {
+            Timestamp t2 = snapshot.data.documents[i]['additionalOrders'][snapshot.data.documents[i]['additionalOrders'].length-1]['time'];
+            DateTime d2 = t2.toDate();
+            var time2 = DateFormat('h:mm a').format(d2);
+            if(snapshot.data.documents[i]['verified'] == true && date == today && snapshot.data.documents[i]['additionalOrders'][snapshot.data.documents[i]['additionalOrders'].length-1]['verified'] == 'no') {
+              _temp.addAll({
+                'name': snapshot.data.documents[i]['customer'],
+                'status': snapshot.data.documents[i]['status'],
+                'orderNum': snapshot.data.documents[i]['orderNum'],
+                'time': time2,
+                'createdBy': snapshot.data.documents[i]['additionalOrders'][snapshot.data.documents[i]['additionalOrders'].length-1]['createdBy'],
+                'docId': snapshot.data.documents[i].documentID,
+                'made': true,
+              });
+              _waitingList.add(_temp);
+            }
           }
           _temp = {};
         }
@@ -116,13 +143,21 @@ class VerifyPageState extends State<VerifyPage> {
                 // color: Colors.grey,
                 child: (details['status'][0] == 'Dine-in')
                 ? Text('${details['name']} ( Table ${details['status'][1]} )', style: TextStyle(fontSize: 17),)
-                : Text('${details['name']} ( ${details['status'][0]} )', style: TextStyle(fontSize: 17),),
+                : Text('${details['name']} ( ${details['status'][0]} )', style: TextStyle(fontSize: 17),)
               ),
               Container(
                 padding: EdgeInsets.fromLTRB(20, 0, 0, 5),
                 width: MediaQuery.of(context).size.width*5/8,
                 // color: Colors.grey,
                 child: Text('Created by: ${details['createdBy']}', style: TextStyle(fontSize: 14))
+              ),
+               Container(
+                padding: EdgeInsets.fromLTRB(20, 0, 0, 5),
+                width: MediaQuery.of(context).size.width*5/8,
+                // color: Colors.grey,
+                child: (!details['made'])
+                ? Text('Order type: New Order', style: TextStyle(fontSize: 14))
+                : Text('Order type: Additional Order', style: TextStyle(fontSize: 14)),
               ),
               Container(
                 padding: EdgeInsets.fromLTRB(20, 0, 0, 15),
@@ -142,7 +177,7 @@ class VerifyPageState extends State<VerifyPage> {
                       child: Container(
                         // color: Colors.green,
                         width: MediaQuery.of(context).size.width*3/16,
-                        height: 110,
+                        height: 125,
                         child: Align(
                           alignment: Alignment.center,
                           child: Text('Accept', textAlign: TextAlign.center,),
@@ -156,7 +191,9 @@ class VerifyPageState extends State<VerifyPage> {
                             textColor: Colors.yellow,
                             label: 'Accept', 
                             onPressed: (){
-                              acceptData(details['docId']);
+                              (!details['made'])
+                              ? acceptData(details['docId'])
+                              : acceptData2(details['docId']);
                             }
                           ),
                         );
@@ -173,7 +210,7 @@ class VerifyPageState extends State<VerifyPage> {
                       child: Container(
                         // color: Colors.green,
                         width: MediaQuery.of(context).size.width*3/16,
-                        height: 110,
+                        height: 125,
                         child: Align(
                           alignment: Alignment.center,
                           child: Text('Trash', textAlign: TextAlign.center,),
@@ -187,7 +224,9 @@ class VerifyPageState extends State<VerifyPage> {
                             textColor: Colors.yellow,
                             label: 'Trash', 
                             onPressed: (){
-                              trashData(details['docId']);
+                              (!details['made'])
+                              ? trashData(details['docId'])
+                              : trashData2(details['docId']);
                             }
                           ),
                         );
@@ -212,6 +251,22 @@ class VerifyPageState extends State<VerifyPage> {
     .document(doc)
     .updateData({
       'verified': true,
+      'printed': true,
+      'progress': 1,
+    });
+  }
+
+  void acceptData2(doc) async {
+    List addOrder;
+    var reference = Firestore.instance.collection('orderList').document(doc);
+    reference.get().then((snapshot) async {
+      addOrder = snapshot['additionalOrders'];
+      addOrder[addOrder.length-1]['verified'] = 'yes';
+      // debugPrint('$addOrder');
+      await reference
+      .updateData({
+        'additionalOrders': addOrder,
+      });
     });
   }
 
@@ -223,6 +278,20 @@ class VerifyPageState extends State<VerifyPage> {
       'verified': true,
       'paid': 'Trash',
       'progress': 10
+    });
+  }
+
+  void trashData2(doc) async {
+    List addOrder;
+    var reference = Firestore.instance.collection('orderList').document(doc);
+    reference.get().then((snapshot) async {
+      addOrder = snapshot['additionalOrders'];
+      addOrder[addOrder.length-1]['verified'] = 'trash';
+      // debugPrint('$addOrder');
+      await reference
+      .updateData({
+        'additionalOrders': addOrder,
+      });
     });
   }
 }

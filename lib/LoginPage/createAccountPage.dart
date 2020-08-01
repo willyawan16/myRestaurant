@@ -22,7 +22,7 @@ class BounceScrollBehavior extends ScrollBehavior {
 
 class CreateAccountPageState extends State<CreateAccountPage> {
   bool hidePassword;
-  String restaurantName, email, city, address, addressNo, selectedVal, restaurantMaster = '';
+  String restaurantName, email,selectedVal, restaurantMaster = '';
   int password, confirmPassword, tempPassword;
   List organizationList;
   Map chosenMaster;
@@ -41,10 +41,10 @@ class CreateAccountPageState extends State<CreateAccountPage> {
     final form = formKey.currentState;
     if(form.validate()){
       form.save();
-      debugPrint('Form is VALID. Restaurant Name: $restaurantName, Email: $email, Password: $password, City: $city, Address: $address, Address Number: $addressNo');
+      debugPrint('Form is VALID. Restaurant Name: $restaurantName, Email: $email, Password: $password');
       return true;
     } else {
-      debugPrint('Form is INVALID. Restaurant Name: $restaurantName, Email: $email, Password: $password, City: $city, Address: $address, Address Number: $addressNo');
+      debugPrint('Form is INVALID. Restaurant Name: $restaurantName, Email: $email, Password: $password');
       return false;
     }
   }
@@ -73,9 +73,6 @@ class CreateAccountPageState extends State<CreateAccountPage> {
   Future<void> _addOrganization() async{
     CollectionReference reference = Firestore.instance.collection('restaurant');
     final docRef = await reference.add({
-      'city': city,
-      'address': address,
-      'addressNo': addressNo,
       'restaurantName': restaurantName,
       'restaurantId': '',
       'branch': [],
@@ -90,9 +87,6 @@ class CreateAccountPageState extends State<CreateAccountPage> {
   Future<void> _addBranch(chosenMaster) async{
     CollectionReference reference = Firestore.instance.collection('restaurant');
     var obj = {
-      'city': city,
-      'address': address,
-      'addressNo': addressNo,
       'restaurantName': restaurantName,
       'restaurantId': '',
       'email': email,
@@ -483,59 +477,7 @@ class CreateAccountPageState extends State<CreateAccountPage> {
                             SizedBox(
                               height: spaceBetween
                             ),
-                            TextFormField(
-                              validator: (value) => value.isEmpty ? 'City can\'t be empty' : null,
-                              onSaved: (value) => city = value,
-                              style: TextStyle(fontFamily: 'Balsamiq_Sans'),
-                              decoration: InputDecoration(
-                                prefixIcon: Icon(Icons.location_city),
-                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                                labelText: 'City',
-                                hintText: 'Ex: Medan',
-                                labelStyle: TextStyle(fontSize: 17),
-                              ),
-                            ),
-                            SizedBox(
-                              height: spaceBetween
-                            ),
-                            new Row(
-                              children: <Widget>[
-                                Container(
-                                  width: totWidth*6/8-10,
-                                  child: TextFormField(
-                                    validator: (value) => value.isEmpty ? 'Address can\'t be empty' : (value.indexOf('JL.') != -1 || value.indexOf('jL.') != -1 || value.indexOf('jl.') != -1) ? 'Correct to "Jl."' : value.indexOf('Jl. ') == -1 ? 'Put space after "Jl."': null,
-                                    onSaved: (value) => address = value,
-                                    style: TextStyle(fontFamily: 'Balsamiq_Sans'),
-                                    decoration: InputDecoration(
-                                      prefixIcon: Icon(Icons.location_on),
-                                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                                      labelText: 'Address',
-                                      hintText: 'Ex: Jl. Sudirman',
-                                      labelStyle: TextStyle(fontSize: 17),
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 10 
-                                ),
-                                Container(
-                                  width: totWidth*2/8,
-                                  child: TextFormField(
-                                    validator: (value) => value.isEmpty ? 'Address No. can\'t be empty' : null,
-                                    onSaved: (value) => addressNo = value,
-                                    style: TextStyle(fontFamily: 'Balsamiq_Sans'),
-                                    keyboardType: TextInputType.number,
-                                    decoration: InputDecoration(
-                                      // prefixIcon: Icon(Icons.location_on),
-                                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                                      labelText: 'No.',
-                                      hintText: 'Ex: 1',
-                                      labelStyle: TextStyle(fontSize: 17),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
+                            
                           ],
                         ),
                       ),

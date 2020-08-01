@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 import './CheckSummary.dart';
 
@@ -9,8 +10,9 @@ import 'package:intl/intl.dart';
 class OrderList extends StatefulWidget {
   String restoId;
   Function(int) count;
+  Function(List) inUseTable;
 
-  OrderList({Key key, this.restoId, this.count}) : super(key: key);
+  OrderList({Key key, this.restoId, this.count, this.inUseTable}) : super(key: key);
 
   @override
   OrderListState createState() => OrderListState();
@@ -19,6 +21,7 @@ class OrderList extends StatefulWidget {
 class OrderListState extends State<OrderList> {
   String delete;
   int count;
+  List inUseTable = [];
 
   Widget orderCards(List order) {
     return ListView.builder(
@@ -40,16 +43,15 @@ class OrderListState extends State<OrderList> {
             borderRadius: BorderRadius.circular(20),
           ),
           content: Container(
-            height: 100,
+            height: 110,
             child: Column(
               children: <Widget>[
-                Text('Waiting.. -> Serving.. -> Done!'),
+                Text('On going -> Done!'),
                 SizedBox(
                   height: 20,
                 ),
-                (details['progress'] == 0)
-                ? Text('Update to Serving', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red),)
-                : Text('Update to Done!', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red),),
+                Text('Update to Done!', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red),),
+                Text('NB: Order won\'t receive any changes again!', style: TextStyle(fontSize: 14))
               ],
             ),
           ),
@@ -84,125 +86,7 @@ class OrderListState extends State<OrderList> {
         );
       }
     );
-  }
-
-  Future<void> _progress2Update(details) {
-    return showDialog(
-      context: context,
-      barrierDismissible: true,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Update Additional Order Progress?'),
-          elevation: 10,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          content: Container(
-            height: 100,
-            child: Column(
-              children: <Widget>[
-                Text('Waiting.. -> Serving.. -> Done!'),
-                SizedBox(
-                  height: 20,
-                ),
-                (details['additionalOrderProgress'] == 0)
-                ? Text('Update to Serving', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red),)
-                : Text('Update to Done!', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red),),
-              ],
-            ),
-          ),
-          actions: <Widget>[
-            Container(
-              padding: EdgeInsets.only(right: 10),
-              child: FlatButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                }, 
-                child: Text(
-                  'Cancel',
-                  style: TextStyle(
-                    fontSize: 15,
-                    color: Colors.grey,
-                  ),
-                ),
-              ),
-            ),
-            Container(
-              child: OutlineButton(
-                onPressed: (){
-                  details['additionalOrderProgress']++;
-                  // debugPrint(details['progress'].toString());
-                  updateProgress(details['key'], details['additionalOrderProgress'], 1);
-                  Navigator.of(context).pop();
-                },
-                child: Text('Yes'),
-              ),
-            )
-          ],
-        );
-      }
-    );
-  }
-
-  Future<void> _finalProgressUpdate(details) {
-    return showDialog(
-      context: context,
-      barrierDismissible: true,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Update to "Done!"?'),
-          elevation: 10,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          content: Container(
-            height: 100,
-            child: Column(
-              children: <Widget>[
-                Text('Waiting.. -> Serving.. -> Done!'),
-                SizedBox(
-                  height: 20,
-                ),
-                (details['progress'] == 0)
-                ? Text('Update to Serving', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red),)
-                : Text('Update to Done!', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red),),
-              ],
-            ),
-          ),
-          actions: <Widget>[
-            Container(
-              padding: EdgeInsets.only(right: 10),
-              child: FlatButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                }, 
-                child: Text(
-                  'Cancel',
-                  style: TextStyle(
-                    fontSize: 15,
-                    color: Colors.grey,
-                  ),
-                ),
-              ),
-            ),
-            Container(
-              child: OutlineButton(
-                onPressed: (){
-                  details['progress']++;
-                  updateProgress(details['key'], details['progress'], 0);
-                  details['additionalOrderProgress']++;
-                  debugPrint(details['additionalOrderProgress'].toString());
-                  updateProgress(details['key'], details['additionalOrderProgress'], 1);
-                  Navigator.of(context).pop();
-                },
-                child: Text('Yes'),
-              ),
-            )
-          ],
-        );
-      }
-    );
-  }
+  } 
 
   Future<void> _proceedPayment(Map details) {
     return showDialog(
@@ -245,7 +129,7 @@ class OrderListState extends State<OrderList> {
                   // payment page
                   Navigator.of(dialogContext).pop();
                   Navigator.of(context, rootNavigator: true).push( 
-                    MaterialPageRoute(builder: (context) => CheckSummary(orderList: details,)),
+                    MaterialPageRoute(builder: (context) => CheckSummary(orderList: details)),
                   );
                 },
                 child: Text('Yes'),
@@ -373,33 +257,31 @@ class OrderListState extends State<OrderList> {
   }
 
   Widget orderDetails(BuildContext context, index, details) {
+    // debugPrint('>>>$details');
     var totWidth = MediaQuery.of(context).size.width - 20;
     var widthNum = totWidth * 0.3;
     var widthDetail = totWidth * 0.5;
     var widthLeft = totWidth - widthNum - widthDetail -10;
     var totHeight = 150.0;
-    List progress = ['Waiting..', 'Serving..', 'Done!'];
+    List progress = ['Not Printed', 'On going..', 'Done!'];
     // debugPrint('[$index]: ${progress[progressCount]}');
     return GestureDetector(
       onLongPress: (){
         _deleteOrder(details['key']);
       },
       onDoubleTap: (){
-        if(details['progress'] != 2) {
-          if(details['progress'] == 1 && details['additionalOrderProgress'] == 0) {
-            _progress2Update(details);
-          } else if(details['progress'] == 1 && details['additionalOrderProgress'] == 1) {
-            _finalProgressUpdate(details);
-          } else {
-            _progressUpdate(details);
-          }
+        if(details['progress'] == 0) {
+          Scaffold.of(context).showSnackBar(SnackBar(content: Text('Remember to PRINT!'), backgroundColor: Colors.orange,));
+        } else if(details['progress'] != 2) {
+          _progressUpdate(details);
         } else if (details['progress'] == 2){
           _proceedPayment(details);
         }
       },
       onTap: (){
+        debugPrint('>>>$details');
         Navigator.of(context, rootNavigator: true).push(
-          MaterialPageRoute(builder: (context) => CheckSummary(orderList: details, restoId: widget.restoId,)),
+          MaterialPageRoute(builder: (context) => CheckSummary(orderList: details, restoId: widget.restoId)),
         );
       },
       child: Container(
@@ -600,6 +482,15 @@ class OrderListState extends State<OrderList> {
     );
   }
 
+  Widget onLoading() {
+    return Center(
+      child: SpinKitDualRing(
+        size: 100,
+        color: Colors.orange
+      ),
+    );
+  }
+
   Widget build(BuildContext context) {
     debugPrint('Get Id: ${widget.restoId}');
     int _count = 0;
@@ -611,7 +502,7 @@ class OrderListState extends State<OrderList> {
           Map _temp = {};
           var date, time;
           bool check = false;
-          if(!snapshot.hasData) return const Text('Loading');
+          if(!snapshot.hasData) return onLoading();
           for(int i = 0; i < snapshot.data.documents.length; i++) {
             Timestamp t = snapshot.data.documents[i]['date'];
             DateTime d = t.toDate();
@@ -624,11 +515,11 @@ class OrderListState extends State<OrderList> {
               'orders': snapshot.data.documents[i]['orders'],
               'orderNum': snapshot.data.documents[i]['orderNum'],
               'progress': snapshot.data.documents[i]['progress'],
-              'additionalOrder': snapshot.data.documents[i]['additionalOrder'],
-              'additionalOrderProgress': snapshot.data.documents[i]['additionalOrderProgress'],
               'paid': snapshot.data.documents[i]['paid'],
               'status': snapshot.data.documents[i]['status'],
               'verified': snapshot.data.documents[i]['verified'],
+              'printed':  snapshot.data.documents[i]['printed'],
+              'additionalOrders': snapshot.data.documents[i]['additionalOrders'],
               'createdBy': snapshot.data.documents[i]['createdBy'],
               'key': snapshot.data.documents[i].documentID,
             });
@@ -649,6 +540,16 @@ class OrderListState extends State<OrderList> {
           _count = 0;
           debugPrint(count.toString());
           widget.count(count);
+          List _inUseTable = [];
+          for(int i = 0; i < orderList.length; i++) {
+            if(orderList[i]['status'][0] == 'Dine-in') {
+              _inUseTable.add(orderList[i]['status'][1]);
+            }
+          }
+          inUseTable = _inUseTable;
+          _inUseTable = [];
+          widget.inUseTable(inUseTable);
+          // debugPrint('$orderList');
           return body(orderList, check);
         },
       ),

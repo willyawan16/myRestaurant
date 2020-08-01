@@ -1,21 +1,25 @@
 import 'package:bubble_tab_indicator/bubble_tab_indicator.dart';
 import 'package:flutter/material.dart';
+import 'package:myapp/OrderComponent/CheckAdditionalOrder.dart';
 
-import './MenuList.dart';
+import '../MenuList.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
+import 'CheckAdditionalOrderForWorker.dart';
+
 class AdditionalOrderForWorker extends StatefulWidget {
-  String docID, restoId;
+  String docID, restoId, createdBy;
   List orderList;
-  bool cekBool;
+  bool cekBool, takeaway;
+  Map orderData;
   Function(List) callbackAdditionalList;
   Function(int) updateSubtotal;
   Function(bool) changes;
 
-  AdditionalOrderForWorker({Key key, this.docID, this.orderList, this.callbackAdditionalList, this.cekBool, this.restoId, this.updateSubtotal, this.changes}) : super(key: key);
+  AdditionalOrderForWorker({Key key, this.docID, this.orderList, this.callbackAdditionalList, this.cekBool, this.restoId, this.updateSubtotal, this.changes, this.orderData, this.takeaway, this.createdBy}) : super(key: key);
   @override
   AdditionalOrderForWorkerState createState() => AdditionalOrderForWorkerState();
 }
@@ -27,22 +31,21 @@ class AdditionalOrderForWorkerState extends State<AdditionalOrderForWorker> with
   int recIndex;
   int subtotal = 0;
   bool changed = false;
+  List additionalOrders = [];
 
   TabController _tabController;
-
-  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
     super.initState();
-    for(int i = 0; i < widget.orderList.length; i++){
-      _orderList.add(widget.orderList[i]);
-    }
-    if(_orderList.isNotEmpty){
-      for(int i = 0; i < _orderList.length; i++){
-        subtotal += (int.parse(_orderList[i]['menuprice'])*_orderList[i]['quantity']);
-      }
-    }
+    // for(int i = 0; i < widget.orderList.length; i++){
+    //   _orderList.add(widget.orderList[i]);
+    // }
+    // if(_orderList.isNotEmpty){
+    //   for(int i = 0; i < _orderList.length; i++){
+    //     subtotal += (int.parse(_orderList[i]['menuprice'])*_orderList[i]['quantity']);
+    //   }
+    // }
 
     if(menu.isNotEmpty)
       _tabController = new TabController(vsync: this, length: menu.length);
@@ -65,21 +68,7 @@ class AdditionalOrderForWorkerState extends State<AdditionalOrderForWorker> with
     } else {
       debugPrint('Additional Order list is empty!');
     }
-    // var _onPressed;
-    // if(changed){
-    //   _onPressed = (){
-    //     // _updateData(widget.docID);
-    //     debugPrint(_orderList.toString());
-    //     widget.callbackAdditionalList(_orderList);
-    //     widget.updateSubtotal(subtotal);
-    //     Navigator.of(context).pop();
-        
-    //   };
-    // } else{
-    //   _onPressed = null;
-    // }
     return Scaffold(
-      key: _scaffoldKey,
       appBar: AppBar(
         title: Text('Additional Order'),
         backgroundColor: Colors.orange,
@@ -132,7 +121,7 @@ class AdditionalOrderForWorkerState extends State<AdditionalOrderForWorker> with
         },
       ),
       bottomNavigationBar: Container(
-        height: 110,
+        height: 80,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(0.0),
           color: Colors.white,
@@ -151,23 +140,23 @@ class AdditionalOrderForWorkerState extends State<AdditionalOrderForWorker> with
             // color: Colors.amber,
             child: Column(
               children: <Widget>[
-                Container(
-                  padding: EdgeInsets.only(top: 0, bottom: 10,),
-                  child: Row(
-                    children: <Widget>[
-                      Container(
-                        // color: Colors.pink,
-                        width: MediaQuery.of(context).size.width/2 - 10,
-                        child: Text('Subtotal', style: TextStyle(fontSize: 20),),
-                      ),
-                      Container(
-                        // color: Colors.blue,
-                        width: MediaQuery.of(context).size.width/2 - 10,
-                        child: Text('Rp$subtotal', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold), textAlign:TextAlign.right),
-                      )
-                    ],
-                  ),
-                ),
+                // Container(
+                //   padding: EdgeInsets.only(top: 0, bottom: 10,),
+                //   child: Row(
+                //     children: <Widget>[
+                //       Container(
+                //         // color: Colors.pink,
+                //         width: MediaQuery.of(context).size.width/2 - 10,
+                //         child: Text('Subtotal', style: TextStyle(fontSize: 20),),
+                //       ),
+                //       Container(
+                //         // color: Colors.blue,
+                //         width: MediaQuery.of(context).size.width/2 - 10,
+                //         child: Text('Rp$subtotal', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold), textAlign:TextAlign.right),
+                //       )
+                //     ],
+                //   ),
+                // ),
                 Container(
                   // color: Colors.purpleAccent,
                   width: MediaQuery.of(context).size.width,
@@ -181,18 +170,33 @@ class AdditionalOrderForWorkerState extends State<AdditionalOrderForWorker> with
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    onPressed: (changed) 
+                    onPressed: (additionalOrders.isNotEmpty)
                     ? (){
                       // _updateData(widget.docID);
-                      debugPrint(_orderList.toString());
-                      widget.callbackAdditionalList(_orderList);
-                      widget.updateSubtotal(subtotal);
-                      Navigator.of(context).pop();
-                      widget.changes(true);
-                      _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text('Make sure to SUBMIT order again')));
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (context) => CheckAdditionalOrderForWorker(
+                          orderData: widget.orderData,
+                          orderList: additionalOrders,
+                          onCallbackOrderList: (val) {
+                            additionalOrders = val;
+                          },
+                          createdBy: widget.createdBy,
+                          subtotal: (val) {
+                            subtotal = val;
+                          },
+                          takeaway: widget.takeaway,
+                        )),
+                      ).then((value) => setState(() {}));
+                      // debugPrint(_orderList.toString());
+                      // widget.callbackAdditionalList(additionalOrders);
+                      // widget.updateSubtotal(subtotal);
+                      // Scaffold.of(context).showSnackBar(SnackBar(content: Text('Make sure to SUBMIT order again')));
+                      // Navigator.of(context).pop();
+                      // Navigator.of(context).pop();
+                      // widget.changes(true);
                     }
                     : null,
-                    child: Text('Update Order', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),),
+                    child: Text('Submit Order', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),),
                   ),
                 ),
               ],
@@ -201,18 +205,6 @@ class AdditionalOrderForWorkerState extends State<AdditionalOrderForWorker> with
         ),
       ),
     );
-  }
-
-  _updateData(doc) {
-    Firestore.instance.runTransaction((Transaction transaction) async{
-      CollectionReference reference = Firestore.instance.collection('orderList');
-      await reference
-      .document(doc)
-      .updateData({
-        'orders': _orderList,
-        'progress': 0,
-      });
-    });
   }
 
   Widget menuList(List<Tab> menu) {
@@ -248,12 +240,12 @@ class AdditionalOrderForWorkerState extends State<AdditionalOrderForWorker> with
                     whoCall: 'AdditionalOrder',
                     category: tab.text, 
                     wholeMenu: wholeMenu,
-                    orderList: _orderList,
+                    orderList: additionalOrders,
                     onAddMenu: (val) {
                       setState(() {
                         Map temp = {};
                         temp.addAll(val);
-                        _orderList.add(temp);
+                        additionalOrders.add(temp);
                       });
                     },
                     getIndex: (val) {
@@ -263,7 +255,7 @@ class AdditionalOrderForWorkerState extends State<AdditionalOrderForWorker> with
                     },
                     onUpdateMenu: (val) {
                       setState(() {
-                        _orderList[recIndex] = val;
+                        additionalOrders[recIndex] = val;
                       });
                     },
                     updateSubtotal: (val){

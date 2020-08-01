@@ -272,6 +272,15 @@ class MenuListState extends State<MenuList> {
     var widthDetail = totWidth * 0.5;
     var widthIcon = totWidth / 12;
     var whPic = totWidth - ( widthDetail + widthIcon) - 48;
+    int quantity;
+    // debugPrint('$document');
+    for(int i = 0; i < widget.orderList.length; i++) {
+      if(widget.orderList[i]['key'] == sortedMenu[index]['key']) {
+          quantity = widget.orderList[i]['quantity'];
+          // descOrder = TextEditingController(text: widget.orderList[i]['description']);
+        break;
+      }
+    }
     return Container(
       child: Column(
         children: <Widget>[
@@ -347,6 +356,10 @@ class MenuListState extends State<MenuList> {
                           ],
                         ),
                       ),
+                    ),
+                    SizedBox(width: 10,),
+                    Container(
+                      child: Text((quantity != null) ? 'x$quantity' : '', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 20),),
                     ),
                   ],
                 ),

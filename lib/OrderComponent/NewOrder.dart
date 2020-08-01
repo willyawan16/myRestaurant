@@ -9,10 +9,11 @@ import 'package:bubble_tab_indicator/bubble_tab_indicator.dart';
 import './MenuList.dart';
 
 class NewOrder extends StatefulWidget {  
-  String restoId;
+  String restoId, restoDocId;
   int count;
+  List inUseTable;
 
-  NewOrder({Key key, this.restoId, this.count}) : super(key: key);
+  NewOrder({Key key, this.restoId, this.count, this.restoDocId, this.inUseTable}) : super(key: key);
   @override
   NewOrderState createState() => NewOrderState();
 }
@@ -24,13 +25,14 @@ class BounceScrollBehavior extends ScrollBehavior {
 
 class NewOrderState extends State<NewOrder> with SingleTickerProviderStateMixin{
   TextEditingController custName, tableNum;
+  int tableNumPick;
   int currentIndex;
   String selectedStatus;
   List wholeMenu = [];
   List sortedMenu = [];
   List<Tab> menu = [];
-  List _orderList = [];
-  int recIndex;
+  List _orderList = [], tableList = [];
+  int recIndex, gridScale;
   List<String> statusBuy = ['Dine-in', 'Take-away'];
 
   TabController _tabController;
@@ -56,8 +58,85 @@ class NewOrderState extends State<NewOrder> with SingleTickerProviderStateMixin{
     super.dispose();
   }
   
+  Widget loadingScreen() {
+    return CustomScrollView(
+      // physics: const AlwaysScrollableScrollPhysics(),
+      slivers: [
+        SliverAppBar(
+          floating: true,
+          pinned: true,
+          snap: false,
+          leading: Container(
+            padding: EdgeInsets.all(5),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(40)),
+              color: Colors.transparent,
+            ),
+            child: IconButton(
+              color: Colors.black,
+              onPressed: (){
+                Navigator.of(context).pop();
+              },
+              icon: Icon(Icons.arrow_back),
+            ),
+          ),
+          expandedHeight: 150,
+          flexibleSpace: const FlexibleSpaceBar(
+            centerTitle: true,
+            title: Text('Create Order', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+          ),
+          backgroundColor: Colors.orange[50],
+        ),
+        SliverGroupBuilder(
+          margin: EdgeInsets.only(top: 10),
+          decoration: BoxDecoration(
+            // boxShadow: [
+            //   BoxShadow(
+            //       color: Colors.grey,
+            //       blurRadius: 5.0,
+            //       spreadRadius: 5.0,
+            //       offset: Offset(0, 0),
+            //   )
+            // ],
+            color: Colors.orange[200],
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(150), 
+              // topRight: Radius.circular(40)
+            ),
+          ),
+          child: SliverList(
+            delegate: SliverChildListDelegate([
+              Container(
+                padding: EdgeInsets.fromLTRB(20, 150, 20, 20),
+                child: Container(
+                  width: 200,
+                  height: 200,
+                  child: SpinKitChasingDots(
+                    size: 100,
+                    color: Colors.orange
+                  ),
+                ),
+                
+              ),
+              
+            ]),
+          ),
+        ),
+        SliverFillRemaining(
+          hasScrollBody: false,
+          // fillOverscroll: false,
+          child: Container(
+            // height: 400,
+            color: Colors.orange[200],
+            
+          ),
+        ),
+      ],
+    );
+  }
   @override
   Widget build(BuildContext context) {
+    debugPrint('${widget.inUseTable}');
     if(_orderList.length != 0){
       debugPrint('Order list: ');
       for (var i = 0; i < _orderList.length; i++) {
@@ -66,96 +145,119 @@ class NewOrderState extends State<NewOrder> with SingleTickerProviderStateMixin{
     } else {
       debugPrint('Order list is empty!');
     }
-    return Scaffold(
-      resizeToAvoidBottomPadding: false,
-      backgroundColor: Colors.orange[50],
-      body: StreamBuilder(
-        stream: Firestore.instance.collection('menuList').where('restaurantId', isEqualTo: widget.restoId).snapshots(),
-        builder: (context, snapshot) {
-          List<String> tabList = [];
-          if(!snapshot.hasData) return const SpinKitDualRing(color: Colors.red, size: 50.0,);
-          // debugPrint(tabList.toString());
-          List _wholeMenu = [];
-          Map _temp = {};
-          for(int i = 0; i < snapshot.data.documents.length; i++){
-            _temp.addAll({
-              'name': snapshot.data.documents[i]['name'],
-              'description': snapshot.data.documents[i]['description'],
-              'price': snapshot.data.documents[i]['price'],
-              'category': snapshot.data.documents[i]['category'],
-              'picture': snapshot.data.documents[i]['picture'],
-              'key': snapshot.data.documents[i].documentID,
-            });
-            _wholeMenu.add(_temp);
-            _temp = {};
-          }
-          wholeMenu = _wholeMenu;
-          for(int i = 0; i < wholeMenu.length; i++){
-            if(tabList.isEmpty)
-            {
-              tabList.add(wholeMenu[i]['category']);
+    return WillPopScope(
+      child: Scaffold(
+        resizeToAvoidBottomPadding: false,
+        backgroundColor: Colors.orange[50],
+        body: StreamBuilder(
+          stream: Firestore.instance.collection('menuList').where('restaurantId', isEqualTo: widget.restoId).snapshots(),
+          builder: (context, snapshot) {
+            List<String> tabList = [];
+            List _tableList = [];
+            if(!snapshot.hasData) return loadingScreen();
+            // debugPrint(tabList.toString());
+            List _wholeMenu = [];
+            Map _temp = {};
+            for(int i = 0; i < snapshot.data.documents.length; i++){
+              _temp.addAll({
+                'name': snapshot.data.documents[i]['name'],
+                'description': snapshot.data.documents[i]['description'],
+                'price': snapshot.data.documents[i]['price'],
+                'category': snapshot.data.documents[i]['category'],
+                'picture': snapshot.data.documents[i]['picture'],
+                'key': snapshot.data.documents[i].documentID,
+              });
+              _wholeMenu.add(_temp);
+              _temp = {};
             }
-            else
-            {
-              bool needChange = true;
-              for(int j = 0; j < tabList.length; j++){
-                if(wholeMenu[i]['category'] == tabList[j]){
-                  needChange = false;
-                }
+            wholeMenu = _wholeMenu;
+            for(int i = 0; i < wholeMenu.length; i++){
+              if(tabList.isEmpty)
+              {
+                tabList.add(wholeMenu[i]['category']);
               }
-              if(needChange == true){
-                  tabList.add(wholeMenu[i]['category']);
-              } 
-              needChange = true;
+              else
+              {
+                bool needChange = true;
+                for(int j = 0; j < tabList.length; j++){
+                  if(wholeMenu[i]['category'] == tabList[j]){
+                    needChange = false;
+                  }
+                }
+                if(needChange == true){
+                    tabList.add(wholeMenu[i]['category']);
+                } 
+                needChange = true;
+              }
             }
-          }
-          tabList.sort();
-          //debugPrint(tabList.toString());
-          // debugPrint(tabList[1].toString());
-          menu = tabList.map((tab) => Tab(text: tab)).toList();
-          //debugPrint(tes);
-          return customerDetails(menu, tabList);
-        },
-      ),
-      floatingActionButton: AnimatedOpacity(
-        opacity: (_orderList.isNotEmpty)
-        ? 1.0
-        : 0.0,
-        duration: Duration(milliseconds: 500),
-        child: FloatingActionButton.extended(
-          onPressed: (){
-            if((selectedStatus == statusBuy[0] && tableNum.text !='') || selectedStatus == statusBuy[1])
-            { 
-              Navigator.push(
-                context, 
-                MaterialPageRoute(builder: (context) => CheckOrder(
-                  name: custName.text, 
-                  table: tableNum.text ,
-                  orderList: _orderList,
-                  wholeMenu: wholeMenu,
-                  restoId: widget.restoId,
-                  status: selectedStatus,
-                  count: widget.count,
-                  onCallbackOrderList: (val) {
-                    setState(() {
-                      _orderList = val;
-                    });
-                  },
-                )),
-              );
-            }
-            else
-            {
-              _pageController.animateToPage(0, duration: Duration(milliseconds: 400), curve: Curves.ease);
-              toTableText();
-            }
+            tabList.sort();
+            //debugPrint(tabList.toString());
+            // debugPrint(tabList[1].toString());
+            menu = tabList.map((tab) => Tab(text: tab)).toList();
+            //debugPrint(tes);
+
+            var restaurantDocReference = Firestore.instance.collection('restaurant').document('${widget.restoDocId}');
+            restaurantDocReference.get().then((snapshot) {
+              // debugPrint('${snapshot['table']}')
+              gridScale = snapshot['table']['gridScale'];
+              for(int i = 0; i < snapshot['table']['tableList'].length; i++) {
+                _tableList.add(snapshot['table']['tableList'][i]);
+              }
+              tableList = _tableList;
+              _tableList = [];
+            });
+
+            // debugPrint('$tableList');
+            return customerDetails(menu, tabList);
           },
-          label: Text('Check Orders'),
-          icon: Icon(Icons.assignment_turned_in),
-          backgroundColor: Colors.green[400],
         ),
-      ),
+        floatingActionButton: AnimatedOpacity(
+          opacity: (_orderList.isNotEmpty)
+          ? 1.0
+          : 0.0,
+          duration: Duration(milliseconds: 500),
+          child: FloatingActionButton.extended(
+            onPressed: (_orderList.isNotEmpty)
+            ? (){
+              if((selectedStatus == statusBuy[0] && tableNumPick != null) || selectedStatus == statusBuy[1])
+              { 
+                Navigator.push(
+                  context, 
+                  MaterialPageRoute(builder: (context) => CheckOrder(
+                    name: custName.text, 
+                    // table: tableNum.text ,
+                    table: tableList[tableNumPick],
+                    orderList: _orderList,
+                    wholeMenu: wholeMenu,
+                    restoId: widget.restoId,
+                    status: selectedStatus,
+                    count: widget.count,
+                    onCallbackOrderList: (val) {
+                      setState(() {
+                        _orderList = val;
+                      });
+                    },
+                  )),
+                );
+              }
+              else
+              {
+                _pageController.animateToPage(0, duration: Duration(milliseconds: 400), curve: Curves.ease);
+                toTableText();
+              }
+            }
+            : null,
+            label: Text('Check Orders'),
+            icon: Icon(Icons.assignment_turned_in),
+            backgroundColor: Colors.green[400],
+          ),
+        ),
+      ), 
+      onWillPop: _onWillPop,
     );
+  }
+  Future<bool> _onWillPop() async {
+    return false;
   }
 
   Future<void> toTableText() {
@@ -169,14 +271,14 @@ class NewOrderState extends State<NewOrder> with SingleTickerProviderStateMixin{
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
-          content: Text('Please fill your table number', style: TextStyle(color: Colors.red),),
+          content: Text('Please pick table number', style: TextStyle(color: Colors.red),),
           actions: <Widget>[
             OutlineButton(
               highlightedBorderColor: Colors.orange[200],
               child: Text('Okay'),
               onPressed: (){
                 Navigator.of(dialogContext).pop();
-                FocusScope.of(context).requestFocus(toTableNum);
+                // FocusScope.of(context).requestFocus(toTableNum);
               },
             )
           ],
@@ -184,6 +286,88 @@ class NewOrderState extends State<NewOrder> with SingleTickerProviderStateMixin{
       }
     );
   }
+
+  Future<void> _pickTableNum() {
+
+    return showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          backgroundColor: Colors.orange[50],
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20)
+          ),
+          title: Text('Pick Table Number'),
+          content: StatefulBuilder(
+            builder: (context, setState) {
+              return Container(
+                height: 500,
+                width: 1000,
+                // color: Colors.orange,
+                child: Container(
+                  child: GridView.count(
+                    crossAxisCount: gridScale,
+                    children: mapIndexed(
+                      tableList,
+                      (index, item) => table(item, index, dialogContext),
+                    ).toList(),
+                  ),
+                ),
+              );
+            }
+          ),
+        );
+      }
+    ).then((value) => setState(() {}));
+  }
+
+  Iterable<E> mapIndexed<E, T>(
+    Iterable<T> items, 
+    E Function(int index, T item) f
+  ) sync* {
+    var index = 0;
+
+    for (final item in items) {
+      yield f(index, item);
+      index = index + 1;
+    }
+  }
+
+  Widget table(content, int index, dialogContext) {
+    // bool shakeEnabled = false;
+    return Container(
+      child: new Material(
+        child: InkWell(
+          splashColor: Colors.grey,
+          // onTap: () {
+            // tableNumPick = index;
+            // Navigator.of(dialogContext).pop();
+          // },
+          onTap: (widget.inUseTable.indexOf(content) == -1)
+          ? () {
+            tableNumPick = index;
+            Navigator.of(dialogContext).pop();
+          }
+          : null,
+          child: Container(
+            height: double.infinity,
+            child: Center(
+              child: Text(content.toString(), style: TextStyle(fontSize: 24.0),),
+            ),
+          )
+        ),
+        color: Colors.transparent,
+      ),
+      decoration: BoxDecoration(
+        // color: (tableNumPick == index) ? Colors.orange : Colors.transparent,
+        color: (widget.inUseTable.indexOf(content) == -1) 
+        ? (tableNumPick == index) ? Colors.orange : Colors.transparent
+        : Colors.black45,
+        border: Border.all(color: Colors.black, width: 0.1),
+      ),
+    );
+  } 
 
   Widget customerDetails(menu, tabList) {
     return new GestureDetector(
@@ -222,7 +406,7 @@ class NewOrderState extends State<NewOrder> with SingleTickerProviderStateMixin{
               onPressed: (){
                 Navigator.of(context).pop();
               },
-              icon: Icon(Icons.arrow_back),
+              icon: Icon(Icons.close),
             ),
           ),
           expandedHeight: 150,
@@ -290,23 +474,47 @@ class NewOrderState extends State<NewOrder> with SingleTickerProviderStateMixin{
                   onChanged: (String str) {
                     setState(() {
                       selectedStatus = str;
+                      tableNumPick = null;
                     });
                   },
                 ),
               ),
               (selectedStatus == 'Dine-in') 
+              // ? Container(
+              //   padding: EdgeInsets.fromLTRB(20, 0, 250, 20),
+              //   child: TextField(      
+              //     focusNode: toTableNum,     
+              //     controller: tableNum,
+              //     keyboardType: TextInputType.number,       
+              //     decoration: InputDecoration(
+              //       border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+              //       labelText: 'Table',
+              //       //hintText: 'Name of New Menu',
+              //       labelStyle: TextStyle(fontSize: 17),
+              //     ),
+              //   ),
+              // )
               ? Container(
-                padding: EdgeInsets.fromLTRB(20, 0, 250, 20),
-                child: TextField(      
-                  focusNode: toTableNum,     
-                  controller: tableNum,
-                  keyboardType: TextInputType.number,       
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                    labelText: 'Table',
-                    //hintText: 'Name of New Menu',
-                    labelStyle: TextStyle(fontSize: 17),
-                  ),
+                // width: MediaQuery.of(context).size.width,
+                padding: EdgeInsets.fromLTRB(20, 20, 20, 20),
+                child:  new Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Text(
+                      (tableNumPick != null)
+                      ? 'Table Number: ${tableList[tableNumPick]}' 
+                      : 'Table Number: Not Picked' , 
+                      style: TextStyle(fontSize: 17),
+                    ),
+                    OutlineButton(
+                      highlightedBorderColor: Colors.orange,
+                      splashColor: Colors.orange[50],
+                      child: Text('Pick'),
+                      onPressed: () {
+                        _pickTableNum();
+                      },
+                    ),
+                  ],
                 ),
               )
               : Container(

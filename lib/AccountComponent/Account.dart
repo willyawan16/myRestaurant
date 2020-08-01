@@ -7,6 +7,7 @@ import './Profile.dart';
 import './Worker.dart';
 import './MyChart.dart';
 import './QRCode.dart';
+import './TableManage.dart';
 import 'package:myapp/MenuComponent/NewMenu.dart';
 import '../LoginPage/auth.dart';
 
@@ -26,6 +27,7 @@ class AccountState extends State<Account> {
   int income = 0;
   List orderList = [];
   List incomes = [];
+  Map table = {};
 
   void initState() {
     super.initState();
@@ -62,6 +64,11 @@ class AccountState extends State<Account> {
         builder: (context) => Worker(restoData: widget.restoData,)
       ));
     };
+    var toTableManage = (){
+      Navigator.push(context, MaterialPageRoute(
+        builder: (context) => TableManage(tableData: table, restoDocId: widget.restoData['restoDocId'], restoId: widget.restoData['restoId'],)
+      ));
+    };
     var toQRCode = (){
       Navigator.push(context, MaterialPageRoute(
         builder: (context) => QRCode(restoId: widget.restoData['restaurantId'], restoDocId: widget.restoData['restoDocId']),
@@ -86,61 +93,61 @@ class AccountState extends State<Account> {
           var difference = DateTime.now().difference(DateTime.parse(date)).inDays;
           // debugPrint('$i: $difference');
           if(date == today && snapshot.data.documents[i]['paid'] == 'Paid') {
-            int subtotal = 0;
-            List orders = snapshot.data.documents[i]['orders'];
-            for(int j = 0; j < orders.length; j++) {
-              int price = int.parse(orders[j]['menuprice']) * orders[j]['quantity'];
-              subtotal += price;
-            }
-            _temp += subtotal;
-            subtotal = 0;
+            // int subtotal = 0;
+            // List orders = snapshot.data.documents[i]['orders'];
+            // for(int j = 0; j < orders.length; j++) {
+            //   int price = int.parse(orders[j]['menuprice']) * orders[j]['quantity'];
+            //   subtotal += price;
+            // }
+            _temp += snapshot.data.documents[i]['income'];
+            // subtotal = 0;
           }
 
           if(difference == 0 && snapshot.data.documents[i]['paid'] == 'Paid') {
             int subs = 0;
             List orders = snapshot.data.documents[i]['orders'];
-            for(int j = 0; j < orders.length; j++) {
-              int price = int.parse(orders[j]['menuprice']) * orders[j]['quantity'];
-              subs += price;
-            }
-            _incomes[4] += subs;
-            subs = 0;
+            // for(int j = 0; j < orders.length; j++) {
+            //   int price = int.parse(orders[j]['menuprice']) * orders[j]['quantity'];
+            //   subs += price;
+            // }
+            _incomes[4] += snapshot.data.documents[i]['income'];
+            // subs = 0;
           } else if(difference == 1 && snapshot.data.documents[i]['paid'] == 'Paid') {
-            int subs = 0;
-            List orders = snapshot.data.documents[i]['orders'];
-            for(int j = 0; j < orders.length; j++) {
-              int price = int.parse(orders[j]['menuprice']) * orders[j]['quantity'];
-              subs += price;
-            }
-            _incomes[3] += subs;
-            subs = 0;
+            // int subs = 0;
+            // List orders = snapshot.data.documents[i]['orders'];
+            // for(int j = 0; j < orders.length; j++) {
+            //   int price = int.parse(orders[j]['menuprice']) * orders[j]['quantity'];
+            //   subs += price;
+            // }
+            _incomes[3] += snapshot.data.documents[i]['income'];
+            // subs = 0;
           } else if(difference == 2 && snapshot.data.documents[i]['paid'] == 'Paid') {
-            int subs = 0;
-            List orders = snapshot.data.documents[i]['orders'];
-            for(int j = 0; j < orders.length; j++) {
-              int price = int.parse(orders[j]['menuprice']) * orders[j]['quantity'];
-              subs += price;
-            }
-            _incomes[2] += subs;
-            subs = 0;
+            // int subs = 0;
+            // List orders = snapshot.data.documents[i]['orders'];
+            // for(int j = 0; j < orders.length; j++) {
+            //   int price = int.parse(orders[j]['menuprice']) * orders[j]['quantity'];
+            //   subs += price;
+            // }
+            _incomes[2] += snapshot.data.documents[i]['income'];
+            // subs = 0;
           } else if(difference == 3 && snapshot.data.documents[i]['paid'] == 'Paid') {
-            int subs = 0;
-            List orders = snapshot.data.documents[i]['orders'];
-            for(int j = 0; j < orders.length; j++) {
-              int price = int.parse(orders[j]['menuprice']) * orders[j]['quantity'];
-              subs += price;
-            }
-            _incomes[1] += subs;
-            subs = 0;
+            // int subs = 0;
+            // List orders = snapshot.data.documents[i]['orders'];
+            // for(int j = 0; j < orders.length; j++) {
+            //   int price = int.parse(orders[j]['menuprice']) * orders[j]['quantity'];
+            //   subs += price;
+            // }
+            _incomes[1] += snapshot.data.documents[i]['income'];
+            // subs = 0;
           } else if(difference == 4 && snapshot.data.documents[i]['paid'] == 'Paid') {
-            int subs = 0;
-            List orders = snapshot.data.documents[i]['orders'];
-            for(int j = 0; j < orders.length; j++) {
-              int price = int.parse(orders[j]['menuprice']) * orders[j]['quantity'];
-              subs += price;
-            }
-            _incomes[0] += subs;
-            subs = 0;
+            // int subs = 0;
+            // List orders = snapshot.data.documents[i]['orders'];
+            // for(int j = 0; j < orders.length; j++) {
+            //   int price = int.parse(orders[j]['menuprice']) * orders[j]['quantity'];
+            //   subs += price;
+            // }
+            _incomes[0] += snapshot.data.documents[i]['income'];
+            // subs = 0;
           }
           // _orderList.add(snapshot.data.documents[i]);
         }
@@ -153,6 +160,14 @@ class AccountState extends State<Account> {
         // for(int i = 0; i < incomes.length; i++) {
         //   debugPrint('$i: ${incomes[i]}');
         // }
+
+        var restaurantDocReference = Firestore.instance.collection('restaurant').document('${widget.restoData['restoDocId']}');
+        restaurantDocReference.get().then((snapshot) => 
+          // debugPrint('${snapshot['table']}')
+          setState(() {
+            table = snapshot['table'];
+          })
+        );
 
         return Scaffold(
           body: Container(
@@ -247,7 +262,8 @@ class AccountState extends State<Account> {
                           aboutMeBtn(Icons.account_circle, 'Profile', toProfile),
                           // aboutMeBtn(Icons.device_hub, 'Branch'),
                           aboutMeBtn(Icons.people, 'Worker', toWorker),
-                          aboutMeBtn(Icons.code, 'QR Code', toQRCode),
+                          aboutMeBtn(Icons.event_seat, 'Manage Table', toTableManage),
+                          // aboutMeBtn(Icons.code, 'QR Code', toQRCode),
                           SizedBox(
                             height: 25,
                           ),

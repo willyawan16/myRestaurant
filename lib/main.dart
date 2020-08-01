@@ -16,6 +16,7 @@ void main() {
     if (kReleaseMode)
       exit(1);
   };
+  // setupLocator();
   runApp(MyApp());
 }
 
