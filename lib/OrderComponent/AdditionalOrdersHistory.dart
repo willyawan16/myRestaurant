@@ -57,7 +57,7 @@ class AdditionalOrdersHistoryState extends State<AdditionalOrdersHistory> {
                   // mainAxisAlignment: (widget.printAccess) ? MainAxisAlignment.spaceBetween : MainAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
-                    Text('Additional Orders $number ${(details['takeaway']) ? 'Take-Away' : ''}',style: TextStyle(fontSize: 20)),
+                    Text('Order Tambahan $number ${(details['takeaway']) ? 'Take-Away' : ''}',style: TextStyle(fontSize: 20)),
                     (widget.printAccess)
                     ? IconButton(
                       disabledColor: (details['verified'] == 'yes') ? Colors.grey[400] : (details['verified'] == 'no') ? Colors.yellow[400] : Colors.red[400],
@@ -80,10 +80,10 @@ class AdditionalOrdersHistoryState extends State<AdditionalOrdersHistory> {
                     Text('Created by: ${details['createdBy']}'),
                     Text(' || '),
                     (details['verified'] == 'yes') 
-                    ? Text('Verified')
+                    ? Text('Terverifikasi')
                     : (details['verified'] == 'no') 
-                      ? Text('Not Verified', style: TextStyle(fontWeight: FontWeight.bold)) 
-                      : Text('Trash')
+                      ? Text('Terverifikasi', style: TextStyle(fontWeight: FontWeight.bold)) 
+                      : Text('Dibuang')
                   ],
                 ),
               ],

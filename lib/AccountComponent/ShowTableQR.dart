@@ -25,7 +25,7 @@ class ShowTableQRState extends State<ShowTableQR> {
             SizedBox(
               height: 20,
             ),
-            Text('Table', style: TextStyle(fontSize: 20),),
+            Text('Meja', style: TextStyle(fontSize: 20),),
             Text('${widget.tableNum}', style: TextStyle(fontSize: 70),),
           ],
         ),

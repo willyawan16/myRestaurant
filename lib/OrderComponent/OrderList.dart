@@ -37,7 +37,7 @@ class OrderListState extends State<OrderList> {
       barrierDismissible: true,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Update Order Progress?'),
+          title: Text('Mengudate Progress?'),
           elevation: 10,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
@@ -46,12 +46,12 @@ class OrderListState extends State<OrderList> {
             height: 110,
             child: Column(
               children: <Widget>[
-                Text('On going -> Done!'),
+                Text('Sedang Berjalan -> Siap!'),
                 SizedBox(
                   height: 20,
                 ),
-                Text('Update to Done!', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red),),
-                Text('NB: Order won\'t receive any changes again!', style: TextStyle(fontSize: 14))
+                Text('Update ke Siap!', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red),),
+                Text('NB: Order Tidak dapat diubah lagi', style: TextStyle(fontSize: 14))
               ],
             ),
           ),
@@ -94,7 +94,7 @@ class OrderListState extends State<OrderList> {
       barrierDismissible: true,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          title: Text('Payment..'),
+          title: Text('Pembayaran..'),
           elevation: 10,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
@@ -103,7 +103,7 @@ class OrderListState extends State<OrderList> {
             height: 30,
             child: Column(
               children: <Widget>[
-                Text('NB: Proceed to payment'),
+                Text('NB: Lanjut ke pembayaran'),
               ],
             ),
           ),
@@ -115,7 +115,7 @@ class OrderListState extends State<OrderList> {
                   Navigator.of(context).pop();
                 }, 
                 child: Text(
-                  'Cancel',
+                  'batal',
                   style: TextStyle(
                     fontSize: 15,
                     color: Colors.grey,
@@ -145,6 +145,7 @@ class OrderListState extends State<OrderList> {
     delete = '';
     var _onPressed = (){
       deleteOrder(doc);
+      Navigator.of(context).pop();
     };
     return showDialog(
       context: context,
@@ -158,7 +159,7 @@ class OrderListState extends State<OrderList> {
               },
               child: AlertDialog(
                 
-                title: Text('Delete Order?'),
+                title: Text('Buang Order?'),
                 elevation: 10,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
@@ -168,7 +169,7 @@ class OrderListState extends State<OrderList> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      Text('Are you sure?')
+                      Text('Ingin buang?')
                       // Container(
                       //   child: Text('Type "delete" to delete'),
                       // ),
@@ -196,7 +197,7 @@ class OrderListState extends State<OrderList> {
                         Navigator.of(context).pop();
                       }, 
                       child: Text(
-                        'Cancel',
+                        'batal',
                         style: TextStyle(
                           fontSize: 15,
                           color: Colors.grey,
@@ -212,7 +213,7 @@ class OrderListState extends State<OrderList> {
                       ),
                       color: Colors.red,
                       onPressed: _onPressed,
-                      child: Text('Delete', style: TextStyle(color: Colors.white)),
+                      child: Text('Buang', style: TextStyle(color: Colors.white)),
                     ),
                   ),
                 ],
@@ -230,7 +231,7 @@ class OrderListState extends State<OrderList> {
     .document(doc)
     .updateData({
       'progress': 10,
-      'paid': 'Trash',
+      'paid': 'Dibuang',
     });
   }
 
@@ -263,7 +264,7 @@ class OrderListState extends State<OrderList> {
     var widthDetail = totWidth * 0.5;
     var widthLeft = totWidth - widthNum - widthDetail -10;
     var totHeight = 150.0;
-    List progress = ['Not Printed', 'On going..', 'Done!'];
+    List progress = ['Belum Print', 'Sedang berjalan..', 'Siap!'];
     // debugPrint('[$index]: ${progress[progressCount]}');
     return GestureDetector(
       onLongPress: (){
@@ -271,7 +272,7 @@ class OrderListState extends State<OrderList> {
       },
       onDoubleTap: (){
         if(details['progress'] == 0) {
-          Scaffold.of(context).showSnackBar(SnackBar(content: Text('Remember to PRINT!'), backgroundColor: Colors.orange,));
+          Scaffold.of(context).showSnackBar(SnackBar(content: Text('Ingat PRINT!'), backgroundColor: Colors.orange,));
         } else if(details['progress'] != 2) {
           _progressUpdate(details);
         } else if (details['progress'] == 2){
@@ -336,10 +337,10 @@ class OrderListState extends State<OrderList> {
                         child: Text('Status: ${details['status'][0]}'),
                       ),
                       Container(
-                        child: Text('Time: ${details['time']}'),
+                        child: Text('Waktu: ${details['time']}'),
                       ),
                       Container(
-                        child: Text('Created By: ${details['createdBy']}'),
+                        child: Text('Dibuat oleh: ${details['createdBy']}'),
                       ),
                       Container(
                         child: RichText(
@@ -356,7 +357,7 @@ class OrderListState extends State<OrderList> {
                         child: (details['progress'] == 2)
                         ? RichText(
                           text: TextSpan(
-                            text: 'Paid: ',
+                            text: 'Bayar: ',
                             style: DefaultTextStyle.of(context).style, 
                             children: <TextSpan>[
                                TextSpan(text: '${details['paid']}', style: (details['paid'] == 'Paid') ? TextStyle(fontWeight: FontWeight.w800, color: Colors.green) : TextStyle(fontWeight: FontWeight.w800, color: Colors.red))
@@ -388,7 +389,7 @@ class OrderListState extends State<OrderList> {
                           ),
                           child: Center(
                             child: Text(
-                              'Table ${details['status'][1]}', 
+                              'Meja ${details['status'][1]}', 
                               style: TextStyle(
                                 fontSize: 20, 
                                 fontWeight: FontWeight.bold,
@@ -524,7 +525,7 @@ class OrderListState extends State<OrderList> {
               'key': snapshot.data.documents[i].documentID,
             });
             var today = DateFormat('yyyy-MM-dd').format(DateTime.now());
-            if(_temp['paid'] != 'Paid' && _temp['date'] == today && _temp['progress'] != 10 && _temp['verified'] == true) { 
+            if(_temp['paid'] != 'Sudah Bayar' && _temp['date'] == today && _temp['progress'] != 10 && _temp['verified'] == true) { 
               orderList.add(_temp);
               _count++;
             } else if(_temp['date'] == today) {

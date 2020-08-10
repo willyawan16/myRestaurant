@@ -56,8 +56,8 @@ class CreateAccountPageState extends State<CreateAccountPage> {
         // FirebaseUser user = (await _auth.signInWithEmailAndPassword(email: _email, password: _password)).user;
         debugPrint('Created user: $userId');
         (widget.userType == 'Main')
-        ? _addOrganization()
-        : _addBranch(chosenMaster);
+        ? _addOrganization(userId)
+        : _addBranch(chosenMaster, userId);
         debugPrint('New user added');
         // widget.userId(userId);
         // setState(() {
@@ -70,7 +70,7 @@ class CreateAccountPageState extends State<CreateAccountPage> {
     }
   }
 
-  Future<void> _addOrganization() async{
+  Future<void> _addOrganization(userId) async{
     CollectionReference reference = Firestore.instance.collection('restaurant');
     final docRef = await reference.add({
       'restaurantName': restaurantName,
@@ -81,10 +81,10 @@ class CreateAccountPageState extends State<CreateAccountPage> {
     });
     var docId = docRef.documentID;
     debugPrint('---------$docId---------');
-    _addUser(docId);
+    _addUser(docId, userId);
   }
 
-  Future<void> _addBranch(chosenMaster) async{
+  Future<void> _addBranch(chosenMaster, userId) async{
     CollectionReference reference = Firestore.instance.collection('restaurant');
     var obj = {
       'restaurantName': restaurantName,
@@ -98,10 +98,10 @@ class CreateAccountPageState extends State<CreateAccountPage> {
     });
     var docId = chosenMaster['docId'];
     debugPrint('---------added to $docId---------');
-    _addUser(docId);
+    _addUser(docId, userId);
   }
 
-  Future<void> _addUser(docId) async {
+  Future<void> _addUser(docId, userId) async {
     CollectionReference restaurantReference = Firestore.instance.collection('restaurant');
     CollectionReference userReference = Firestore.instance.collection('user');
     
@@ -110,6 +110,7 @@ class CreateAccountPageState extends State<CreateAccountPage> {
     var docRef = await userReference.add({
       'authority': (widget.userType =='Main') ? 500 : 400,
       'email': email,
+      'userId': userId,
       'restaurant': Firestore.instance.document('/restaurant/$docId'),
       'name': restaurantName,
       'userType': widget.userType,
@@ -330,7 +331,7 @@ class CreateAccountPageState extends State<CreateAccountPage> {
                   // title: Text('Welcome to myRestaurant', style: TextStyle(fontFamily: 'Sriracha'),),
                   flexibleSpace: new FlexibleSpaceBar(
                     titlePadding: EdgeInsets.fromLTRB(0,80,0,30),
-                    title: Text('Create an account', style: TextStyle(fontFamily: 'Balsamiq_Sans', fontWeight: FontWeight.bold)),
+                    title: Text('Buat Akun', style: TextStyle(fontFamily: 'Balsamiq_Sans', fontWeight: FontWeight.bold)),
                     centerTitle: true,
                     collapseMode: CollapseMode.none,
                   ),
@@ -350,13 +351,13 @@ class CreateAccountPageState extends State<CreateAccountPage> {
                         child: Column(
                           children: <Widget>[
                             TextFormField(
-                              validator: (value) => value.isEmpty ? 'Restaurant Name can\'t be empty' : null,
+                              validator: (value) => value.isEmpty ? 'Nama Restoran tidak boleh kosong' : null,
                               onSaved: (value) => restaurantName = value,
                               style: TextStyle(fontFamily: 'Balsamiq_Sans'),
                               decoration: InputDecoration(
                                 prefixIcon: Icon(Icons.restaurant),
                                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                                labelText: 'Restaurant name',
+                                labelText: 'Nama Restoran',
                                 //hintText: 'Name of New Menu',
                                 labelStyle: TextStyle(fontSize: 17),
                               ),
@@ -417,7 +418,7 @@ class CreateAccountPageState extends State<CreateAccountPage> {
                               height: spaceBetween,
                             ),
                             TextFormField(
-                              validator: (value) => value.isEmpty ? 'Email can\'t be empty' : (value.indexOf('@') == -1 || value.indexOf('.com') == -1) ? 'Email is invalid': null,
+                              validator: (value) => value.isEmpty ? 'Email tidak boleh kosong' : (value.indexOf('@') == -1 || value.indexOf('.com') == -1) ? 'Email tidak berlaku': null,
                               onSaved: (value) => email = value,
                               style: TextStyle(fontFamily: 'Balsamiq_Sans'),
                               decoration: InputDecoration(
@@ -432,7 +433,7 @@ class CreateAccountPageState extends State<CreateAccountPage> {
                               height: spaceBetween
                             ),
                             TextFormField(
-                              validator: (value) => value.isEmpty ? 'Password can\'t be empty' : value.length < 5 ? 'Your password is too short' : value.length < 8 ? 'Your password is short' : null,
+                              validator: (value) => value.isEmpty ? 'Password tidak boleh kosong' : value.length < 5 ? 'Password terlalu pendek' : value.length < 8 ? 'Password pendek' : null,
                               onSaved: (value) => password = int.parse(value),
                               style: TextStyle(fontFamily: 'Balsamiq_Sans'),
                               obscureText: hidePassword,
@@ -462,7 +463,7 @@ class CreateAccountPageState extends State<CreateAccountPage> {
                               height: spaceBetween
                             ),
                             TextFormField(
-                              validator: (value) => tempPassword == null? null : value.isEmpty ? 'Confrim Password can\'t be empty' : int.parse(value) != tempPassword ? 'Re-check your password' : null,
+                              validator: (value) => tempPassword == null? null : value.isEmpty ? 'Konfirmasi password tidak boleh kosong' : int.parse(value) != tempPassword ? 'Mohon cek kembalipassword anda' : null,
                               onSaved: (value) => confirmPassword = int.parse(value),
                               style: TextStyle(fontFamily: 'Balsamiq_Sans'),
                               obscureText: hidePassword,
@@ -470,7 +471,7 @@ class CreateAccountPageState extends State<CreateAccountPage> {
                               decoration: InputDecoration(
                                 // prefixIcon: Icon(Icons.lock),
                                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                                labelText: 'Confirm password',
+                                labelText: 'Konfirmasi password',
                                 labelStyle: TextStyle(fontSize: 17),
                               ),
                             ),
@@ -487,7 +488,7 @@ class CreateAccountPageState extends State<CreateAccountPage> {
                       RaisedButton(
                         color: widget.bgColor,
                         elevation: 7,
-                        child: Text('Create', style: TextStyle(fontFamily: 'Balsamiq_Sans', fontSize: 20,)),
+                        child: Text('Buat', style: TextStyle(fontFamily: 'Balsamiq_Sans', fontSize: 20,)),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(Radius.circular(40)),
                         ),

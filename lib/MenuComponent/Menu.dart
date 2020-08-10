@@ -4,6 +4,7 @@ import 'package:bubble_tab_indicator/bubble_tab_indicator.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import './MenuList.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'GlobalState.dart';
 
 class Menu extends StatefulWidget {
   String restoId;
@@ -24,11 +25,17 @@ class MenuState extends State<Menu> with SingleTickerProviderStateMixin {
   //   Tab(text: 'Drinks'),
   // ];
   List<Tab> menu = [];
+  Icon actionIcon = new Icon(Icons.search, color: Colors.black,);
+  // final TextEditingController _searchQuery = new TextEditingController();
+  // String _searchQuery = '';
+  Widget appBarTitle = new Text("Menu", style: TextStyle(fontFamily: 'Balsamiq_Sans', fontWeight: FontWeight.bold, color: Colors.black, fontSize: 30),);
+  // bool isSearching = false;
 
   TabController _tabController;
 
   @override
   void initState() {
+    // isSearching = false;
     super.initState();
     if(menu.isNotEmpty)
       _tabController = new TabController(vsync: this, length: menu.length);
@@ -50,8 +57,26 @@ class MenuState extends State<Menu> with SingleTickerProviderStateMixin {
     );
   }
 
+  // void _handleSearchStart() {
+  //   setState(() {
+  //     isSearching = true;
+  //   });
+  // }
+
+  // void _handleSearchEnd() {
+  //   setState(() {
+  //     this.actionIcon = new Icon(Icons.search, color: Colors.black,);
+  //     this.appBarTitle =
+  //     new Text("Menu", style: TextStyle(fontFamily: 'Balsamiq_Sans', fontWeight: FontWeight.bold, color: Colors.black, fontSize: 30),);
+  //     isSearching = false;
+  //     // _searchQuery.clear();
+  //     _searchQuery = '';
+  //   });
+  // }
+
   @override
   Widget build(BuildContext context) {
+    // debugPrint(_searchQuery.text);
     return StreamBuilder(
       stream: Firestore.instance.collection('menuList').snapshots(),
       builder: (context, snapshot){
@@ -91,14 +116,39 @@ class MenuState extends State<Menu> with SingleTickerProviderStateMixin {
               appBar: AppBar(
                 automaticallyImplyLeading: false,
                 actions: <Widget>[
-                  IconButton(
-                    color: Colors.black,
-                    icon: Icon(Icons.search),
-                    tooltip: 'search',
-                    onPressed: (){
-
-                    },  
-                  ),
+                  // IconButton(
+                  //   // color: Colors.black,
+                  //   icon: actionIcon,
+                  //   tooltip: 'search',
+                  //   onPressed: (){
+                  //     setState(() {
+                  //       if(this.actionIcon.icon == Icons.search) 
+                  //       {
+                  //         this.actionIcon = new Icon(Icons.close, color: Colors.black);
+                  //         this.appBarTitle = new TextField(
+                  //           // controller: _searchQuery,
+                  //           onChanged: (val) {
+                  //             _searchQuery = val;
+                  //             // store.set('val', _searchQuery);
+                  //           },
+                  //           style: new TextStyle(
+                  //             color: Colors.black,
+                  //           ),
+                  //           decoration: new InputDecoration(
+                  //               prefixIcon: new Icon(Icons.search, color: Colors.black),
+                  //               hintText: "Search...",
+                  //               hintStyle: new TextStyle(color: Colors.black)
+                  //           ),
+                  //         );
+                  //         _handleSearchStart();
+                  //       }
+                  //       else 
+                  //       {
+                  //         _handleSearchEnd();
+                  //       }
+                  //     });
+                  //   },  
+                  // ),
                 ],
                 bottom: new TabBar(
                   indicatorColor: Colors.lime,
@@ -114,14 +164,20 @@ class MenuState extends State<Menu> with SingleTickerProviderStateMixin {
                   unselectedLabelColor: Colors.grey,
                   tabs: menu,
                 ),
-                title: const Text('Menu', style: TextStyle(fontFamily: 'Balsamiq_Sans', fontWeight: FontWeight.bold, color: Colors.black, fontSize: 30),),
+                // title: const Text('Menu', style: TextStyle(fontFamily: 'Balsamiq_Sans', fontWeight: FontWeight.bold, color: Colors.black, fontSize: 30),),
+                title: appBarTitle,
                 backgroundColor: Colors.orange[100],
               ),
               body: (!(tabList.length == 0)) ?
                 TabBarView(
                   controller: _tabController,
                   children: menu.map((Tab tab) {
-                    return new MenuList(category: tab.text, restoId: widget.restoId,);
+                    return new MenuList(
+                      category: tab.text, 
+                      restoId: widget.restoId, 
+                      // isSearching: isSearching, 
+                      // query: _searchQuery.text,
+                    );
                   }).toList(),
                 )
                 :
@@ -134,7 +190,7 @@ class MenuState extends State<Menu> with SingleTickerProviderStateMixin {
                     MaterialPageRoute(builder: (context) => NewMenu(restoId: widget.restoId)),
                   );
                 },
-                label: Text('New Menu'),
+                label: Text('Menu Baru'),
                 icon: Icon(Icons.create),
                 backgroundColor: Colors.orangeAccent[400],
               ),  
@@ -147,6 +203,10 @@ class MenuState extends State<Menu> with SingleTickerProviderStateMixin {
 
   Widget _ifBlank(){
     return Scaffold(
+      body: Align(
+        alignment: Alignment.center,
+        child: Text('Menu is Empty..', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+      ),
       backgroundColor: Colors.orangeAccent[100],
     );
   }

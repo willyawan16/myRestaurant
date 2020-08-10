@@ -93,7 +93,7 @@ class NewWorkerState extends State<NewWorker> {
                 expandedHeight: 150,
                 flexibleSpace: const FlexibleSpaceBar(
                   centerTitle: true,
-                  title: Text('New Worker', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                  title: Text('Karyawan Baru', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
                 ),
                 backgroundColor: Colors.orange[50],
               ),
@@ -134,7 +134,7 @@ class NewWorkerState extends State<NewWorker> {
                           Container(
                             padding: EdgeInsets.fromLTRB(20, 15, 20, 0),
                             child: TextFormField(            
-                              validator: (value) => (value.isEmpty) ? 'Name can\'t be empty' : null,
+                              validator: (value) => (value.isEmpty) ? 'Username tidak boleh kosog' : null,
                               onSaved: (value) => name = value,
                               decoration: InputDecoration(
                                 prefixIcon: Icon(Icons.person),
@@ -148,7 +148,7 @@ class NewWorkerState extends State<NewWorker> {
                           Container(
                             padding: EdgeInsets.fromLTRB(30, 0, 30, 20),
                             child: Text(
-                              'NB: This will be use for create an order by worker', 
+                              'NB: Ini akan digunakan dalam pembuatan order oleh karyawan', 
                               style: TextStyle(color: Colors.red),  
                             ),
                           ),
@@ -169,7 +169,7 @@ class NewWorkerState extends State<NewWorker> {
                                         });
                                       },
                                     ),
-                                    Text('Male'),
+                                    Text('Laki-laki'),
                                   ],
                                 ),
                                 new Row(
@@ -184,7 +184,7 @@ class NewWorkerState extends State<NewWorker> {
                                         });
                                       },
                                     ),
-                                    Text('Female'),
+                                    Text('Perempuan'),
                                   ],
                                 ),
                               ],
@@ -195,7 +195,7 @@ class NewWorkerState extends State<NewWorker> {
                             child: new Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: <Widget>[
-                                Text('Date of Birth', style: TextStyle(fontSize: 15)),
+                                Text('Tanggal Lahir(DOB)', style: TextStyle(fontSize: 15)),
                                 OutlineButton(
                                   highlightedBorderColor: Colors.orange,
                                   onPressed: (){
@@ -211,7 +211,7 @@ class NewWorkerState extends State<NewWorker> {
                                       });
                                     });
                                   },
-                                  child: Text('Select'),
+                                  child: Text('Pilih'),
                                 ),
                               ],
                             ),
@@ -220,7 +220,7 @@ class NewWorkerState extends State<NewWorker> {
                             padding: EdgeInsets.fromLTRB(30, 0, 20, 20),
                             child: Text(
                               (_dateTime == null)
-                              ? 'Select your DOB'
+                              ? 'Pilih DOB anda'
                               : _dateTime.toString().substring(0,10),
                               style: TextStyle(
                                 fontSize: 20,
@@ -230,12 +230,12 @@ class NewWorkerState extends State<NewWorker> {
                           Container(
                             padding: EdgeInsets.fromLTRB(20, 0, 20, 20),
                             child: TextFormField(            
-                              validator: (value) => (value.isEmpty) ? 'Phone number can\'t be empty' : null,
+                              validator: (value) => (value.isEmpty) ? 'No. tlp tidak boleh kosong' : null,
                               onSaved: (value) => phoneNum = value,
                               decoration: InputDecoration(
                                 prefixIcon: Icon(Icons.call),
                                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                                labelText: 'Phone number',
+                                labelText: 'No. Telepon',
                                 hintText: 'Ex: 08123478545',
                                 labelStyle: TextStyle(fontSize: 17),
                               ),
@@ -279,7 +279,7 @@ class NewWorkerState extends State<NewWorker> {
                         builder: (context) =>
                           RaisedButton(
                             color: Colors.orange[50],
-                            child: Text('Submit', style: TextStyle(fontSize: 20)),
+                            child: Text('Buat', style: TextStyle(fontSize: 20)),
                             onPressed: (){
                               var birthYear = int.parse(_dateTime.toString().substring(0, 4));
                               var thisYear = int.parse(DateFormat('yyyy').format(DateTime.now()));
@@ -289,28 +289,28 @@ class NewWorkerState extends State<NewWorker> {
                                 Scaffold.of(context).showSnackBar(
                                   SnackBar(
                                     elevation: 5,
-                                    content: Text('Dont\'t forget worker\'s picture!')
+                                    content: Text('Ingat AMBIL FOTO!')
                                   )
                                 );
                               } else if(gender == null) {
                                 Scaffold.of(context).showSnackBar(
                                   SnackBar(
                                     elevation: 5,
-                                    content: Text('Please select your gender!'),
+                                    content: Text('Pilih jenis kelamin'),
                                   )
                                 );
                               } else if(_dateTime == null) {
                                 Scaffold.of(context).showSnackBar(
                                   SnackBar(
                                     elevation: 5,
-                                    content: Text('Don\'t you remember your Birth date?'),
+                                    content: Text('Tanggal Lahir jangan lupa y...'),
                                   )
                                 );
                               } else if(_dateTime != null && yearDiff <= 15) {
                                 Scaffold.of(context).showSnackBar(
                                   SnackBar(
                                     elevation: 5,
-                                    content: Text('Too young! Re-check your DOB'),
+                                    content: Text('Terlalu muda, mohon cek kembali.'),
                                   )
                                 );
                               } 
@@ -442,7 +442,7 @@ class NewWorkerState extends State<NewWorker> {
             borderRadius: BorderRadius.circular(100),
             color: Colors.grey.withOpacity(0.7),
           ),
-          child: Text('Tap to photo', textAlign: TextAlign.center),
+          child: Text('Ambil foto', textAlign: TextAlign.center),
         )
       );
     }

@@ -193,7 +193,7 @@ class AdditionalOrderState extends State<AdditionalOrder> with SingleTickerProvi
                       // widget.changes(true);
                     }
                     : null,
-                    child: Text('Submit Order', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),),
+                    child: Text('Lanjut', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),),
                   ),
                 ),
               ],

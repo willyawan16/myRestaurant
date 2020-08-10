@@ -17,7 +17,7 @@ class LoginPageForWorkerState extends State<LoginPageForWorker> {
   String _username, _password, tableNum;
   bool hidePassword;
   bool isLoading, failedSignIn;
-  String finalQrResult = 'Not yet scanned', restoId, restoDocId, errMsg;
+  String finalQrResult = 'Belum di-scan', restoId, restoDocId, errMsg;
   List restoList = [];
   Map finalRestoData = {};
 
@@ -58,10 +58,10 @@ class LoginPageForWorkerState extends State<LoginPageForWorker> {
               widget.name(_username);
           } else if(tableNum == null) {
             failedSignIn = true;
-            errMsg = 'Table is not scanned yet';
+            errMsg = 'Belum di-scan';
           } else if(_username.toUpperCase() != workerList[i]['name'].toUpperCase()) {
             failedSignIn = true;
-            errMsg = 'Username not Found';
+            errMsg = 'Username tidak ditemukan';
           } 
         }
 
@@ -72,7 +72,7 @@ class LoginPageForWorkerState extends State<LoginPageForWorker> {
         debugPrint('Error: $e');
         setState(() {
           isLoading = false;
-          errMsg = 'Username not found or Table is scanned yet';
+          errMsg = 'Username tidak ditemukan atau meja belum di-scan';
           failedSignIn = true;
         });
       }
@@ -86,7 +86,7 @@ class LoginPageForWorkerState extends State<LoginPageForWorker> {
   void generateTableNum(qrResult) {
     if(qrResult.length <= 40) {
       setState(() {
-        finalQrResult = 'Restaurant Not Found!';
+        finalQrResult = 'Restaurant tidak ditemukan!';
       });
     } else {
       bool found = false, tableFound = false;
@@ -138,7 +138,7 @@ class LoginPageForWorkerState extends State<LoginPageForWorker> {
             if(restoId == restoList[i]['restoId']) {
               finalRestoData = restoList[i]; 
               setState(() {
-                finalQrResult = '${finalRestoData['restoName']}\'s Restaurant (Table $_tableNum)';
+                finalQrResult = 'Restoran ${finalRestoData['restoName']} (Table $_tableNum)';
                 tableNum = _tableNum;
                 found = true;
               });
@@ -148,12 +148,12 @@ class LoginPageForWorkerState extends State<LoginPageForWorker> {
         } 
         if(!found) {
           setState(() {
-            finalQrResult = 'Restaurant Not Found!';
+            finalQrResult = 'Restaurant tidak ditemukan!';
           });
         }
       } else {
         setState(() {
-          finalQrResult = 'Table Not Found!';
+          finalQrResult = 'Meja tidak ditemukan';
         });
       }
     }
@@ -172,6 +172,26 @@ class LoginPageForWorkerState extends State<LoginPageForWorker> {
           ),
         ),
       ),
+    );
+  }
+
+  Future<void> _helpDialog() {
+    return showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: Text('Bantuan'),
+          content: Text('Tanyakan admin kamu mengenai QR meja'),
+          actions: <Widget>[
+            OutlineButton(
+              child: Text('Okay!'),
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+              },
+            ),
+          ],
+        );
+      }
     );
   }
 
@@ -238,22 +258,32 @@ class LoginPageForWorkerState extends State<LoginPageForWorker> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: <Widget>[
-                                  Text('Make an Order?', style: TextStyle(fontFamily: 'Balsamiq_Sans', fontSize: 30, fontWeight: FontWeight.bold),),
+                                  Text('Buat Order?', style: TextStyle(fontFamily: 'Balsamiq_Sans', fontSize: 30, fontWeight: FontWeight.bold),),
                                   SizedBox(
                                     height: 10,
                                   ),
                                   new Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: <Widget>[
-                                      Text('Search Table'),
-                                      OutlineButton(
-                                        highlightedBorderColor: Colors.orange,
-                                        onPressed: _scanQR,
-                                        child: Text('Scan')
+                                      Text('Cari meja'),
+                                      new Row(
+                                        children: <Widget>[
+                                          IconButton(
+                                            icon: Icon(Icons.help_outline),
+                                            onPressed: () {
+                                              _helpDialog();
+                                            },
+                                          ),
+                                          OutlineButton(
+                                            highlightedBorderColor: Colors.orange,
+                                            onPressed: _scanQR,
+                                            child: Text('Scan')
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
-                                  Text(finalQrResult),
+                                  Text(finalQrResult, style: TextStyle(color: (finalQrResult == 'Belum di-scan') ? Colors.red : Colors.black)),
                                   SizedBox(
                                     height: 10,
                                   ),
@@ -264,7 +294,7 @@ class LoginPageForWorkerState extends State<LoginPageForWorker> {
                                     //   });
                                     // },
                                     keyboardType: TextInputType.emailAddress,
-                                    validator: (value) => value.isEmpty ? 'Username can\'t be empty': null,
+                                    validator: (value) => value.isEmpty ? 'Username tidak boleh kosong': null,
                                     onSaved: (value) => _username = value,
                                     decoration: InputDecoration(
                                       // prefixIcon: Icon(Icons.person),
@@ -313,7 +343,7 @@ class LoginPageForWorkerState extends State<LoginPageForWorker> {
                                     child: RaisedButton(
                                       color: Colors.orange,
                                       elevation: 7,
-                                      child: Text('Sign In', style: TextStyle(fontSize: 17,)),
+                                      child: Text('Masuk', style: TextStyle(fontSize: 17,)),
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.all(Radius.circular(40)),
                                       ),

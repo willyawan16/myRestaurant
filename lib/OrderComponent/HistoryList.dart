@@ -32,8 +32,8 @@ class HistoryListState extends State<HistoryList> {
   List all = [];
   // List<ExpansionItem> _items = <ExpansionItem>[];
   List<String> expansionHeader = [
-    'Today', 
-    'Yesterday', 
+    'Hari ini', 
+    'Kemarin', 
     // '2 days ago', 
     // 'One week ago'
   ];
@@ -103,7 +103,7 @@ class HistoryListState extends State<HistoryList> {
             });
             orderList.add(_temp);
             var today = DateFormat('yyyy-MM-dd').format(DateTime.now());
-            if(_temp['paid'] == 'Paid' || _temp['paid'] == 'Trash'){
+            if(_temp['paid'] == 'Sudah Bayar' || _temp['paid'] == 'Dibuang'){
               if(_temp['date'] == today)
               {
                 _today.add(_temp);
@@ -221,7 +221,7 @@ class HistoryListState extends State<HistoryList> {
     var widthDetail = totWidth * 0.5;
     var widthLeft = totWidth - widthNum - widthDetail -10;
     var totHeight = 150.0;
-    List progress = ['Not Printed', 'On going..', 'Done!'];
+    List progress = ['Belum Print', 'Sedang berjalan..', 'Siap!'];
     // debugPrint('[$index]: ${progress[progressCount]}');
     return GestureDetector(
       child: Container(
@@ -276,10 +276,10 @@ class HistoryListState extends State<HistoryList> {
                         child: Text('Status: ${details['status'][0]}'),
                       ),
                       Container(
-                        child: Text('Time: ${details['time']}'),
+                        child: Text('Waktu: ${details['time']}'),
                       ),
                       Container(
-                        child: Text('Created By: ${details['createdBy']}'),
+                        child: Text('Dibuat Oleh: ${details['createdBy']}'),
                       ),
                       (details['progress'] != 10)
                       ? Container(
@@ -298,10 +298,10 @@ class HistoryListState extends State<HistoryList> {
                         child: (details['progress'] != 10)
                         ? RichText(
                           text: TextSpan(
-                            text: 'Paid: ',
+                            text: 'Bayar: ',
                             style: DefaultTextStyle.of(context).style, 
                             children: <TextSpan>[
-                              TextSpan(text: '${details['paid']}', style: (details['paid'] == 'Paid') ? TextStyle(fontWeight: FontWeight.w800, color: Colors.green) : TextStyle(fontWeight: FontWeight.w800, color: Colors.red))
+                              TextSpan(text: '${details['paid']}', style: (details['paid'] == 'Sudah Bayar') ? TextStyle(fontWeight: FontWeight.w800, color: Colors.green) : TextStyle(fontWeight: FontWeight.w800, color: Colors.red))
                             ],
                           ),
                         )
@@ -310,7 +310,7 @@ class HistoryListState extends State<HistoryList> {
                             text: 'Paid: ',
                             style: DefaultTextStyle.of(context).style, 
                             children: <TextSpan>[
-                              TextSpan(text: 'Trash', style: TextStyle(fontWeight: FontWeight.w800, color: Colors.red))
+                              TextSpan(text: '${details['paid']}', style: TextStyle(fontWeight: FontWeight.w800, color: Colors.red))
                             ],
                           ),
                         ),

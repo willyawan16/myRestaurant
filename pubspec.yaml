@@ -1,5 +1,5 @@
 name: myapp
-description: A new Flutter project.
+description: An app to organize your restaurant.
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -19,6 +19,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  characters: ^1.0.0
   english_words: ^3.1.0
   firebase_core: ^0.4.0+9
   firebase_analytics: ^5.0.2
@@ -48,6 +49,8 @@ dependencies:
   animated_widgets: ^1.0.6
   url_launcher: ^5.0.3
   get_it: ^1.0.3+2
+  flutter_localizations:
+    sdk: flutter
 
 dev_dependencies:
   flutter_test:

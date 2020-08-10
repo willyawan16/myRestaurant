@@ -3,6 +3,7 @@ import 'dart:io';
 // import 'dart:math' show Random;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
@@ -29,7 +30,7 @@ class NewMenuState extends State<NewMenu>{
     myFocusNode = FocusNode();
     // myFocusNode.addListener(() {debugPrint('this is new');});
     //if(_initCate.isNotEmpty){
-      selectedVal = 'Select Category';
+      selectedVal = 'Pilih Kategori';
     //}
     // enableText = false;
     // menuName = TextEditingController(text:"name");
@@ -39,6 +40,15 @@ class NewMenuState extends State<NewMenu>{
   void dispose(){
     myFocusNode.dispose();
     super.dispose();
+  }
+
+  Widget onLoading() {
+    return Center(
+      child: SpinKitDualRing(
+        size: 100,
+        color: Colors.orange
+      ),
+    );
   }
 
   bool validateAndSave() {
@@ -147,7 +157,7 @@ class NewMenuState extends State<NewMenu>{
 
   Widget _decideImage() {
     if(imageFile == null){
-      return Text('No image selected');
+      return Text('Tidak ada gambar');
     }else{
       return Image.file(imageFile, width: 150, height: 150);
     }
@@ -159,7 +169,7 @@ class NewMenuState extends State<NewMenu>{
       barrierDismissible: true,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Choose Method'),
+          title: Text('Pilih dari..'),
           content: SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
@@ -192,23 +202,23 @@ class NewMenuState extends State<NewMenu>{
       barrierDismissible: false,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          title: Text('Do you want to add this Menu?'),
+          title: Text('Ingin tambah menu ini?'),
           content: SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
-                Text('NB: Menu is EDITABLE'),
+                Text('NB: Menu bisa di-edit'),
               ],
             ),
           ),
           actions: <Widget>[
             FlatButton(
-              child: Text('Back', style: TextStyle(fontSize: 15),),
+              child: Text('kembali', style: TextStyle(fontSize: 15),),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             FlatButton(
-              child: Text('Sure', style: TextStyle(fontSize: 15),),
+              child: Text('Ya', style: TextStyle(fontSize: 15),),
               onPressed: () {
                 _addData(menuName.toString());
                 Navigator.of(dialogContext).pop();
@@ -245,12 +255,12 @@ class NewMenuState extends State<NewMenu>{
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: <Widget>[
                   TextFormField(
-                    validator: (value) => value.isEmpty ? 'Menu name can\'t be empty' : null,
+                    validator: (value) => value.isEmpty ? 'Nama Menu tidak boleh kosong' : null,
                     onSaved: (value) => menuName = value,
                     decoration: InputDecoration(
                       prefixIcon: Icon(Icons.restaurant),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                      labelText: 'New Menu',
+                      labelText: 'Nama Menu',
                       //hintText: 'Name of New Menu',
                       labelStyle: TextStyle(fontSize: 17),
                     ),
@@ -266,19 +276,19 @@ class NewMenuState extends State<NewMenu>{
                     decoration: InputDecoration(
                       prefixIcon: Icon(Icons.description),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                      labelText: 'Description',
+                      labelText: 'Deskripsi Menu',
                       //hintText: 'Name of New Menu',
                       labelStyle: TextStyle(fontSize: 17),
                     ),
                   ),
                   TextFormField(
-                    validator: (value) => value.isEmpty ? 'Price name can\'t be empty' : null,
+                    validator: (value) => value.isEmpty ? 'Harga tidak boleh kosong' : null,
                     onSaved: (value) => menuPric = value,
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(
                       prefixIcon: Icon(Icons.label),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                      labelText: 'Price',
+                      labelText: 'Harga',
                       //hintText: 'Name of New Menu',
                       labelStyle: TextStyle(fontSize: 17),
                     ),
@@ -323,15 +333,15 @@ class NewMenuState extends State<NewMenu>{
                             child: TextFormField(
                               autofocus: true,
                               // controller: menuPric,
-                              validator: (value) => value.isEmpty ? 'Category can\'t be empty' : null,
+                              validator: (value) => value.isEmpty ? 'Kategori Baru tidak boleh kosong' : null,
                               onSaved: (value) => menuCate = capitalize(value),
                               //textAlign: TextAlign.end,
                               decoration: InputDecoration(
                                 prefixIcon: Icon(Icons.category),
                                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                                 // enabled: enableText,
-                                labelText: 'New Category',
-                                hintText: 'Enter New Category',
+                                labelText: 'Kategori Baru',
+                                // hintText: 'Enter New Category',
                                 labelStyle: TextStyle(fontSize: 17),
                               ),
                             ),
@@ -351,7 +361,7 @@ class NewMenuState extends State<NewMenu>{
                         children: <Widget>[
                           Container(
                             // color: Colors.red,
-                            child: Text('Menu Image', style: TextStyle(fontSize: 17),),
+                            child: Text('Gambar Menu', style: TextStyle(fontSize: 17),),
                           ),  
                           Container(
                             child: (imageFile == null) 
@@ -369,7 +379,7 @@ class NewMenuState extends State<NewMenu>{
                                   imageFile = null;
                                 });
                               },
-                              child: Text('reset',),
+                              child: Text('ulang',),
                             )
                           ),
                         ],
@@ -393,7 +403,7 @@ class NewMenuState extends State<NewMenu>{
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(Radius.circular(20)),
                       ),
-                      child: Text('Create', style: TextStyle(fontSize: 20)),
+                      child: Text('Buat', style: TextStyle(fontSize: 20)),
                       onPressed: (){
                         validating();
                       }
@@ -426,13 +436,13 @@ class NewMenuState extends State<NewMenu>{
             Navigator.pop(context);
           },
         ),
-        title: Text('New Menu'),
+        title: Text('Menu Baru'),
       ),
       body: StreamBuilder(
         stream: Firestore.instance.collection('menuList').where('restaurantId', isEqualTo: widget.restoId).snapshots(),
         builder: (context, snapshot){
           List<String> getCate = [];
-          if(!snapshot.hasData) return const Text('Loading');
+          if(!snapshot.hasData) return onLoading();
           for(int i = 0; i < snapshot.data.documents.length; i++){
             if(getCate.isEmpty)
             {
@@ -455,7 +465,7 @@ class NewMenuState extends State<NewMenu>{
           getCate.sort();
           _initCate = getCate;
           //debugPrint(_initCate.toString());
-          _initCate.insert(0, 'Select Category');
+          _initCate.insert(0, 'Pilih Kategori');
           _initCate.add('+');
           // debugPrint(selectedVal);
           return body();

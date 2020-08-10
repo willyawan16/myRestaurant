@@ -57,12 +57,12 @@ class _MyChartState extends State<MyChart> {
         animationDuration: Duration(milliseconds: 500),
         behaviors: [
           new charts.ChartTitle(
-            'Day(s) ago',
+            'Hari lalu',
             behaviorPosition: charts.BehaviorPosition.bottom,
             titleOutsideJustification: charts.OutsideJustification.middleDrawArea
           ),
           new charts.ChartTitle(
-            'Income (Rp)',
+            'Pendapatan (Rp)',
             behaviorPosition: charts.BehaviorPosition.start,
             titleOutsideJustification: charts.OutsideJustification.middleDrawArea
           )

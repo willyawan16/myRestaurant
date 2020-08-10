@@ -89,7 +89,7 @@ class CheckSummaryState extends State<CheckSummary> with SingleTickerProviderSta
       await reference
       .document(doc)
       .updateData({
-        'paid': 'Paid',
+        'paid': 'Sudah Bayar',
         'income': subtotal,
       });
     });
@@ -145,7 +145,7 @@ class CheckSummaryState extends State<CheckSummary> with SingleTickerProviderSta
                 Navigator.of(dialogContext).pop();
                 Navigator.of(context).pop();
               },
-              child: Text('Yes'),
+              child: Text('Ya'),
             ),
           ],
         );
@@ -166,13 +166,13 @@ class CheckSummaryState extends State<CheckSummary> with SingleTickerProviderSta
           title: Text('Take-away?'),
           actions: <Widget>[
             FlatButton(
-              child: Text('Cancel', style: TextStyle(color: Colors.grey, fontSize: 15),),
+              child: Text('batal', style: TextStyle(color: Colors.grey, fontSize: 15),),
               onPressed: () {
                 Navigator.of(dialogContext).pop();
               },
             ),
             FlatButton(
-              child: Text('No', style: TextStyle(fontSize: 15),),
+              child: Text('Tidak', style: TextStyle(fontSize: 15, color: Colors.red),),
               onPressed: () {
                 Navigator.of(dialogContext).pop();
                 Navigator.of(context).push(
@@ -187,7 +187,7 @@ class CheckSummaryState extends State<CheckSummary> with SingleTickerProviderSta
               },
             ),
             FlatButton(
-              child: Text('Yes', style: TextStyle(fontSize: 15),),
+              child: Text('Ya', style: TextStyle(fontSize: 15, color: Colors.green),),
               onPressed: () {
                 Navigator.of(dialogContext).pop();
                 Navigator.of(context).push(
@@ -443,7 +443,7 @@ class CheckSummaryState extends State<CheckSummary> with SingleTickerProviderSta
                               borderRadius: BorderRadius.circular(20)
                             ),
                             onPressed: _onPressed,
-                            child: Text('Add Order', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),),
+                            child: Text('Tambah Order', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),),
                           )
                           : FlatButton(
                             disabledColor: Colors.grey[400],
@@ -458,7 +458,7 @@ class CheckSummaryState extends State<CheckSummary> with SingleTickerProviderSta
                               _updatePayment(widget.orderList['key']);
                               Navigator.of(context).pop();
                             },
-                            child: Text('Payment', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),),
+                            child: Text('Pembayaran', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),),
                           )
                       ),
                     ],

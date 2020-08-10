@@ -33,8 +33,10 @@ class RootPageState extends State<RootPage> {
     //   });
     // });
     widget.auth.currentUser().then((userId) {
+      debugPrint('$userId');
       setState(() {
-        // authStatus = userId == null ? AuthStatus.notSignedIn : AuthStatus.signedIn;
+        authStatus = userId == null ? AuthStatus.notSignedIn : AuthStatus.signedIn;
+        _userId = userId;
       });
     }).catchError((onError){
       authStatus = AuthStatus.notSignedIn;
@@ -74,7 +76,8 @@ class RootPageState extends State<RootPage> {
           if(!userSnapshot.hasData) return const Text('Loading');
           Map _temp1= {};
           for(int i = 0; i < userSnapshot.data.documents.length; i++) {
-            if(userSnapshot.data.documents[i]['email'] == _email) {
+            // if(userSnapshot.data.documents[i]['email'] == _email) {
+            if(userSnapshot.data.documents[i]['userId'] == _userId) {
               _userData = userSnapshot.data.documents[i];
               _temp1.addAll({
                 'name': userSnapshot.data.documents[i]['name'],
@@ -97,10 +100,10 @@ class RootPageState extends State<RootPage> {
                   'restaurantName': restoSnapshot.data['restaurantName'],
                   'email': restoSnapshot.data['email'],
                   'restaurantId': restoSnapshot.data['restaurantId'],
-                  'city': restoSnapshot.data['city'],
-                  'address': restoSnapshot.data['address'],
-                  'addressNo': restoSnapshot.data['addressNo'],
-                  'branch': restoSnapshot.data['branch'],   
+                  // 'city': restoSnapshot.data['city'],
+                  // 'address': restoSnapshot.data['address'],
+                  // 'addressNo': restoSnapshot.data['addressNo'],
+                  // 'branch': restoSnapshot.data['branch'],   
                   'worker': restoSnapshot.data['worker'],    
                   'restoDocId': restoSnapshot.data.documentID,         
                 });

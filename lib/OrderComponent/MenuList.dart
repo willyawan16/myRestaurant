@@ -80,7 +80,7 @@ class MenuListState extends State<MenuList> {
                 FocusScope.of(context).requestFocus(new FocusNode());
               },
               child: new AlertDialog(
-                title: Text('Add ${sortedMenu[index]['name']}'),
+                title: Text('Tambah ${sortedMenu[index]['name']}'),
                 elevation: 10,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
@@ -100,7 +100,7 @@ class MenuListState extends State<MenuList> {
                             maxLength: 60,
                             maxLines: 3,
                             decoration: InputDecoration(
-                              hintText: 'Additional Details',
+                              hintText: 'Keterangan Tambahan',
                               border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
                             ),
                           ),
@@ -228,7 +228,7 @@ class MenuListState extends State<MenuList> {
                       }, 
                       child: Text(
                         (addStatus)
-                        ? 'Add'
+                        ? 'Tambah'
                         : 'Update',
                         style: TextStyle(
                           fontSize: 15,

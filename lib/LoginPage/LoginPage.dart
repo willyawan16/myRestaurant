@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:myapp/LoginPage/createAccountPage.dart';
+import 'createAccountPage.dart';
 import './auth.dart';
+import './RecoveryPage.dart';
 
 class LoginPage extends StatefulWidget {
   final BaseAuth auth;
@@ -83,67 +84,67 @@ class LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixi
   //     );
   // }
 
-  Future<void> _showAskDialog(BuildContext context){
-    return showDialog(
-      context: context,
-      barrierDismissible: true,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          elevation: 10,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          title: Text('Select user type', style: TextStyle(fontFamily: 'Balsamiq_Sans', fontWeight: FontWeight.bold),),
-          content: SingleChildScrollView(
-            child: ListBody(
-              children: <Widget>[
-                Text('Main - create master user', style: TextStyle(fontFamily: 'Balsamiq_Sans'),),
-                Text('Branch - create branch user', style: TextStyle(fontFamily: 'Balsamiq_Sans'),),
-                Text('Worker - create worker', style: TextStyle(fontFamily: 'Balsamiq_Sans'),),
-              ],
-            ),
-          ),
-          actions: <Widget>[
-            OutlineButton(
-              child: Text('Main', style: TextStyle(color: Colors.red, fontFamily: 'Balsamiq_Sans'),),
-              highlightedBorderColor: Colors.red,
-              highlightColor: Colors.red[100],
-              onPressed: (){
-                Navigator.push(
-                  context, 
-                  MaterialPageRoute(builder: (context) => CreateAccountPage(auth: widget.auth, userType: 'Main', bgColor: Colors.red))
-                );
-                debugPrint('userType: Main');
-              },
-            ),
-            OutlineButton(
-              child: Text('Branch', style: TextStyle(color: Colors.yellow[700], fontFamily: 'Balsamiq_Sans'),),
-              highlightedBorderColor: Colors.yellow[700],
-              highlightColor: Colors.yellow[100],
-              onPressed: (){
-                Navigator.push(
-                  context, 
-                  MaterialPageRoute(builder: (context) => CreateAccountPage(auth: widget.auth, userType: 'Branch',))
-                );
-                debugPrint('userType: Branch');
-              },
-            ),
-            OutlineButton(
-              child: Text('Worker', style: TextStyle(color: Colors.green, fontFamily: 'Balsamiq_Sans'),),
-              highlightedBorderColor: Colors.green,
-              highlightColor: Colors.green[100],
-              onPressed: (){
-                Navigator.push(
-                  context, 
-                  MaterialPageRoute(builder: (context) => CreateAccountPage(auth: widget.auth, userType: 'Worker',))
-                );
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
+  // Future<void> _showAskDialog(BuildContext context){
+  //   return showDialog(
+  //     context: context,
+  //     barrierDismissible: true,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         elevation: 10,
+  //         shape: RoundedRectangleBorder(
+  //           borderRadius: BorderRadius.circular(20),
+  //         ),
+  //         title: Text('Select user type', style: TextStyle(fontFamily: 'Balsamiq_Sans', fontWeight: FontWeight.bold),),
+  //         content: SingleChildScrollView(
+  //           child: ListBody(
+  //             children: <Widget>[
+  //               Text('Main - create master user', style: TextStyle(fontFamily: 'Balsamiq_Sans'),),
+  //               Text('Branch - create branch user', style: TextStyle(fontFamily: 'Balsamiq_Sans'),),
+  //               Text('Worker - create worker', style: TextStyle(fontFamily: 'Balsamiq_Sans'),),
+  //             ],
+  //           ),
+  //         ),
+  //         actions: <Widget>[
+  //           OutlineButton(
+  //             child: Text('Main', style: TextStyle(color: Colors.red, fontFamily: 'Balsamiq_Sans'),),
+  //             highlightedBorderColor: Colors.red,
+  //             highlightColor: Colors.red[100],
+  //             onPressed: (){
+  //               Navigator.push(
+  //                 context, 
+  //                 MaterialPageRoute(builder: (context) => CreateAccountPage(auth: widget.auth, userType: 'Main', bgColor: Colors.red))
+  //               );
+  //               debugPrint('userType: Main');
+  //             },
+  //           ),
+  //           OutlineButton(
+  //             child: Text('Branch', style: TextStyle(color: Colors.yellow[700], fontFamily: 'Balsamiq_Sans'),),
+  //             highlightedBorderColor: Colors.yellow[700],
+  //             highlightColor: Colors.yellow[100],
+  //             onPressed: (){
+  //               Navigator.push(
+  //                 context, 
+  //                 MaterialPageRoute(builder: (context) => CreateAccountPage(auth: widget.auth, userType: 'Branch',))
+  //               );
+  //               debugPrint('userType: Branch');
+  //             },
+  //           ),
+  //           OutlineButton(
+  //             child: Text('Worker', style: TextStyle(color: Colors.green, fontFamily: 'Balsamiq_Sans'),),
+  //             highlightedBorderColor: Colors.green,
+  //             highlightColor: Colors.green[100],
+  //             onPressed: (){
+  //               Navigator.push(
+  //                 context, 
+  //                 MaterialPageRoute(builder: (context) => CreateAccountPage(auth: widget.auth, userType: 'Worker',))
+  //               );
+  //             },
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -201,7 +202,7 @@ class LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixi
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             
                             children: <Widget>[
-                              Text('Hi there,', style: TextStyle(fontFamily: 'Balsamiq_Sans', fontSize: 30, fontWeight: FontWeight.bold),),
+                              Text('Halo,', style: TextStyle(fontFamily: 'Balsamiq_Sans', fontSize: 30, fontWeight: FontWeight.bold),),
                               SizedBox(
                                 height: 10,
                               ),
@@ -212,7 +213,7 @@ class LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixi
                                 //   });
                                 // },
                                 keyboardType: TextInputType.emailAddress,
-                                validator: (value) => value.isEmpty ? 'Email can\'t be empty': null,
+                                validator: (value) => value.isEmpty ? 'Email tidak boleh kosong': null,
                                 onSaved: (value) => _email = value,
                                 decoration: InputDecoration(
                                   // prefixIcon: Icon(Icons.person),
@@ -230,7 +231,7 @@ class LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixi
                                 //     password = str;
                                 //   });
                                 // },
-                                validator: (value) => value.isEmpty ? 'Password can\'t be empty': null,
+                                validator: (value) => value.isEmpty ? 'Password tidak boleh kosong': null,
                                 onSaved: (value) => _password = value,
                                 obscureText: hidePassword,
                                 decoration: InputDecoration(
@@ -252,14 +253,35 @@ class LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixi
                                 ),
                               ),
                               SizedBox(
-                                height: 10,
+                                height: 5,
+                              ),
+                              Container(
+                                child: GestureDetector(
+                                  onTap: () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (context) => RecoveryPage(auth: widget.auth),
+                                      ),
+                                    );
+                                  },
+                                  child: Text(
+                                    'Lupa password?',
+                                    style: TextStyle(
+                                      decoration: TextDecoration.underline,
+                                      color: Colors.blue
+                                    ),
+                                  ),
+                                )
+                              ),
+                              SizedBox(
+                                height: 5,
                               ),
                               Container(
                                 // width: totWidth-80,                          
                                 child: RaisedButton(
                                   color: Colors.orange,
                                   elevation: 7,
-                                  child: Text('Sign In', style: TextStyle(fontSize: 17,)),
+                                  child: Text('Masuk', style: TextStyle(fontSize: 17,)),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.all(Radius.circular(40)),
                                   ),
@@ -275,7 +297,7 @@ class LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixi
                               Container(
                                 // width: totWidth-80,                          
                                 child: OutlineButton(
-                                  child: Text('Create an account', style: TextStyle(fontSize: 15,)),
+                                  child: Text('Buat akun baru', style: TextStyle(fontSize: 15,)),
                                   highlightedBorderColor: Colors.orange,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.all(Radius.circular(40)),

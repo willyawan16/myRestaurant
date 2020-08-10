@@ -74,7 +74,7 @@ class CheckAdditionalOrderState extends State<CheckAdditionalOrder> {
                             maxLength: 60,
                             maxLines: 3,
                             decoration: InputDecoration(
-                              hintText: 'Additional Details',
+                              hintText: 'Keterangan Tambahan',
                               border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
                             ),
                           ),
@@ -153,7 +153,7 @@ class CheckAdditionalOrderState extends State<CheckAdditionalOrder> {
                         Navigator.of(context).pop();
                       },
                       child: Text(
-                        'Remove',
+                        'Buang',
                         style: TextStyle(
                           fontSize: 15,
                           color: Colors.red,
@@ -185,7 +185,7 @@ class CheckAdditionalOrderState extends State<CheckAdditionalOrder> {
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(100),
         child: AppBar(
-          title: Text((widget.takeaway) ? 'Check TAKE-AWAY Orders' : 'Check Orders'),
+          title: Text((widget.takeaway) ? 'Cek Order TAKE-AWAY' : 'Cek Order'),
           flexibleSpace: FlexibleSpaceBar(
             title: Row(
               children: <Widget>[
@@ -198,7 +198,7 @@ class CheckAdditionalOrderState extends State<CheckAdditionalOrder> {
                   width: 5,
                 ),
                 (widget.orderData['status'][0] == 'Dine-in') 
-                ? Text('Table ${widget.orderData['status'][1]}', style: TextStyle(fontSize: 17))
+                ? Text('Meja ${widget.orderData['status'][1]}', style: TextStyle(fontSize: 17))
                 : Text('Take-away', style: TextStyle(fontSize: 17)),
               ],
             ),
@@ -356,7 +356,7 @@ class CheckAdditionalOrderState extends State<CheckAdditionalOrder> {
         'orders': widget.orderList,
         'subtotal': subtotal,
         'takeaway': widget.takeaway,
-        'createdBy': 'You',
+        'createdBy': 'Admin',
         'verified': 'yes',
       };
       debugPrint('>>>$newObj');

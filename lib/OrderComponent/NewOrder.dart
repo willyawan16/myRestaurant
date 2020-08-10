@@ -83,7 +83,7 @@ class NewOrderState extends State<NewOrder> with SingleTickerProviderStateMixin{
           expandedHeight: 150,
           flexibleSpace: const FlexibleSpaceBar(
             centerTitle: true,
-            title: Text('Create Order', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+            title: Text('Buat Order', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
           ),
           backgroundColor: Colors.orange[50],
         ),
@@ -412,7 +412,7 @@ class NewOrderState extends State<NewOrder> with SingleTickerProviderStateMixin{
           expandedHeight: 150,
           flexibleSpace: const FlexibleSpaceBar(
             centerTitle: true,
-            title: Text('Create Order', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+            title: Text('Buat Order', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
           ),
           backgroundColor: Colors.orange[50],
         ),
@@ -442,8 +442,8 @@ class NewOrderState extends State<NewOrder> with SingleTickerProviderStateMixin{
                   decoration: InputDecoration(
                     prefixIcon: Icon(Icons.person),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                    labelText: 'Customer Name',
-                    hintText: 'Customer',
+                    labelText: 'Nama Customer',
+                    hintText: 'Tidak harus',
                     labelStyle: TextStyle(fontSize: 17),
                   ),
                 ),
@@ -502,14 +502,14 @@ class NewOrderState extends State<NewOrder> with SingleTickerProviderStateMixin{
                   children: <Widget>[
                     Text(
                       (tableNumPick != null)
-                      ? 'Table Number: ${tableList[tableNumPick]}' 
-                      : 'Table Number: Not Picked' , 
+                      ? 'No Meja: ${tableList[tableNumPick]}' 
+                      : 'No Meja: Belum Pilih' , 
                       style: TextStyle(fontSize: 17),
                     ),
                     OutlineButton(
                       highlightedBorderColor: Colors.orange,
                       splashColor: Colors.orange[50],
-                      child: Text('Pick'),
+                      child: Text('Pilih'),
                       onPressed: () {
                         _pickTableNum();
                       },
@@ -527,7 +527,7 @@ class NewOrderState extends State<NewOrder> with SingleTickerProviderStateMixin{
                   padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(80.0)),
                   elevation: 7,
-                  child: Text('Proceed to Menu'),
+                  child: Text('Lanjut ke Menu'),
                   onPressed: (){
                     FocusScope.of(context).requestFocus(new FocusNode());
                     _pageController.animateToPage(1, duration: Duration(milliseconds: 400), curve: Curves.easeInCubic);

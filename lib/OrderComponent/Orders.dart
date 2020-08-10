@@ -30,50 +30,56 @@ class OrdersState extends State<Orders> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
-          title: Text('Help', style: TextStyle(fontWeight: FontWeight.bold)),
+          title: Text('Bantuan', style: TextStyle(fontWeight: FontWeight.bold)),
           content: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text('Welcome to Orders'),
+              Text('Selamat Datang di Order'),
               SizedBox(
                 height: 10,
               ),
-              Text('- Every orders must be printed in invoice to be verified'),
+              // Text('- Every orders must be printed in invoice to be verified'),
+              Text('- Setiap order harus di-print terlebih dahulu untuk diverifikasi'),
               SizedBox(
                 height: 10,
               ),
-              Text('- If the order is verified, the status of order will be changed to "On going.."'),
+              // Text('- If the order is verified, the status of order will be changed to "On going.."'),
+              Text('- Jika sudah diverifikasi, status order akan berubah menjadi "On going.."'),
               SizedBox(
                 height: 20,
               ),
               Text(
-                'Gestures:', 
+                'Gerakan:', 
                 style: TextStyle(
                   fontSize: 20,
                   decoration: TextDecoration.underline
                 ),
               ),
-              Text('- On tap order -> Overview order summary / add order'),
+              // Text('- On tap order -> Overview order summary / add order'),
+              Text('- Tekan sekali -> Untuk melihat / tambah order'),
               SizedBox(
                 height: 5,
               ),
-              Text('- On double tap order -> Change status to Done!'),
+              // Text('- On double tap order -> Change status to Done!'),
+              Text('- Tekan dua kali -> Untuk ganti status jadi "Done!"'),
               SizedBox(
                 height: 5,
               ),
-              Text('- On hold order -> Delete order'),
+              Text('- Tekan dan Tahan -> Hapus order'),
               SizedBox(
                 height: 20,
               ),
               Text(
-                'Questions:',
+                'Pertanyaan:',
                 style: TextStyle(
                   fontSize: 20,
                   decoration: TextDecoration.underline
                 ),
               ),
-              Text('Q: Can I change customer\'s table number'),
-              Text('A: No, you can\'t'),
+              // Text('P: Can I change customer\'s table number'),
+              // Text('J: No, you can\'t'),
+              Text('P: Apakah no meja customer dapat diubah?'),
+              Text('J: Tidak'),
             ],
           ),
           actions: <Widget>[
@@ -158,7 +164,7 @@ class OrdersState extends State<Orders> {
                 MaterialPageRoute(builder: (context) => NewOrder(restoId: widget.restoId, count: count, restoDocId: widget.restoDocId, inUseTable: inUseTable)),
               );
             },
-            label: Text('New Order'),
+            label: Text('Order Baru'),
             icon: Icon(Icons.assignment),
             backgroundColor: Colors.orangeAccent[400],
           ),

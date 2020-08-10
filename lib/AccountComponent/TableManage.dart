@@ -56,7 +56,7 @@ class TableManageState extends State<TableManage> {
                 FocusScope.of(context).requestFocus(new FocusNode());
               },
               child: new AlertDialog(
-                title: Text('New Table Number'),
+                title: Text('No meja baru'),
                 elevation: 10,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
@@ -99,13 +99,13 @@ class TableManageState extends State<TableManage> {
                 ),
                 actions: <Widget>[
                   FlatButton(
-                    child: Text('cancel', style: TextStyle(color: Colors.grey),),
+                    child: Text('batal', style: TextStyle(color: Colors.grey),),
                     onPressed: () {
                       Navigator.of(dialogContext).pop();
                     },
                   ), 
                   OutlineButton(
-                    child: Text('Add', style: TextStyle(color: Colors.orange)),
+                    child: Text('Tambah', style: TextStyle(color: Colors.orange)),
                     onPressed: () {
                       if(newNumber.length != 0) {
                         debugPrint('${tableNum.indexOf(newNumber)}');
@@ -116,11 +116,11 @@ class TableManageState extends State<TableManage> {
                         } else {
                           final snackbar = SnackBar(
                             content: Text(
-                              'Table is existed!',
+                              'No meja sudah ada',
                               style: TextStyle(color: Colors.yellow),
                             ), 
                             backgroundColor: Colors.red,
-                            duration: Duration(seconds: 2),
+                            duration: Duration(seconds: 1),
                           );
                           _scaffoldKey.currentState.showSnackBar(snackbar);
                         }
@@ -128,11 +128,11 @@ class TableManageState extends State<TableManage> {
                         FocusScope.of(context).requestFocus(newNumberNode);
                         final snackbar = SnackBar(
                           content: Text(
-                            'Empty input!', 
+                            'Kosong', 
                             style: TextStyle(color: Colors.yellow),
                           ), 
                           backgroundColor: Colors.red,
-                          duration: Duration(seconds: 2),
+                          duration: Duration(seconds: 1),
                         );
                         _scaffoldKey.currentState.showSnackBar(snackbar);
                       }
@@ -230,42 +230,42 @@ class TableManageState extends State<TableManage> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
-          title: Text('Help', style: TextStyle(fontWeight: FontWeight.bold)),
+          title: Text('Bantuan', style: TextStyle(fontWeight: FontWeight.bold)),
           content: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text('Welcome to Table Management'),
+              Text('Selamat datang di pengaturan meja'),
               SizedBox(
                 height: 10,
               ),
               new Row(
                 children: <Widget>[
                   Icon(Icons.add),
-                  Text('-> add new Table Number')
+                  Text('-> Tambah no meja baru')
                 ],
               ),
               new Row(
                 children: <Widget>[
                   Icon(Icons.grid_on),
-                  Text('-> change grid display')
+                  Text('-> Ganti tampilan grid')
                 ],
               ),
               new Row(
                 children: <Widget>[
                   Icon(Icons.help_outline),
-                  Text('-> help')
+                  Text('-> Bantuan')
                 ],
               ),
               SizedBox(
                 height: 20,
               ),
-              Text('Q: How to change table order?'),
-              Text('A: Hold chosen table, then select destination'),
+              Text('P: Bagaimana mengganti urutan meja?'),
+              Text('J: Tahan meja yang hendak diganti, tekan destinasiny'),
               SizedBox(
                 height: 20,
               ),
-              Text('Q: How to delete table?'),
-              Text('A: Double tap chosen table'),
+              Text('P: Bagaimana hapus meja?'),
+              Text('J: Tekan dua kali'),
             ],
           ),
           actions: <Widget>[
@@ -350,10 +350,18 @@ class TableManageState extends State<TableManage> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
               Container(
-                padding: EdgeInsets.fromLTRB(10, 20, 10, 20),
+                padding: EdgeInsets.fromLTRB(10, 20, 10, 0),
                 height: 100,
                 child: Text(
-                  'NB: To show table\'s QR code, just press on the table grid below',
+                  'Print QR code setiap meja agar karyawan dapat membuat order!',
+                  style: TextStyle(color: Colors.red, fontSize: 20),
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                height: 80,
+                child: Text(
+                  'NB: Untuk menunjukkan QR code meja, tekanlah no meja',
                   style: TextStyle(color: Colors.red),
                 ),
               ),
@@ -378,7 +386,7 @@ class TableManageState extends State<TableManage> {
               : Container(
                 height: 500,
                 child: Center(
-                  child: Text('Table Number is Empty!', style: TextStyle(fontSize: 20), textAlign: TextAlign.center,)
+                  child: Text('Tidak ada no meja', style: TextStyle(fontSize: 20), textAlign: TextAlign.center,)
                 ),
               ),
               Container(

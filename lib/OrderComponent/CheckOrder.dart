@@ -92,7 +92,7 @@ class CheckOrderState extends State<CheckOrder> {
                             maxLength: 60,
                             maxLines: 3,
                             decoration: InputDecoration(
-                              hintText: 'Additional Details',
+                              hintText: 'Keterangan Tambahan',
                               border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
                             ),
                           ),
@@ -204,7 +204,7 @@ class CheckOrderState extends State<CheckOrder> {
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(100),
         child: AppBar(
-          title: Text('Check Orders'),
+          title: Text('Cek Order'),
           flexibleSpace: FlexibleSpaceBar(
             title: Row(
               children: <Widget>[
@@ -217,7 +217,7 @@ class CheckOrderState extends State<CheckOrder> {
                   width: 5,
                 ),
                 (widget.status == 'Dine-in') 
-                ? Text('Table ${widget.table}', style: TextStyle(fontSize: 17))
+                ? Text('Meja ${widget.table}', style: TextStyle(fontSize: 17))
                 : Text('Take-away', style: TextStyle(fontSize: 17)),
               ],
             ),
@@ -291,7 +291,7 @@ class CheckOrderState extends State<CheckOrder> {
                       });
                     }
                     : null, 
-                    child: Text('Submit Order', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),),
+                    child: Text('Buat Order', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),),
                   ),
                 ),
               ],
@@ -380,9 +380,9 @@ class CheckOrderState extends State<CheckOrder> {
       'status': finalStatus,
       'progress': 0,
       'restaurantId': widget.restoId,
-      'paid': 'Not Paid',
+      'paid': 'Belum Bayar',
       'verified': (widget.createdBy != null) ? false : true,
-      'createdBy': (widget.createdBy != null) ? widget.createdBy.toUpperCase() : 'You',
+      'createdBy': (widget.createdBy != null) ? widget.createdBy.toUpperCase() : 'Admin',
       'orderNum': invoiceCode,
     });
   }

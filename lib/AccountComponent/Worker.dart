@@ -2,12 +2,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:myapp/AccountComponent/ViewWorker.dart';
+import 'ViewWorker.dart';
 import './NewWorker.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'ViewWorker.dart';
+// import 'ViewWorker.dart';
 
 class Worker extends StatefulWidget {
   Map restoData;
@@ -52,7 +52,7 @@ class WorkerState extends State<Worker> {
         return Scaffold(
           backgroundColor: Colors.orange[50],
           appBar: AppBar(
-            title: Text('My Worker'),
+            title: Text('Karyawan Saya'),
             backgroundColor: Colors.orange,
             leading: IconButton(
               onPressed: (){
@@ -84,7 +84,7 @@ class WorkerState extends State<Worker> {
               children: <Widget>[
                 Container(
                   padding: EdgeInsets.fromLTRB(20, 50, 10, 10),
-                  child: Text('Worker List', style: TextStyle(fontSize: 20)),
+                  child: Text('Daftar Karyawan', style: TextStyle(fontSize: 20)),
                 ),
                 Container(
                   height: 50,
@@ -107,7 +107,7 @@ class WorkerState extends State<Worker> {
                 : Container(
                   height: MediaQuery.of(context).size.width*2/3,
                   child: Center(
-                    child: Text('You have no workers yet', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,)),
+                    child: Text('Belum ada Karyawan', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,)),
                   ),
                 ),
                 Container(
@@ -179,8 +179,8 @@ class WorkerState extends State<Worker> {
                   Text(details['name'].toString().toUpperCase()),
                   Text(details['dob'].toString()),
                   (details['gender'].toString() == 'M')
-                  ? Text('MALE')
-                  : Text('FEMALE'),
+                  ? Text('Laki-laki')
+                  : Text('Perempuan'),
                   Text(details['phoneNum'].toString()),
                   // Text(details['role'].toString(), style: TextStyle(color: Colors.red)),
                 ],
@@ -192,7 +192,7 @@ class WorkerState extends State<Worker> {
       ),
       actions: <Widget>[
         IconSlideAction(
-          caption: 'Make a call',
+          caption: 'Buat Panggilan',
           color: Colors.green,
           icon: Icons.call,
           onTap: () => launch("tel://${details['phoneNum'].toString()}"),
@@ -200,7 +200,7 @@ class WorkerState extends State<Worker> {
       ],
       secondaryActions: <Widget>[
         IconSlideAction(
-          caption: 'View',
+          caption: 'Lihat',
           color: Colors.black45,
           icon: Icons.visibility,
           onTap: () {
@@ -213,7 +213,7 @@ class WorkerState extends State<Worker> {
           }
         ),
         IconSlideAction(
-          caption: 'Delete',
+          caption: 'Hapus',
           color: Colors.red,
           icon: Icons.delete,
           onTap: () => _onDeleteDialog(index, details),

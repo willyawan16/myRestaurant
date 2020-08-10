@@ -12,6 +12,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 import './EditMenu.dart';
+import 'GlobalState.dart';
 
 class MenuListState extends State<MenuList> {
   int currentIndex;
@@ -58,7 +59,8 @@ class MenuListState extends State<MenuList> {
           return a['name'].toString().toLowerCase().compareTo(b['name'].toString().toLowerCase());
         });
         sortedMenu = _sortedMenu;
-        // debugPrint(wholeMenu.length.toString());
+        // debugPrint('>>>'+sortedMenu.length.toString());
+        // debugPrint('>>>${widget.query}');
         return ListView.builder(
           itemCount: sortedMenu.length,
           padding: const EdgeInsets.all(10),
@@ -258,6 +260,7 @@ class MenuListState extends State<MenuList> {
   }
 
   Widget build(BuildContext context){
+    // debugPrint('${store.get('val')}');
     return Scaffold(
       body: menuCards(),
       backgroundColor: Colors.orange[50]
@@ -268,7 +271,7 @@ class MenuListState extends State<MenuList> {
 
 class Constants {
   static const List Edit = ['Edit', Icons.edit];
-  static const List Delete = ['Delete', Icons.delete];
+  static const List Delete = ['Hapus', Icons.delete];
   // static const List Share = ['Share', Icons.share];
 
   static const List choices = [
@@ -283,8 +286,10 @@ class Constants {
 class MenuList extends StatefulWidget{
   final String category;
   final String restoId;
+  bool isSearching;
+  String query;
 
-  MenuList({Key key, @required this.category, this.restoId}) : super(key: key);
+  MenuList({Key key, this.category, this.restoId, this.isSearching, this.query}) : super(key: key);
   @override
   MenuListState createState() => MenuListState();
 }

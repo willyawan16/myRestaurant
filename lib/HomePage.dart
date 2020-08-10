@@ -46,7 +46,7 @@ class _MyHomePageState extends State<MyHomePage> {
       // CheckOrder(),
       Menu(restoId: widget.restoData['restaurantId'],),
       VerifyPage(restoId: widget.restoData['restaurantId'],),
-      Account(signOut: _signOut, restoData: widget.restoData),
+      Account(signOut: _signOut, restoData: widget.restoData, auth: widget.auth),
     ];
   }
 

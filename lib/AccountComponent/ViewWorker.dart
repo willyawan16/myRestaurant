@@ -43,7 +43,7 @@ class ViewWorkerState extends State<ViewWorker> {
                 FocusScope.of(context).requestFocus(new FocusNode());
               },
               child: AlertDialog(
-                title: Text("New Phone Number"),
+                title: Text("No tlp. baru"),
                 content: Container(
                   height: 100,
                   child: Column(
@@ -77,11 +77,11 @@ class ViewWorkerState extends State<ViewWorker> {
                       {
                         debugPrint(newPhoneNum);
                         setState(() {
-                          status = "Please check your phone number again.";
+                          status = "Mohon cek no tlp. kembali";
                         });
                       }
                     },
-                    child: Text("Submit"),
+                    child: Text("Kirim"),
                   ),
                 ],
               ),
@@ -161,7 +161,7 @@ class ViewWorkerState extends State<ViewWorker> {
                 SizedBox(
                   height: 10 
                 ),
-                dataTemplate(dataContext, 'Name', details['name']),
+                dataTemplate(dataContext, 'Nama', details['name']),
                 SizedBox(
                   height: 15 
                 ),
@@ -169,13 +169,13 @@ class ViewWorkerState extends State<ViewWorker> {
                 SizedBox(
                   height: 15 
                 ),
-                dataTemplate(dataContext, 'Gender', details['gender']),
+                dataTemplate(dataContext, 'Jenis Kelamin', (details['gender'] == 'M') ? 'L' : 'P'),
                 SizedBox(
                   height: 15
                 ),
                 Row(
                   children: <Widget>[
-                    dataTemplate(dataContext, 'Phone Number', details['phoneNum']),
+                    dataTemplate(dataContext, 'No Tlp.', details['phoneNum']),
                     IconButton(
                       color: Colors.orange,
                       icon: Icon(Icons.edit),

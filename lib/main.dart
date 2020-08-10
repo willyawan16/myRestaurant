@@ -9,6 +9,7 @@ import './LoginPage/LoginPage.dart';
 import './LoginPage/auth.dart';
 import './RootPage.dart';
 import './RootPageForWorker.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() {
   FlutterError.onError = (FlutterErrorDetails details) {
@@ -25,8 +26,17 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: [
+        const Locale('en', 'US'),
+        const Locale('id', 'ID'),
+      ],
       debugShowCheckedModeBanner: false,
-      title: 'myApp',
+      title: 'myResto',
       theme: ThemeData(
         primarySwatch: Colors.blue,
         fontFamily: 'Balsamiq_Sans',
@@ -66,7 +76,7 @@ class SelectionPageState extends State<SelectionPage> {
             Container(
               padding: EdgeInsets.fromLTRB(30, 70, 30, 0),
               // color: Colors.pink,
-              child: Text('Sign In as..', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+              child: Text('Masuk sebagai..', style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
             ),
             Container(
               padding: EdgeInsets.fromLTRB(30, 10, 30, 50),
@@ -81,7 +91,7 @@ class SelectionPageState extends State<SelectionPage> {
                         MaterialPageRoute(builder: (context) => new RootPage(auth: new Auth()),)
                       );
                     },
-                    child: Text('Restaurant Admin'),
+                    child: Text('Admin Restoran'),
                     color: Colors.orange[100],
                   ),
                   SizedBox(
@@ -94,7 +104,7 @@ class SelectionPageState extends State<SelectionPage> {
                         MaterialPageRoute(builder: (context) => new RootPageForWorker(),)
                       );
                     },
-                    child: Text('Restaurant Worker'),
+                    child: Text('Pelayan Restoran'),
                     color: Colors.orange[100],
                   ),
                 ],

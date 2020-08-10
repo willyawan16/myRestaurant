@@ -112,9 +112,15 @@ class VerifyPageState extends State<VerifyPage> {
         )
         : Center(
           child: Container(
-            child: Text(
-              'No Input Currently..',
-              style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Text(
+                  'Tidak ada input..',
+                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                ),
+                Text('Diterima saat user pelayan membuat order', style: TextStyle(color: Colors.red),)
+              ],
             ),
           ),
         );
@@ -142,28 +148,28 @@ class VerifyPageState extends State<VerifyPage> {
                 width: MediaQuery.of(context).size.width*5/8,
                 // color: Colors.grey,
                 child: (details['status'][0] == 'Dine-in')
-                ? Text('${details['name']} ( Table ${details['status'][1]} )', style: TextStyle(fontSize: 17),)
+                ? Text('${details['name']} ( Meja ${details['status'][1]} )', style: TextStyle(fontSize: 17),)
                 : Text('${details['name']} ( ${details['status'][0]} )', style: TextStyle(fontSize: 17),)
               ),
               Container(
                 padding: EdgeInsets.fromLTRB(20, 0, 0, 5),
                 width: MediaQuery.of(context).size.width*5/8,
                 // color: Colors.grey,
-                child: Text('Created by: ${details['createdBy']}', style: TextStyle(fontSize: 14))
+                child: Text('Dibuat oleh: ${details['createdBy']}', style: TextStyle(fontSize: 14))
               ),
                Container(
                 padding: EdgeInsets.fromLTRB(20, 0, 0, 5),
                 width: MediaQuery.of(context).size.width*5/8,
                 // color: Colors.grey,
                 child: (!details['made'])
-                ? Text('Order type: New Order', style: TextStyle(fontSize: 14))
-                : Text('Order type: Additional Order', style: TextStyle(fontSize: 14)),
+                ? Text('Jenis Order: Order Baru', style: TextStyle(fontSize: 14))
+                : Text('Jenis Order: Order Tambahan', style: TextStyle(fontSize: 14)),
               ),
               Container(
                 padding: EdgeInsets.fromLTRB(20, 0, 0, 15),
                 width: MediaQuery.of(context).size.width*5/8,
                 // color: Colors.grey,
-                child: Text('Time: ${details['time']}', style: TextStyle(fontSize: 14))
+                child: Text('Waktu: ${details['time']}', style: TextStyle(fontSize: 14))
               ),
             ],
           ),
@@ -180,16 +186,16 @@ class VerifyPageState extends State<VerifyPage> {
                         height: 125,
                         child: Align(
                           alignment: Alignment.center,
-                          child: Text('Accept', textAlign: TextAlign.center,),
+                          child: Text('Terima', textAlign: TextAlign.center,),
                         ),
                       ),
                       onTap: (){
                         final snackbar = SnackBar(
                           backgroundColor: Colors.red,
-                          content: Text('Accept. Dismiss in 5s'),
+                          content: Text('Terima dalam 5dtk'),
                           action: SnackBarAction(
                             textColor: Colors.yellow,
-                            label: 'Accept', 
+                            label: 'Terima', 
                             onPressed: (){
                               (!details['made'])
                               ? acceptData(details['docId'])
@@ -213,16 +219,16 @@ class VerifyPageState extends State<VerifyPage> {
                         height: 125,
                         child: Align(
                           alignment: Alignment.center,
-                          child: Text('Trash', textAlign: TextAlign.center,),
+                          child: Text('Buang', textAlign: TextAlign.center,),
                         ),
                       ),
                       onTap: (){
                         final snackbar = SnackBar(
                           backgroundColor: Colors.red,
-                          content: Text('Trash. Dismiss in 5s'),
+                          content: Text('Buang dalam 5dtk'),
                           action: SnackBarAction(
                             textColor: Colors.yellow,
-                            label: 'Trash', 
+                            label: 'Buang', 
                             onPressed: (){
                               (!details['made'])
                               ? trashData(details['docId'])

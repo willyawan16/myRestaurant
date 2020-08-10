@@ -8,15 +8,16 @@ import './Worker.dart';
 import './MyChart.dart';
 import './QRCode.dart';
 import './TableManage.dart';
-import 'package:myapp/MenuComponent/NewMenu.dart';
+// import 'package:myapp/MenuComponent/NewMenu.dart';
 import '../LoginPage/auth.dart';
 
 
 class Account extends StatefulWidget {
   final VoidCallback signOut;
   Map restoData;
+  BaseAuth auth;
 
-  Account({Key key, this.signOut, this.restoData}) : super (key: key);
+  Account({Key key, this.signOut, this.restoData, this.auth}) : super (key: key);
 
   @override
   AccountState createState() => AccountState();
@@ -56,7 +57,7 @@ class AccountState extends State<Account> {
     var toProfile = (){
       Navigator.push(
         context, 
-        MaterialPageRoute(builder: (context) => MyChart())
+        MaterialPageRoute(builder: (context) => Profile(restoData: widget.restoData, auth: widget.auth))
       );
     };
     var toWorker = (){
@@ -92,7 +93,7 @@ class AccountState extends State<Account> {
           date = DateFormat('yyyy-MM-dd').format(d);
           var difference = DateTime.now().difference(DateTime.parse(date)).inDays;
           // debugPrint('$i: $difference');
-          if(date == today && snapshot.data.documents[i]['paid'] == 'Paid') {
+          if(date == today && snapshot.data.documents[i]['paid'] == 'Sudah Bayar') {
             // int subtotal = 0;
             // List orders = snapshot.data.documents[i]['orders'];
             // for(int j = 0; j < orders.length; j++) {
@@ -103,7 +104,7 @@ class AccountState extends State<Account> {
             // subtotal = 0;
           }
 
-          if(difference == 0 && snapshot.data.documents[i]['paid'] == 'Paid') {
+          if(difference == 0 && snapshot.data.documents[i]['paid'] == 'Sudah Bayar') {
             int subs = 0;
             List orders = snapshot.data.documents[i]['orders'];
             // for(int j = 0; j < orders.length; j++) {
@@ -112,7 +113,7 @@ class AccountState extends State<Account> {
             // }
             _incomes[4] += snapshot.data.documents[i]['income'];
             // subs = 0;
-          } else if(difference == 1 && snapshot.data.documents[i]['paid'] == 'Paid') {
+          } else if(difference == 1 && snapshot.data.documents[i]['paid'] == 'Sudah Bayar') {
             // int subs = 0;
             // List orders = snapshot.data.documents[i]['orders'];
             // for(int j = 0; j < orders.length; j++) {
@@ -121,7 +122,7 @@ class AccountState extends State<Account> {
             // }
             _incomes[3] += snapshot.data.documents[i]['income'];
             // subs = 0;
-          } else if(difference == 2 && snapshot.data.documents[i]['paid'] == 'Paid') {
+          } else if(difference == 2 && snapshot.data.documents[i]['paid'] == 'Sudah Bayar') {
             // int subs = 0;
             // List orders = snapshot.data.documents[i]['orders'];
             // for(int j = 0; j < orders.length; j++) {
@@ -130,7 +131,7 @@ class AccountState extends State<Account> {
             // }
             _incomes[2] += snapshot.data.documents[i]['income'];
             // subs = 0;
-          } else if(difference == 3 && snapshot.data.documents[i]['paid'] == 'Paid') {
+          } else if(difference == 3 && snapshot.data.documents[i]['paid'] == 'Sudah Bayar') {
             // int subs = 0;
             // List orders = snapshot.data.documents[i]['orders'];
             // for(int j = 0; j < orders.length; j++) {
@@ -139,7 +140,7 @@ class AccountState extends State<Account> {
             // }
             _incomes[1] += snapshot.data.documents[i]['income'];
             // subs = 0;
-          } else if(difference == 4 && snapshot.data.documents[i]['paid'] == 'Paid') {
+          } else if(difference == 4 && snapshot.data.documents[i]['paid'] == 'Sudah Bayar') {
             // int subs = 0;
             // List orders = snapshot.data.documents[i]['orders'];
             // for(int j = 0; j < orders.length; j++) {
@@ -190,7 +191,7 @@ class AccountState extends State<Account> {
                   Padding(
                     padding: EdgeInsets.only(left: 10),
                     child: Text(
-                      'Welcome, ${widget.restoData['restaurantName']}', 
+                      'Halo, ${widget.restoData['restaurantName']}', 
                       style: TextStyle(
                         fontSize: 20, 
                         fontWeight: FontWeight.bold,
@@ -213,7 +214,7 @@ class AccountState extends State<Account> {
                         children: <Widget>[
                           Container(
                             padding: EdgeInsets.only(top: 10, bottom: 10, left: 10),
-                            child: Text('Today\'s Restaurant Income', style: TextStyle(fontSize: 17), textAlign: TextAlign.left,),
+                            child: Text('Pedapatan Hari Ini', style: TextStyle(fontSize: 17), textAlign: TextAlign.left,),
                           ),
                           Container(
                             padding: EdgeInsets.only(left: 10, bottom: 10),
@@ -257,12 +258,12 @@ class AccountState extends State<Account> {
                         children: <Widget>[
                           Container(
                             padding: EdgeInsets.fromLTRB(10, 10, 0, 10),
-                            child: Text('About Me', style: TextStyle(fontSize: 17),),
+                            child: Text('Tentang Saya', style: TextStyle(fontSize: 17),),
                           ),
-                          aboutMeBtn(Icons.account_circle, 'Profile', toProfile),
+                          aboutMeBtn(Icons.account_circle, 'Profil', toProfile),
                           // aboutMeBtn(Icons.device_hub, 'Branch'),
-                          aboutMeBtn(Icons.people, 'Worker', toWorker),
-                          aboutMeBtn(Icons.event_seat, 'Manage Table', toTableManage),
+                          aboutMeBtn(Icons.people, 'Karyawan', toWorker),
+                          aboutMeBtn(Icons.event_seat, 'Atur Meja', toTableManage),
                           // aboutMeBtn(Icons.code, 'QR Code', toQRCode),
                           SizedBox(
                             height: 25,
@@ -270,7 +271,7 @@ class AccountState extends State<Account> {
                           RaisedButton(
                             // highlightedBorderColor: Colors.red,
                             color: Colors.red,
-                            child: Text('Sign Out', style: TextStyle(fontSize: 20, color: Colors.white),),
+                            child: Text('Keluar', style: TextStyle(fontSize: 20, color: Colors.white),),
                             onPressed: () {
                               signOutDialog();
                             },
